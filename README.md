@@ -47,10 +47,6 @@ La aplicación contempla dos tipos de usuarios:
 * Keiver De Jesus Miranda Lemus
 * Alejandra Valencia Rua
 
-### 📱 Prototipo del Proyecto
-<video src="https://github.com/user-attachments/assets/e0448fcd-0997-44ec-b03a-7e28b06c7975" controls autoplay loop muted style="max-width: 100%; border-radius: 10px;">
-</video>
-
 <br>
 
 # 📄 Propuesta General PeerSync
@@ -403,6 +399,9 @@ Este mecanismo controla el acceso sin exponer cursos públicamente.
 
 ## 5. Diseño del prototipo:
 [![Diseño de Figma](https://img.shields.io/badge/Diseño_de_Figma--purple)](https://www.figma.com/design/KBR9dHD2k6HqAzglNDpAg4/Movil---Trabajo?node-id=55-4913&t=OhMbymOinxLvQSXz-1)
+
+<video src="https://github.com/user-attachments/assets/e0448fcd-0997-44ec-b03a-7e28b06c7975" controls autoplay loop muted style="max-width: 100%; border-radius: 10px;">
+</video>
 
 
 ## 6. Referencias
