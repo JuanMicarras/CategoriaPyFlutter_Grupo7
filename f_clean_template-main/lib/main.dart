@@ -47,7 +47,7 @@ class PeerSyncApp extends StatelessWidget {
         GetPage(
           name: '/signup',
           page: () => SignUpPage(),
-          binding: AuthBinding(), // Podemos reusar el mismo binding si comparten controlador
+          binding: AuthBinding(), 
         ),/*
         GetPage(
           name: '/home',

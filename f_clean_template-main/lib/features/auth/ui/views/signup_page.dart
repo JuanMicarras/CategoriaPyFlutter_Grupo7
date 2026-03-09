@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/auth_controller.dart'; // Asegúrate de que la ruta sea correcta
+import '../viewmodels/auth_controller.dart';
+import '../../../../core/app_theme.dart'; // Importamos tu tema centralizado
 
 class SignUpPage extends GetView<AuthController> {
-  // En un proyecto real, estos controladores deberían definirse y limpiarse 
-  // dentro del AuthController para separar la lógica de la UI, pero para 
-  // propósitos visuales iniciales los pondremos aquí.
-  final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
-  SignUpPage({super.key});
+  const SignUpPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FE), // Fondo suave
+      backgroundColor: AppTheme.backgroundColor, // Fondo oscuro de tu tema
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF1A1A3F)),
-          onPressed: () => Get.back(), // Navegación nativa de GetX
+          icon: const Icon(Icons.arrow_back, color: AppTheme.textColor), // Flecha blanca
+          onPressed: () => Get.back(), // Excelente uso de la navegación nativa de GetX
         ),
       ),
       body: Center(
@@ -30,22 +24,31 @@ class SignUpPage extends GetView<AuthController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
-              const Icon(Icons.people_alt_rounded, size: 80, color: Color(0xFF9D74DE)),
+              // Logo desde assets
+              Image.asset('assets/icon/icon.png', height: 100),
               const SizedBox(height: 20),
               
               // Título
-              const Text("Crear cuenta", 
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF1A1A3F))),
+              const Text(
+                "Crear cuenta", 
+                style: TextStyle(
+                  fontSize: 32, 
+                  fontWeight: FontWeight.bold, 
+                  color: AppTheme.textColor, // Texto blanco
+                ),
+              ),
               
               // Subtítulo
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("¿Ya tienes una cuenta? ", style: TextStyle(color: Colors.grey)),
+                  const Text("¿Ya tienes una cuenta? ", style: TextStyle(color: Colors.white70)),
                   GestureDetector(
-                    onTap: () => Get.back(), // Regresa al login que ya está en la pila
-                    child: const Text("Inicia sesión", style: TextStyle(color: Color(0xFF9D74DE), fontWeight: FontWeight.bold)),
+                    onTap: () => Get.back(), // Regresa al login que ya está en la pila de GetX
+                    child: const Text(
+                      "Inicia sesión", 
+                      style: TextStyle(color: AppTheme.secondaryColor, fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -60,11 +63,24 @@ class SignUpPage extends GetView<AuthController> {
                 ),
                 child: Column(
                   children: [
-                    _buildTextField(hint: "Nombre completo", icon: Icons.person_outline, controller: nameController),
+                    _buildTextField(
+                      hint: "Nombre completo", 
+                      icon: Icons.person_outline, 
+                      textController: controller.signUpNameController, // Conectado al controller
+                    ),
                     const Divider(height: 1),
-                    _buildTextField(hint: "Correo electrónico", icon: Icons.email_outlined, controller: emailController),
+                    _buildTextField(
+                      hint: "Correo electrónico", 
+                      icon: Icons.email_outlined, 
+                      textController: controller.signUpEmailController, // Conectado al controller
+                    ),
                     const Divider(height: 1),
-                    _buildTextField(hint: "Contraseña", icon: Icons.lock_outline, isPassword: true, controller: passwordController),
+                    _buildTextField(
+                      hint: "Contraseña", 
+                      icon: Icons.lock_outline, 
+                      isPassword: true, 
+                      textController: controller.signUpPasswordController, // Conectado al controller
+                    ),
                   ],
                 ),
               ),
@@ -77,19 +93,25 @@ class SignUpPage extends GetView<AuthController> {
                 height: 55,
                 child: Obx(() => ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7A58BC), // Color morado del botón
+                    backgroundColor: AppTheme.primaryColor, // Usamos tu color primario (morado)
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
                   ),
                   onPressed: controller.isLoading 
                     ? null 
                     : () {
-                        // Aquí llamaremos al método de registro de tu controlador
-                        // NOTA: Como aún no agregas 'nombre' a tu modelo, lo omitimos por ahora
-                        controller.signUp(emailController.text, passwordController.text, 'student');
+                        // Enviamos los datos reales; nota: agregaremos el nombre al modelo más adelante
+                        controller.signUp(
+                          controller.signUpEmailController.text.trim(), 
+                          controller.signUpPasswordController.text.trim(), 
+                          'student' // Rol por defecto por ahora
+                        );
                       },
                   child: controller.isLoading 
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Registrarse", style: TextStyle(fontSize: 18, color: Colors.white)),
+                    : const Text(
+                        "Registrarse", 
+                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                      ),
                 )),
               ),
             ],
@@ -99,15 +121,21 @@ class SignUpPage extends GetView<AuthController> {
     );
   }
 
-  // Widget reutilizable para los campos de texto
-  Widget _buildTextField({required String hint, required IconData icon, bool isPassword = false, required TextEditingController controller}) {
+  // Widget reutilizable adaptado
+  Widget _buildTextField({
+    required String hint, 
+    required IconData icon, 
+    bool isPassword = false, 
+    required TextEditingController textController,
+  }) {
     return TextField(
-      controller: controller,
+      controller: textController,
       obscureText: isPassword,
+      style: const TextStyle(color: Colors.black87), // Letra oscura porque el fondo es blanco
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey.shade400),
-        prefixIcon: Icon(icon, color: const Color(0xFF7A58BC)),
+        prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)), // Icono primario
         suffixIcon: isPassword ? const Icon(Icons.visibility_off_outlined, color: Colors.grey) : null,
         border: InputBorder.none,
         contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),

@@ -1,6 +1,6 @@
 import 'package:peer_sync/features/auth/domain/repositories/i_auth_repository.dart';
 import 'package:get/get.dart';
-import '../controllers/auth_controller.dart';
+import '../viewmodels/auth_controller.dart';
 import '../../data/repositories/auth_repository_impl.dart'; 
 
 class AuthBinding extends Bindings {
