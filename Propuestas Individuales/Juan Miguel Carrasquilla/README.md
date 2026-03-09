@@ -403,10 +403,6 @@ Este mecanismo controla el acceso sin exponer cursos públicamente.
 <img src="imgs/image-10.png" width="300">
 <br>
 
-## 6. Referencias
-
-* Basurto-Mendoza, S. T., Moreira-Cedeño, J. A., Velásquez-Espinales, A. N., & Rodríguez, M. (2021). Autoevaluación, coevaluación y heteroevaluación como enfoque innovador en la práctica pedagógica y su efecto en el proceso de enseñanza-aprendizaje.
-
-* Moreno Pabón, C. (2023). Importancia de la evaluación, coevaluación y autoevaluación en la educación universitaria: Experiencias en la Educación Artística. HUMAN Review, 2023(2), 1–12. 
-
-* Ohland, M. W., Loughry, M. L., Woehr, D. J., Bullard, L. G., Felder, R. M., Finelli, C. J., Layton, R. A., Pomeranz, H. R., & Schmucker, D. G. (2012). The comprehensive assessment of team member effectiveness: Development of a behaviorally anchored rating scale for self- and peer evaluation. Academy of Management Learning & Education, 11(4), 609–630. https://doi.org/10.5465/amle.2010.0177
+## 6. 📱 Prototipo del Proyecto
+<video src="https://github.com/user-attachments/assets/e0448fcd-0997-44ec-b03a-7e28b06c7975" controls autoplay loop muted style="max-width: 100%; border-radius: 10px;">
+</video>
