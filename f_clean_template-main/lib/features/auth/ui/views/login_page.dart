@@ -12,7 +12,7 @@ class LoginPage extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Scaffold(
       // 1. Usamos tu color de fondo definido en el AppTheme
-      backgroundColor: AppTheme.backgroundColor, 
+      backgroundColor: AppTheme.backgroundColor,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -22,28 +22,31 @@ class LoginPage extends GetView<AuthController> {
               // 2. Logo cargado desde la carpeta de assets
               Image.asset('assets/icon/icon.png', height: 120),
               const SizedBox(height: 20),
-              
+
               // 3. Título usando el color de texto claro de tu tema
               const Text(
-                "Inicia Sesión", 
+                "Inicia Sesión",
                 style: TextStyle(
-                  fontSize: 28, 
-                  fontWeight: FontWeight.bold, 
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
                   color: AppTheme.textColor,
                 ),
               ),
-              
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("¿No tienes una cuenta? ", style: TextStyle(color: Color(0xFF8A8E97))),
+                  const Text(
+                    "¿No tienes una cuenta? ",
+                    style: TextStyle(color: Color(0xFF8A8E97)),
+                  ),
                   GestureDetector(
                     // Navegación purista con GetX a la vista de registro
                     onTap: () => Get.toNamed('/signup'),
                     child: const Text(
-                      "Regístrate", 
+                      "Regístrate",
                       style: TextStyle(
-                        color: AppTheme.secondaryColor, // Color secundario para el enlace
+                        color: AppTheme.secondaryColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -51,71 +54,82 @@ class LoginPage extends GetView<AuthController> {
                 ],
               ),
               const SizedBox(height: 40),
-              
+
               // Contenedor de Inputs
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)]
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x2E000000),
+                      offset: Offset(0, 2),
+                      blurRadius: 4,
+                      spreadRadius: 0,
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
                     _buildTextField(
-                      hint: "pepitojm@uninorte.edu.co", 
+                      hint: "pepitojm@uninorte.edu.co",
                       icon: Icons.email_outlined,
-                      // 4. Conectamos con el controlador de GetX
-                      textController: controller.emailController, 
+                      textController: controller.emailController,
                     ),
                     const Divider(height: 1),
                     _buildTextField(
-                      hint: "*******", 
-                      icon: Icons.lock_outline, 
+                      hint: "*******",
+                      icon: Icons.lock_outline,
                       isPassword: true,
-                      // 4. Conectamos con el controlador de GetX
-                      textController: controller.passwordController, 
+                      textController: controller.passwordController,
                     ),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 20),
               TextButton(
-                onPressed: () {}, 
+                onPressed: () {},
                 child: const Text(
-                  "¿Olvidaste tu contraseña?", 
+                  "¿Olvidaste tu contraseña?",
                   style: TextStyle(color: Colors.white54),
                 ),
               ),
-              
+
               const SizedBox(height: 30),
-              
+
               // Botón de Iniciar Sesión reactivo
               SizedBox(
                 width: double.infinity,
                 height: 55,
-                // Obx escucha los cambios de _isLoading en tu AuthController
-                child: Obx(() => ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.primaryColor, // Color primario para el botón principal
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
-                  ),
-                  onPressed: controller.isLoading 
-                    ? null // Si está cargando, deshabilitamos el botón
-                    : () {
-                        // Enviamos los datos reales capturados en la UI al viewmodel
-                        controller.login(
-                          controller.emailController.text.trim(), 
-                          controller.passwordController.text.trim()
-                        );
-                      },
-                  child: controller.isLoading 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        "Iniciar Sesión", 
-                        style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                child: Obx(
+                  () => ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.primaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                )),
+                    ),
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () {
+                            controller.login(
+                              controller.emailController.text.trim(),
+                              controller.passwordController.text.trim(),
+                            );
+                          },
+                    child: controller.isLoading.value
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            "Iniciar Sesión",
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -126,21 +140,55 @@ class LoginPage extends GetView<AuthController> {
 
   // Método privado para construir los campos de texto
   Widget _buildTextField({
-    required String hint, 
-    required IconData icon, 
+    required String hint,
+    required IconData icon,
     bool isPassword = false,
     required TextEditingController textController,
   }) {
-    return TextField(
-      controller: textController,
-      obscureText: isPassword,
-      style: const TextStyle(color: Colors.black87), // Texto oscuro porque el fondo del input es blanco
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black38),
-        prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)), // Icono con el color primario
-        border: InputBorder.none,
-        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+    if (!isPassword) {
+      return TextField(
+        controller: textController,
+        style: const TextStyle(color: Colors.black87),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.black38),
+          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 20,
+          ),
+        ),
+      );
+    }
+
+    // SOLO el password necesita Obx
+    return Obx(
+      () => TextField(
+        controller: textController,
+        obscureText: controller.obscurePassword.value,
+        style: const TextStyle(color: Colors.black87),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: const TextStyle(color: Colors.black38),
+          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(right: 10),
+            child: IconButton(
+              icon: Icon(
+                controller.obscurePassword.value
+                    ? Icons.visibility_off
+                    : Icons.visibility,
+              ),
+              onPressed: controller.togglePasswordVisibility,
+            ),
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 20,
+            horizontal: 20,
+          ),
+        ),
       ),
     );
   }

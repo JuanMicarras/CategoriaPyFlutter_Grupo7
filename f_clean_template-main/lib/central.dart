@@ -2,7 +2,7 @@ import 'package:peer_sync/features/product/ui/views/list_product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'features/auth/ui/viewmodels/authentication_controller.dart';
+import 'features/auth/ui/viewmodels/auth_controller.dart';
 import 'features/auth/ui/views/login_page.dart';
 
 class Central extends StatelessWidget {

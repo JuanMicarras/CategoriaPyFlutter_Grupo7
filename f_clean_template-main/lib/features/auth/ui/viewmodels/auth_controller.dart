@@ -5,6 +5,7 @@ import '../../domain/models/auth_user.dart';
 
 class AuthController extends GetxController {
   final IAuthRepository repository;
+
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -15,16 +16,21 @@ class AuthController extends GetxController {
   AuthController({required this.repository});
 
   // Estados reactivos
-  final _isLoading = false.obs;
-  bool get isLoading => _isLoading.value;
+  final isLoading = false.obs;
 
   final _user = Rxn<AuthUser>();
   AuthUser? get user => _user.value;
 
+  final obscurePassword = true.obs;
+
+  void togglePasswordVisibility() {
+    obscurePassword.value = !obscurePassword.value;
+  }
+
   // Método para el Login
   Future<void> login(String email, String password) async {
     try {
-      _isLoading.value = true;
+      isLoading.value = true;
 
       // Llamamos al repositorio (que por ahora es Mock)
       final loggedUser = await repository.signIn(email, password);
@@ -40,13 +46,13 @@ class AuthController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      _isLoading.value = false;
+      isLoading.value = false;
     }
   }
 
   Future<void> signUp(String email, String password, String role) async {
     try {
-      _isLoading.value = true;
+      isLoading.value = true;
 
       // Llamamos al repositorio que implementaste previamente
       final newUser = await repository.signUp(email, password, role);
@@ -62,7 +68,7 @@ class AuthController extends GetxController {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      _isLoading.value = false;
+      isLoading.value = false;
     }
   }
 
@@ -74,7 +80,7 @@ class AuthController extends GetxController {
     signUpNameController.dispose();
     signUpEmailController.dispose();
     signUpPasswordController.dispose();
-    
+
     super.onClose();
   }
 }
