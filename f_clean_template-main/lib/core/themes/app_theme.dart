@@ -6,8 +6,8 @@ abstract final class AppTheme {
   // 1. Mantenemos tus colores exactos disponibles como constantes estáticas
   static const Color primaryColor = Color(0xFF764AB5);
   static const Color secondaryColor = Color(0xFFAF95DE);
-  static const Color backgroundColor = Color(0xFFF8F9FE);
-  static const Color textColor = Colors.white;
+  static const Color backgroundColor = Color(0xFFFAF8FF);
+  static const Color textColor = Color(0xFF170F37);
 
   // 2. Creamos un esquema de FlexColorScheme con tus colores
   static const FlexSchemeColor _myCustomColors = FlexSchemeColor(

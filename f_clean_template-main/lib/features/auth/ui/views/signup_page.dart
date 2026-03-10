@@ -4,8 +4,8 @@ import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart'; // 
 
 class SignUpPage extends GetView<AuthController> {
   SignUpPage({super.key});
-  // En un proyecto real, estos controladores deberían definirse y limpiarse 
-  // dentro del AuthController para separar la lógica de la UI, pero para 
+  // En un proyecto real, estos controladores deberían definirse y limpiarse
+  // dentro del AuthController para separar la lógica de la UI, pero para
   // propósitos visuales iniciales los pondremos aquí.
   final nameController = TextEditingController();
   final emailController = TextEditingController();
@@ -30,66 +30,118 @@ class SignUpPage extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Logo
-              const Icon(Icons.people_alt_rounded, size: 80, color: Color(0xFF9D74DE)),
+              const Icon(
+                Icons.people_alt_rounded,
+                size: 80,
+                color: Color(0xFF9D74DE),
+              ),
               const SizedBox(height: 20),
-              
+
               // Título
-              const Text("Crear cuenta", 
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Color(0xFF1A1A3F))),
-              
+              const Text(
+                "Crear cuenta",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF1A1A3F),
+                ),
+              ),
+
               // Subtítulo
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text("¿Ya tienes una cuenta? ", style: TextStyle(color: Colors.grey)),
+                  const Text(
+                    "¿Ya tienes una cuenta? ",
+                    style: TextStyle(color: Colors.grey),
+                  ),
                   GestureDetector(
-                    onTap: () => Get.back(), // Regresa al login que ya está en la pila
-                    child: const Text("Inicia sesión", style: TextStyle(color: Color(0xFF9D74DE), fontWeight: FontWeight.bold)),
+                    onTap: () =>
+                        Get.back(), // Regresa al login que ya está en la pila
+                    child: const Text(
+                      "Inicia sesión",
+                      style: TextStyle(
+                        color: Color(0xFF9D74DE),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 40),
-              
-              // Contenedor de Inputs
+
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))]
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Color(0x2E000000),
+                      offset: Offset(0, 2),
+                      blurRadius: 4,
+                      spreadRadius: 0,
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [
-                    _buildTextField(hint: "Nombre completo", icon: Icons.person_outline, controller: nameController),
+                    _buildTextField(
+                      hint: "Nombre completo",
+                      icon: Icons.person_outline,
+                      controller: nameController,
+                    ),
                     const Divider(height: 1),
-                    _buildTextField(hint: "Correo electrónico", icon: Icons.email_outlined, controller: emailController),
+                    _buildTextField(
+                      hint: "Correo electrónico",
+                      icon: Icons.email_outlined,
+                      controller: emailController,
+                    ),
                     const Divider(height: 1),
-                    _buildTextField(hint: "Contraseña", icon: Icons.lock_outline, isPassword: true, controller: passwordController),
+                    _buildTextField(
+                      hint: "Contraseña",
+                      icon: Icons.lock_outline,
+                      isPassword: true,
+                      controller: passwordController,
+                    ),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 40),
-              
-              // Botón de Registrarse reactivo
+
               SizedBox(
                 width: double.infinity,
                 height: 55,
-                child: Obx(() => ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF7A58BC), // Color morado del botón
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15))
+                child: Obx(
+                  () => ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(
+                        0xFF7A58BC,
+                      ), // Color morado del botón
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    onPressed: controller.isLoading.value
+                        ? null
+                        : () {
+                            // Aquí llamaremos al método de registro de tu controlador
+                            // NOTA: Como aún no agregas 'nombre' a tu modelo, lo omitimos por ahora
+                            controller.signUp(
+                              emailController.text,
+                              passwordController.text,
+                              'student',
+                            );
+                          },
+                    child: controller.isLoading.value
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
+                            "Registrarse",
+                            style: TextStyle(fontSize: 18, color: Colors.white),
+                          ),
                   ),
-                  onPressed: controller.isLoading 
-                    ? null 
-                    : () {
-                        // Aquí llamaremos al método de registro de tu controlador
-                        // NOTA: Como aún no agregas 'nombre' a tu modelo, lo omitimos por ahora
-                        controller.signUp(emailController.text, passwordController.text, 'student');
-                      },
-                  child: controller.isLoading 
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text("Registrarse", style: TextStyle(fontSize: 18, color: Colors.white)),
-                )),
+                ),
               ),
             ],
           ),
@@ -99,7 +151,12 @@ class SignUpPage extends GetView<AuthController> {
   }
 
   // Widget reutilizable para los campos de texto
-  Widget _buildTextField({required String hint, required IconData icon, bool isPassword = false, required TextEditingController controller}) {
+  Widget _buildTextField({
+    required String hint,
+    required IconData icon,
+    bool isPassword = false,
+    required TextEditingController controller,
+  }) {
     return TextField(
       controller: controller,
       obscureText: isPassword,
@@ -107,9 +164,14 @@ class SignUpPage extends GetView<AuthController> {
         hintText: hint,
         hintStyle: TextStyle(color: Colors.grey.shade400),
         prefixIcon: Icon(icon, color: const Color(0xFF7A58BC)),
-        suffixIcon: isPassword ? const Icon(Icons.visibility_off_outlined, color: Colors.grey) : null,
+        suffixIcon: isPassword
+            ? const Icon(Icons.visibility_off_outlined, color: Colors.grey)
+            : null,
         border: InputBorder.none,
-        contentPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 15,
+        ),
       ),
     );
   }
