@@ -23,7 +23,6 @@ class AuthController extends GetxController {
 
   bool get isLogged => _user.value != null;
 
-
   // Método para el Login
   Future<void> login(String email, String password) async {
     try {
@@ -77,7 +76,7 @@ class AuthController extends GetxController {
     signUpNameController.dispose();
     signUpEmailController.dispose();
     signUpPasswordController.dispose();
-    
+
     super.onClose();
   }
 }
