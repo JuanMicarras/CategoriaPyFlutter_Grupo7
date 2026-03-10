@@ -3,14 +3,13 @@ import 'package:get/get.dart';
 import '../controllers/auth_controller.dart'; // Asegúrate de que la ruta sea correcta
 
 class SignUpPage extends GetView<AuthController> {
+  SignUpPage({super.key});
   // En un proyecto real, estos controladores deberían definirse y limpiarse 
   // dentro del AuthController para separar la lógica de la UI, pero para 
   // propósitos visuales iniciales los pondremos aquí.
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-
-  SignUpPage({super.key});
 
   @override
   Widget build(BuildContext context) {

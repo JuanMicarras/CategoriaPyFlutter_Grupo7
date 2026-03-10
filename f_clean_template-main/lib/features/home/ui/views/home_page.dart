@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // importar navbar
-import 'package:f_clean_template/core/widgets/navbar.dart';
+import 'package:peer_sync/core/widgets/navbar.dart';
 
 // importar páginas
 import 'student_home_page.dart';

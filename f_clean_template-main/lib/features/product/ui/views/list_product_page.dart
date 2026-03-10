@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:loggy/loggy.dart';
 
-import '../../../auth/ui/viewmodels/authentication_controller.dart';
+import 'package:peer_sync/features/auth/ui/controllers/auth_controller.dart';
 import '../../domain/models/product.dart';
 
 import '../viewmodels/product_controller.dart';
@@ -18,7 +18,7 @@ class ListProductPage extends StatefulWidget {
 
 class _ListProductPageState extends State<ListProductPage> {
   ProductController userController = Get.find();
-  AuthenticationController authenticationController = Get.find();
+  AuthController authenticationController = Get.find();
 
   Future<void> _logout() async {
     try {
@@ -107,3 +107,4 @@ class _ListProductPageState extends State<ListProductPage> {
     );
   }
 }
+*/
