@@ -123,7 +123,7 @@ class SignUpPage extends GetView<AuthController> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    onPressed: controller.isLoading
+                    onPressed: controller.isLoading.value
                         ? null
                         : () {
                             // Aquí llamaremos al método de registro de tu controlador
@@ -134,7 +134,7 @@ class SignUpPage extends GetView<AuthController> {
                               'student',
                             );
                           },
-                    child: controller.isLoading
+                    child: controller.isLoading.value
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Registrarse",

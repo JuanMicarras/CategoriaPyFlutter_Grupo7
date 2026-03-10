@@ -10,7 +10,6 @@ class Central extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     AuthController authenticationController = Get.find();
 
     return Obx(
