@@ -21,11 +21,16 @@ class AuthController extends GetxController {
   final _user = Rxn<AuthUser>();
   AuthUser? get user => _user.value;
 
+<<<<<<< HEAD
   final obscurePassword = true.obs;
 
   void togglePasswordVisibility() {
     obscurePassword.value = !obscurePassword.value;
   }
+=======
+  bool get isLogged => _user.value != null;
+
+>>>>>>> main
 
   // Método para el Login
   Future<void> login(String email, String password) async {

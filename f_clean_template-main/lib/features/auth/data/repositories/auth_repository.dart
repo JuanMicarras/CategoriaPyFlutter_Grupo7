@@ -1,4 +1,4 @@
-import '../../domain/models/authentication_user.dart';
+/*import '../../domain/models/authentication_user.dart';
 import '../../domain/repositories/i_auth_repository.dart';
 import '../datasources/remote/i_authentication_source.dart';
 
@@ -29,4 +29,4 @@ class AuthRepository implements IAuthRepository {
   @override
   Future<void> forgotPassword(String email) async =>
       await authenticationSource.forgotPassword(email);
-}
+}*/

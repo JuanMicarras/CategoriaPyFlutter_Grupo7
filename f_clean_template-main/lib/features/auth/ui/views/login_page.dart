@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart';
 
-import '../../../../core/app_theme.dart'; // Importamos tu tema centralizado
+import 'package:peer_sync/core/themes/app_theme.dart'; // Importamos tu tema centralizado
 
 // Extendemos de GetView para inyectar automáticamente tu AuthController
 class LoginPage extends GetView<AuthController> {
