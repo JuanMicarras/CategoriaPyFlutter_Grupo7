@@ -20,15 +20,13 @@ class LoginPage extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 2. Logo cargado desde la carpeta de assets
-              Image.asset('assets/icon/icon.png', height: 120),
+              Image.asset('assets/icon/logo.png', height: 120),
               const SizedBox(height: 20),
 
               // 3. Título usando el color de texto claro de tu tema
-              const Text(
+              Text(
                 "Inicia Sesión",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+                style: AppTheme.h1.copyWith(
                   color: AppTheme.textColor,
                 ),
               ),

@@ -31,11 +31,7 @@ class SignUpPage extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Logo
-              const Icon(
-                Icons.people_alt_rounded,
-                size: 80,
-                color: Color(0xFF9D74DE),
-              ),
+              Image.asset('assets/icon/logo.png', height: 120),
               const SizedBox(height: 20),
 
               // Título
