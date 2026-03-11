@@ -119,13 +119,16 @@ class CourseCard extends StatelessWidget {
 
           SizedBox(height: 6),
 
-          /// DESCRIPCIÓN
-          Text(
-            "Lorem ipsum dolor sit amet, consectadi...",
-            style: TextStyle(
-              fontFamily: 'Nunito',
-              fontSize: 12,
-              color: Color(0xFF718096),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Text(
+                "Lorem ipsum dolor sit amet, consectadi...",
+                style: TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 12,
+                  color: Color(0xFF718096),
+                ),
+              ),
             ),
           ),
 
