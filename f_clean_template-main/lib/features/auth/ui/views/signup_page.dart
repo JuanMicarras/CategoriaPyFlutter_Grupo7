@@ -31,11 +31,7 @@ class SignUpPage extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Logo
-              const Icon(
-                Icons.people_alt_rounded,
-                size: 80,
-                color: Color(0xFF9D74DE),
-              ),
+              Image.asset('assets/icon/icon.png', height: 120),
               const SizedBox(height: 20),
 
               // Título
@@ -62,7 +58,7 @@ class SignUpPage extends GetView<AuthController> {
                     child: const Text(
                       "Inicia sesión",
                       style: TextStyle(
-                        color: Color(0xFF9D74DE),
+                        color: AppTheme.secondaryColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -92,13 +88,13 @@ class SignUpPage extends GetView<AuthController> {
                       icon: Icons.person_outline,
                       textController: controller.signUpNameController,
                     ),
-                    const Divider(height: 1),
+                    const Divider(height: 1, color: Colors.black38),
                     _buildTextField(
                       hint: "Correo electrónico",
                       icon: Icons.email_outlined,
                       textController: controller.signUpEmailController,
                     ),
-                    const Divider(height: 1),
+                    const Divider(height: 1, color: Colors.black38),
                     _buildTextField(
                       hint: "Contraseña",
                       icon: Icons.lock_outline,
@@ -117,9 +113,7 @@ class SignUpPage extends GetView<AuthController> {
                 child: Obx(
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(
-                        0xFF7A58BC,
-                      ), // Color morado del botón
+                      backgroundColor: AppTheme.primaryColor,// Color morado del botón
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -139,7 +133,7 @@ class SignUpPage extends GetView<AuthController> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Registrarse",
-                            style: TextStyle(fontSize: 18, color: Colors.white),
+                            style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),
@@ -163,6 +157,8 @@ class SignUpPage extends GetView<AuthController> {
         controller: textController,
         style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
+          fillColor: Colors.white,
+          hoverColor: Colors.white,
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.black38),
           prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
@@ -182,6 +178,8 @@ class SignUpPage extends GetView<AuthController> {
         obscureText: controller.obscurePassword.value,
         style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
+          fillColor: Colors.white,
+          hoverColor: Colors.white,
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.black38),
           prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),

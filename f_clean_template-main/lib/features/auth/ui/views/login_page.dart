@@ -20,6 +20,7 @@ class LoginPage extends GetView<AuthController> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // 2. Logo cargado desde la carpeta de assets
+              const SizedBox(height: 45),
               Image.asset('assets/icon/icon.png', height: 120),
               const SizedBox(height: 20),
 
@@ -76,7 +77,7 @@ class LoginPage extends GetView<AuthController> {
                       icon: Icons.email_outlined,
                       textController: controller.emailController,
                     ),
-                    const Divider(height: 1),
+                    const Divider(height: 1, color: Colors.black38),
                     _buildTextField(
                       hint: "*******",
                       icon: Icons.lock_outline,
@@ -92,7 +93,7 @@ class LoginPage extends GetView<AuthController> {
                 onPressed: () {},
                 child: const Text(
                   "¿Olvidaste tu contraseña?",
-                  style: TextStyle(color: Colors.white54),
+                  style: TextStyle(color: Color.fromARGB(137, 21, 20, 20)),
                 ),
               ),
 
@@ -150,6 +151,8 @@ class LoginPage extends GetView<AuthController> {
         controller: textController,
         style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
+          fillColor: Colors.white,
+          hoverColor: Colors.white,
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.black38),
           prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
@@ -169,6 +172,8 @@ class LoginPage extends GetView<AuthController> {
         obscureText: controller.obscurePassword.value,
         style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
+          fillColor: Colors.white,
+          hoverColor: Colors.white,
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.black38),
           prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
