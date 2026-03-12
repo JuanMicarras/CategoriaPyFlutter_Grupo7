@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart';
+import 'package:peer_sync/core/themes/app_theme.dart';
 
-import 'package:peer_sync/core/themes/app_theme.dart'; // Importamos tu tema centralizado
+import '../../../../core/widgets/auth_logo.dart';
+import '../../../../core/widgets/auth_input_container.dart';
+import '../../../../core/widgets//auth_text_field.dart';
 
-// Extendemos de GetView para inyectar automáticamente tu AuthController
 class LoginPage extends GetView<AuthController> {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 1. Usamos tu color de fondo definido en el AppTheme
       backgroundColor: AppTheme.backgroundColor,
       body: Center(
         child: SingleChildScrollView(
@@ -19,16 +20,12 @@ class LoginPage extends GetView<AuthController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 2. Logo cargado desde la carpeta de assets
-              Image.asset('assets/icon/logo.png', height: 120),
+              const AuthLogo(),
               const SizedBox(height: 20),
 
-              // 3. Título usando el color de texto claro de tu tema
               Text(
                 "Inicia Sesión",
-                style: AppTheme.h1.copyWith(
-                  color: AppTheme.textColor,
-                ),
+                style: AppTheme.h1.copyWith(color: AppTheme.textColor),
               ),
 
               Row(
@@ -39,7 +36,6 @@ class LoginPage extends GetView<AuthController> {
                     style: TextStyle(color: Color(0xFF8A8E97)),
                   ),
                   GestureDetector(
-                    // Navegación purista con GetX a la vista de registro
                     onTap: () => Get.toNamed('/signup'),
                     child: const Text(
                       "Regístrate",
@@ -51,41 +47,28 @@ class LoginPage extends GetView<AuthController> {
                   ),
                 ],
               ),
+
               const SizedBox(height: 40),
 
-              // Contenedor de Inputs
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x2E000000),
-                      offset: Offset(0, 2),
-                      blurRadius: 4,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      hint: "pepitojm@uninorte.edu.co",
-                      icon: Icons.email_outlined,
-                      textController: controller.emailController,
-                    ),
-                    const Divider(height: 1, color: Colors.black38),
-                    _buildTextField(
-                      hint: "*******",
-                      icon: Icons.lock_outline,
-                      isPassword: true,
-                      textController: controller.passwordController,
-                    ),
-                  ],
-                ),
+              AuthInputContainer(
+                children: [
+                  AuthTextField(
+                    hint: "pepitojm@uninorte.edu.co",
+                    icon: Icons.email_outlined,
+                    controllerText: controller.emailController,
+                  ),
+                  const Divider(height: 1, color: Colors.black38),
+                  AuthTextField(
+                    hint: "*******",
+                    icon: Icons.lock_outline,
+                    isPassword: true,
+                    controllerText: controller.passwordController,
+                  ),
+                ],
               ),
 
               const SizedBox(height: 20),
+
               TextButton(
                 onPressed: () {},
                 child: const Text(
@@ -96,7 +79,6 @@ class LoginPage extends GetView<AuthController> {
 
               const SizedBox(height: 30),
 
-              // Botón de Iniciar Sesión reactivo
               SizedBox(
                 width: double.infinity,
                 height: 55,
@@ -130,65 +112,6 @@ class LoginPage extends GetView<AuthController> {
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Método privado para construir los campos de texto
-  Widget _buildTextField({
-    required String hint,
-    required IconData icon,
-    bool isPassword = false,
-    required TextEditingController textController,
-  }) {
-    if (!isPassword) {
-      return TextField(
-        controller: textController,
-        style: const TextStyle(color: Colors.black87),
-        decoration: InputDecoration(
-          fillColor: Colors.white,
-          hoverColor: Colors.white,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black38),
-          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 20,
-            horizontal: 20,
-          ),
-        ),
-      );
-    }
-
-    // SOLO el password necesita Obx
-    return Obx(
-      () => TextField(
-        controller: textController,
-        obscureText: controller.obscurePassword.value,
-        style: const TextStyle(color: Colors.black87),
-        decoration: InputDecoration(
-          fillColor: Colors.white,
-          hoverColor: Colors.white,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black38),
-          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-              icon: Icon(
-                controller.obscurePassword.value
-                    ? Icons.visibility_off
-                    : Icons.visibility,
-              ),
-              onPressed: controller.togglePasswordVisibility,
-            ),
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 20,
-            horizontal: 20,
           ),
         ),
       ),

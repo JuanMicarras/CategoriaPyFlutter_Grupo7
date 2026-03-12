@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart'; // Asegúrate de que la ruta sea correcta
+import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
+
+import '../../../../core/widgets/auth_logo.dart';
+import '../../../../core/widgets/auth_input_container.dart';
+import '../../../../core/widgets//auth_text_field.dart';
 
 class SignUpPage extends GetView<AuthController> {
   SignUpPage({super.key});
-  // En un proyecto real, estos controladores deberían definirse y limpiarse
-  // dentro del AuthController para separar la lógica de la UI, pero para
-  // propósitos visuales iniciales los pondremos aquí.
-  final nameController = TextEditingController();
+
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.backgroundColor, // Fondo suave
+      backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppTheme.textColor),
-          onPressed: () => Get.back(), // Navegación nativa de GetX
+          onPressed: () => Get.back(),
         ),
       ),
       body: Center(
@@ -30,11 +31,9 @@ class SignUpPage extends GetView<AuthController> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo
-              Image.asset('assets/icon/logo.png', height: 120),
+              const AuthLogo(),
               const SizedBox(height: 20),
 
-              // Título
               const Text(
                 "Crear cuenta",
                 style: TextStyle(
@@ -44,7 +43,6 @@ class SignUpPage extends GetView<AuthController> {
                 ),
               ),
 
-              // Subtítulo
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -53,8 +51,7 @@ class SignUpPage extends GetView<AuthController> {
                     style: TextStyle(color: Colors.grey),
                   ),
                   GestureDetector(
-                    onTap: () =>
-                        Get.back(), // Regresa al login que ya está en la pila
+                    onTap: () => Get.back(),
                     child: const Text(
                       "Inicia sesión",
                       style: TextStyle(
@@ -68,41 +65,27 @@ class SignUpPage extends GetView<AuthController> {
 
               const SizedBox(height: 40),
 
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x2E000000),
-                      offset: Offset(0, 2),
-                      blurRadius: 4,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      hint: "Nombre completo",
-                      icon: Icons.person_outline,
-                      textController: controller.signUpNameController,
-                    ),
-                    const Divider(height: 1, color: Colors.black38),
-                    _buildTextField(
-                      hint: "Correo electrónico",
-                      icon: Icons.email_outlined,
-                      textController: controller.signUpEmailController,
-                    ),
-                    const Divider(height: 1, color: Colors.black38),
-                    _buildTextField(
-                      hint: "Contraseña",
-                      icon: Icons.lock_outline,
-                      isPassword: true,
-                      textController: controller.signUpPasswordController,
-                    ),
-                  ],
-                ),
+              AuthInputContainer(
+                children: [
+                  AuthTextField(
+                    hint: "Nombre completo",
+                    icon: Icons.person_outline,
+                    controllerText: controller.signUpNameController,
+                  ),
+                  const Divider(height: 1, color: Colors.black38),
+                  AuthTextField(
+                    hint: "Correo electrónico",
+                    icon: Icons.email_outlined,
+                    controllerText: controller.signUpEmailController,
+                  ),
+                  const Divider(height: 1, color: Colors.black38),
+                  AuthTextField(
+                    hint: "Contraseña",
+                    icon: Icons.lock_outline,
+                    isPassword: true,
+                    controllerText: controller.signUpPasswordController,
+                  ),
+                ],
               ),
 
               const SizedBox(height: 40),
@@ -113,7 +96,7 @@ class SignUpPage extends GetView<AuthController> {
                 child: Obx(
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,// Color morado del botón
+                      backgroundColor: AppTheme.primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -121,8 +104,6 @@ class SignUpPage extends GetView<AuthController> {
                     onPressed: controller.isLoading.value
                         ? null
                         : () {
-                            // Aquí llamaremos al método de registro de tu controlador
-                            // NOTA: Como aún no agregas 'nombre' a tu modelo, lo omitimos por ahora
                             controller.signUp(
                               emailController.text,
                               passwordController.text,
@@ -133,71 +114,16 @@ class SignUpPage extends GetView<AuthController> {
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Registrarse",
-                            style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                   ),
                 ),
               ),
             ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // Widget reutilizable para los campos de texto
-  Widget _buildTextField({
-    required String hint,
-    required IconData icon,
-    bool isPassword = false,
-    required TextEditingController textController,
-  }) {
-    if (!isPassword) {
-      return TextField(
-        controller: textController,
-        style: const TextStyle(color: Colors.black87),
-        decoration: InputDecoration(
-          fillColor: Colors.white,
-          hoverColor: Colors.white,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black38),
-          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 20,
-            horizontal: 20,
-          ),
-        ),
-      );
-    }
-
-    // SOLO el password necesita Obx
-    return Obx(
-      () => TextField(
-        controller: textController,
-        obscureText: controller.obscurePassword.value,
-        style: const TextStyle(color: Colors.black87),
-        decoration: InputDecoration(
-          fillColor: Colors.white,
-          hoverColor: Colors.white,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black38),
-          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-              icon: Icon(
-                controller.obscurePassword.value
-                    ? Icons.visibility_off
-                    : Icons.visibility,
-              ),
-              onPressed: controller.togglePasswordVisibility,
-            ),
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 20,
-            horizontal: 20,
           ),
         ),
       ),
