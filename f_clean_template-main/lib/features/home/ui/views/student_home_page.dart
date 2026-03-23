@@ -13,6 +13,9 @@ class StudentHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final theme = Theme.of(context);
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.only(top: 40, left: 25, right: 25),
@@ -25,13 +28,13 @@ class StudentHomePage extends StatelessWidget {
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         "Home",
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
+                          color: theme.colorScheme.primary,
                         ),
                       ),
                       Text(
@@ -39,7 +42,7 @@ class StudentHomePage extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
-                          color: AppTheme.secondaryColor,
+                          color: theme.colorScheme.secondary,
                         ),
                       ),
                     ],
@@ -48,10 +51,10 @@ class StudentHomePage extends StatelessWidget {
                   const Spacer(),
 
                   IconButton(
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.notifications_none,
                       size: 28,
-                      color: Color(0xFF110E47),
+                      color: theme.colorScheme.onSurface,
                     ),
                     onPressed: openNotifications,
                   ),

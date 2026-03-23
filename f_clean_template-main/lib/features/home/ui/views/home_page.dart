@@ -26,13 +26,15 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
 
+    final theme = Theme.of(context);
+
     return Scaffold(
       /// cambia dependiendo del index seleccionado
       body: pages[currentIndex],
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: theme.colorScheme.surface,
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
-        backgroundColor: AppTheme.secondaryColor,
+        backgroundColor: theme.colorScheme.secondary,
         child: const Icon(Icons.add),
       ),
 

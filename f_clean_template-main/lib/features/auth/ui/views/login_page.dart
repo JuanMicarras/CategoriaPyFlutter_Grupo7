@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart';
-
-import 'package:peer_sync/core/themes/app_theme.dart'; // Importamos tu tema centralizado
+import 'package:peer_sync/core/themes/app_theme.dart';
 
 // Extendemos de GetView para inyectar automáticamente tu AuthController
 class LoginPage extends GetView<AuthController> {
@@ -11,70 +10,88 @@ class LoginPage extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 1. Usamos tu color de fondo definido en el AppTheme
-      backgroundColor: AppTheme.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30),
+
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 2. Logo cargado desde la carpeta de assets
+
               Image.asset('assets/icon/logo.png', height: 120),
               const SizedBox(height: 20),
 
               Text(
                 "Inicia Sesión",
                 style: AppTheme.h1.copyWith(
-                  color: AppTheme.textColor,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
+                  Text(
                     "¿No tienes una cuenta? ",
-                    style: TextStyle(color: Color(0xFF8A8E97)),
+                    style: TextStyle(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withOpacity(0.6),
+                    ),
                   ),
+
                   GestureDetector(
                     // Navegación purista con GetX a la vista de registro
                     onTap: () => Get.toNamed('/signup'),
-                    child: const Text(
+                    child: Text(
                       "Regístrate",
                       style: TextStyle(
-                        color: AppTheme.secondaryColor,
+                        color: Theme.of(context).colorScheme.secondary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ],
               ),
+
               const SizedBox(height: 40),
 
               // Contenedor de Inputs
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Color(0x2E000000),
-                      offset: Offset(0, 2),
-                      blurRadius: 4,
-                      spreadRadius: 0,
+                      color: Theme.of(context)
+                          .shadowColor
+                          .withOpacity(0.2),
+                      offset: const Offset(0, 2),
+                      blurRadius: 6,
                     ),
                   ],
                 ),
+
                 child: Column(
                   children: [
+
                     _buildTextField(
+                      context,
                       hint: "pepitojm@uninorte.edu.co",
                       icon: Icons.email_outlined,
                       textController: controller.emailController,
                     ),
-                    const Divider(height: 1, color: Colors.black38),
+
+                    Divider(
+                      height: 1,
+                      color: Theme.of(context).dividerColor,
+                    ),
+
                     _buildTextField(
+                      context,
                       hint: "*******",
                       icon: Icons.lock_outline,
                       isPassword: true,
@@ -85,11 +102,17 @@ class LoginPage extends GetView<AuthController> {
               ),
 
               const SizedBox(height: 20),
+
               TextButton(
                 onPressed: () {},
-                child: const Text(
+                child: Text(
                   "¿Olvidaste tu contraseña?",
-                  style: TextStyle(color: Color.fromARGB(137, 21, 20, 20)),
+                  style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.7),
+                  ),
                 ),
               ),
 
@@ -99,14 +122,17 @@ class LoginPage extends GetView<AuthController> {
               SizedBox(
                 width: double.infinity,
                 height: 55,
+
                 child: Obx(
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
+                      backgroundColor:
+                          Theme.of(context).colorScheme.primary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
+
                     onPressed: controller.isLoading.value
                         ? null
                         : () {
@@ -115,8 +141,11 @@ class LoginPage extends GetView<AuthController> {
                               controller.passwordController.text.trim(),
                             );
                           },
+
                     child: controller.isLoading.value
-                        ? const CircularProgressIndicator(color: Colors.white)
+                        ? const CircularProgressIndicator(
+                            color: Colors.white,
+                          )
                         : const Text(
                             "Iniciar Sesión",
                             style: TextStyle(
@@ -135,24 +164,61 @@ class LoginPage extends GetView<AuthController> {
     );
   }
 
-  // Método privado para construir los campos de texto
-  Widget _buildTextField({
+  Widget _buildTextField(
+    BuildContext context, {
     required String hint,
     required IconData icon,
     bool isPassword = false,
     required TextEditingController textController,
   }) {
+
+    final theme = Theme.of(context);
+
     if (!isPassword) {
       return TextField(
         controller: textController,
-        style: const TextStyle(color: Colors.black87),
+
+        style: TextStyle(
+          color: theme.colorScheme.onSurface,
+        ),
+
         decoration: InputDecoration(
-          fillColor: Colors.white,
-          hoverColor: Colors.white,
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black38),
-          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
-          border: InputBorder.none,
+
+          hintStyle: TextStyle(
+            color: theme.colorScheme.onSurface.withOpacity(0.5),
+          ),
+
+          prefixIcon: Icon(
+            icon,
+            color: theme.colorScheme.primary.withOpacity(0.7),
+          ),
+
+          filled: true,
+          fillColor: theme.brightness == Brightness.dark
+              ? theme.colorScheme.surface
+              : Colors.white,
+
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide.none,
+          ),
+
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.3),
+            ),
+          ),
+
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide(
+              color: theme.colorScheme.primary,
+              width: 2,
+            ),
+          ),
+
           contentPadding: const EdgeInsets.symmetric(
             vertical: 20,
             horizontal: 20,
@@ -161,30 +227,61 @@ class LoginPage extends GetView<AuthController> {
       );
     }
 
-    // SOLO el password necesita Obx
     return Obx(
       () => TextField(
         controller: textController,
         obscureText: controller.obscurePassword.value,
-        style: const TextStyle(color: Colors.black87),
+
+        style: TextStyle(
+          color: theme.colorScheme.onSurface,
+        ),
+
         decoration: InputDecoration(
-          fillColor: Colors.white,
-          hoverColor: Colors.white,
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black38),
-          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-              icon: Icon(
-                controller.obscurePassword.value
-                    ? Icons.visibility_off
-                    : Icons.visibility,
-              ),
-              onPressed: controller.togglePasswordVisibility,
+
+          hintStyle: TextStyle(
+            color: theme.colorScheme.onSurface.withOpacity(0.5),
+          ),
+
+          prefixIcon: Icon(
+            icon,
+            color: theme.colorScheme.primary.withOpacity(0.7),
+          ),
+
+          suffixIcon: IconButton(
+            icon: Icon(
+              controller.obscurePassword.value
+                  ? Icons.visibility_off
+                  : Icons.visibility,
+            ),
+            onPressed: controller.togglePasswordVisibility,
+          ),
+
+          filled: true,
+          fillColor: theme.brightness == Brightness.dark
+              ? theme.colorScheme.surface
+              : Colors.white,
+
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide.none,
+          ),
+
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide(
+              color: theme.colorScheme.outline.withOpacity(0.3),
             ),
           ),
-          border: InputBorder.none,
+
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(5),
+            borderSide: BorderSide(
+              color: theme.colorScheme.primary,
+              width: 2,
+            ),
+          ),
+
           contentPadding: const EdgeInsets.symmetric(
             vertical: 20,
             horizontal: 20,

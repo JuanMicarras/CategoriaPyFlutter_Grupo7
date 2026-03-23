@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 class ActivitiesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    final theme = Theme.of(context);
+
     return IntrinsicWidth(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -17,7 +20,7 @@ class ActivitiesSection extends StatelessWidget {
                   fontFamily: 'Inter',
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFFAF95DE),
+                  color: theme.colorScheme.secondary,
                 ),
               ),
 
@@ -27,7 +30,7 @@ class ActivitiesSection extends StatelessWidget {
                   fontFamily: 'Inter',
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFBF94FF),
+                  color: theme.colorScheme.primary,
                 ),
               ),
             ],
@@ -53,17 +56,23 @@ class ActivitiesSection extends StatelessWidget {
 class ActivityCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
+    final theme = Theme.of(context);
+
     return Container(
       width: 327,
       padding: EdgeInsets.all(16),
 
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.brightness == Brightness.dark
+            ? theme.colorScheme.secondary.withOpacity(0.15)
+            : Colors.white,
+
         borderRadius: BorderRadius.circular(16),
 
         boxShadow: [
           BoxShadow(
-            color: Color(0x2E000000),
+            color: theme.shadowColor.withOpacity(0.15),
             offset: Offset(0, 2),
             blurRadius: 4,
             spreadRadius: 0,
@@ -79,7 +88,7 @@ class ActivityCard extends StatelessWidget {
             height: 60,
 
             decoration: BoxDecoration(
-              color: Color(0xFFE5DBF5),
+              color: theme.colorScheme.primary.withOpacity(0.15),
               borderRadius: BorderRadius.circular(16),
             ),
 
@@ -92,7 +101,7 @@ class ActivityCard extends StatelessWidget {
                     fontFamily: 'Inter',
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF8761BE),
+                    color: theme.colorScheme.primary,
                   ),
                 ),
 
@@ -102,7 +111,7 @@ class ActivityCard extends StatelessWidget {
                     fontFamily: 'Inter',
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF8761BE),
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ],
@@ -122,7 +131,7 @@ class ActivityCard extends StatelessWidget {
                     fontFamily: 'Nunito',
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2D3748),
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
 
@@ -133,7 +142,7 @@ class ActivityCard extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Nunito',
                     fontSize: 12,
-                    color: Color(0xFF718096),
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ),
               ],
@@ -147,13 +156,15 @@ class ActivityCard extends StatelessWidget {
 
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Color(0xFFD1D5DB)),
+              border: Border.all(
+                color: theme.colorScheme.onSurface.withOpacity(0.4)
+              ),
             ),
 
             child: Icon(
               Icons.chevron_right,
               size: 18,
-              color: Color(0xFF718096),
+              color: theme.colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
         ],

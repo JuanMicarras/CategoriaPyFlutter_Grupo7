@@ -51,6 +51,7 @@ class MyApp extends StatelessWidget {
       title: 'PeerSync',
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
 
       initialRoute: '/',

@@ -29,7 +29,6 @@ abstract final class AppTheme {
   static const Color secondaryColor500 = Color(0xFFE1D7F3);
   static const Color secondaryColor600 = Color(0xFFEBE5F7);
   static const Color secondaryColor700 = Color(0xFFF5F0FF);
-  
 
   static const Color backgroundColor = Color(0xFFFAF8FF);
   
@@ -45,6 +44,23 @@ abstract final class AppTheme {
   static const Color grayColor600 = Color(0xFFF0F1F3);
   static const Color grayColor700 = Color(0xFFF7F8F9);
   
+  static const Color darkBackground = Color(0xFF0F0B1F);
+  static const Color darkSurface = Color(0xFF1A1433);
+  static const Color darkCard = Color(0xFF241C45);
+
+  static const Color darkPrimary = Color(0xFF8761BE);
+  static const Color darkPrimaryLight = Color(0xFFA98ED1);
+  static const Color darkPrimarySoft = Color(0xFFCCBBE3);
+
+  static const Color darkSecondary = Color(0xFFAF95DE);
+
+  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextSecondary = Color(0xFFB9B4D0);
+  static const Color darkTextMuted = Color(0xFF8E8AA8);
+
+  static const Color darkInputBackground = Color(0xFF1F1838);
+  static const Color darkBorder = Color(0xFF3A3260);
+
   // 2. Creamos un esquema de FlexColorScheme con tus colores
   static const FlexSchemeColor _myCustomColors = FlexSchemeColor(
     primary: primaryColor,
@@ -53,10 +69,17 @@ abstract final class AppTheme {
     error: Colors.redAccent,
   );
 
+  static const FlexSchemeColor _myDarkColors = FlexSchemeColor(
+    primary: darkPrimaryLight,
+    secondary: darkSecondary,
+    appBarColor: darkSurface,
+    error: Colors.redAccent,
+  );
+
   // The FlexColorScheme defined light mode ThemeData.
   static ThemeData light = FlexThemeData.light(
     colors: _myCustomColors, // Usamos tu paleta en lugar de yellowM3
-    scaffoldBackground: backgroundColor, // Forzamos tu fondo oscuro
+    scaffoldBackground: backgroundColor,
     subThemesData: const FlexSubThemesData(
       interactionEffects: true,
       tintedDisabledControls: true,
@@ -72,8 +95,8 @@ abstract final class AppTheme {
 
   // The FlexColorScheme defined dark mode ThemeData.
   static ThemeData dark = FlexThemeData.dark(
-    colors: _myCustomColors, // Usamos tu paleta
-    scaffoldBackground: backgroundColor, // Forzamos tu fondo oscuro
+    colors: _myDarkColors, // Usamos tu paleta
+    scaffoldBackground: darkBackground, // Forzamos tu fondo oscuro
     subThemesData: const FlexSubThemesData(
       interactionEffects: true,
       tintedDisabledControls: true,
@@ -86,6 +109,10 @@ abstract final class AppTheme {
     ),
     visualDensity: FlexColorScheme.comfortablePlatformDensity,
     cupertinoOverrideTheme: const CupertinoThemeData(applyThemeToAll: true),
+    textTheme: const TextTheme(
+      bodyLarge: TextStyle(color: darkTextPrimary),
+      bodyMedium: TextStyle(color: darkTextPrimary),
+    ),
   );
 
   // 3. Definimos la tipografía
