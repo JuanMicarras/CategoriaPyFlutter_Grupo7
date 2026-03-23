@@ -23,7 +23,6 @@ class LoginPage extends GetView<AuthController> {
               Image.asset('assets/icon/logo.png', height: 120),
               const SizedBox(height: 20),
 
-              // 3. Título usando el color de texto claro de tu tema
               Text(
                 "Inicia Sesión",
                 style: AppTheme.h1.copyWith(
