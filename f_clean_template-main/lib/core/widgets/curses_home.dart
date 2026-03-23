@@ -20,16 +20,6 @@ class CoursesSection extends StatelessWidget {
                   color: Color(0xFFAF95DE),
                 ),
               ),
-
-              Text(
-                "View All",
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFFBF94FF),
-                ),
-              ),
             ],
           ),
           SizedBox(height: 20),

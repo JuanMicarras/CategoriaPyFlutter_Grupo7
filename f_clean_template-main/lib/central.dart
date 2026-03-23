@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 
 import 'features/auth/ui/viewmodels/auth_controller.dart';
 import 'features/auth/ui/views/login_page.dart';
-import 'features/home/ui/views/home_page.dart';
+import 'features/student/ui/views/home_page.dart';
 
 class Central extends StatelessWidget {
   const Central({super.key});

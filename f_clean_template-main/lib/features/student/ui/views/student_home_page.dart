@@ -65,11 +65,11 @@ class StudentHomePage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            CoursesSection(),
+            ActivitiesSection(),
 
             const SizedBox(height: 30),
 
-            ActivitiesSection(),
+            CoursesSection(),
 
             const SizedBox(height: 30),
           ],

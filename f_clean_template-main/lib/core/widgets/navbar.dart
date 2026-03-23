@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class NavBar extends StatelessWidget {
-
   final int currentIndex;
   final Function(int) onTap;
 
@@ -26,19 +25,21 @@ class NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 🔥 padding dinámico del sistema (clave del fix)
+    final double bottomPadding = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      height: 70,
+      height: 70 + bottomPadding,
+      padding: EdgeInsets.only(bottom: bottomPadding),
       decoration: const BoxDecoration(
         color: Colors.white,
         boxShadow: [
-          BoxShadow(color: Colors.black12, blurRadius: 5)
+          BoxShadow(color: Colors.black12, blurRadius: 5),
         ],
       ),
       child: Stack(
         children: [
-
-          /// indicador deslizante
+          /// 🔥 indicador deslizante
           AnimatedAlign(
             alignment: getIndicatorAlignment(),
             duration: const Duration(milliseconds: 300),
@@ -58,6 +59,7 @@ class NavBar extends StatelessWidget {
             ),
           ),
 
+          /// 🔹 botones
           Row(
             children: [
               Expanded(child: navItem(Icons.layers, "Cursos", 0)),
@@ -71,7 +73,6 @@ class NavBar extends StatelessWidget {
   }
 
   Widget navItem(IconData icon, String label, int index) {
-
     bool isSelected = currentIndex == index;
 
     return GestureDetector(
@@ -80,7 +81,6 @@ class NavBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-
             const SizedBox(height: 10),
 
             Icon(

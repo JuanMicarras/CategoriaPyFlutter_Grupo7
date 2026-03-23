@@ -20,7 +20,7 @@ import 'features/auth/data/repositories/auth_repository_impl.dart';
 
 import 'features/auth/ui/views/login_page.dart';
 import 'features/auth/ui/views/signup_page.dart';
-import 'features/home/ui/views/home_page.dart';
+import 'features/student/ui/views/home_page.dart';
 
 void main() {
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
