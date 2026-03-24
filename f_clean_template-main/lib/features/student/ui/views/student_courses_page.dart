@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/core/widgets/course_card.dart';
+import 'student_category_page.dart';
 
 class StudentCoursesPage extends StatelessWidget {
   const StudentCoursesPage({super.key});
@@ -63,31 +64,37 @@ class StudentCoursesPage extends StatelessWidget {
                     CourseProjectItem(
                       title: "Proyecto Flutter",
                       subtitle: "Entrega en 2 días",
-                      onTap: () {
-                        print("Abrir proyecto Flutter");
+                      onTap: (context, course, project) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CourseDetailPage(
+                              courseTitle: course,
+                              projectTitle: project,
+                            ),
+                          ),
+                        );
                       },
                     ),
-                    CourseProjectItem(title: "UI App", subtitle: "En progreso"),
-                  ],
-                ),
-
-                const SizedBox(height: 20),
-
-                CourseCard(
-                  title: "Bases de Datos",
-                  progressText: "1 de 4 actividades",
-                  progress: 0.25,
-                  leadingIcon: Icons.storage,
-                  projects: [
                     CourseProjectItem(
-                      title: "Modelo ER",
-                      subtitle: "Pendiente",
+                      title: "UI App",
+                      subtitle: "En progreso",
+                      onTap: (context, course, project) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CourseDetailPage(
+                              courseTitle: course,
+                              projectTitle: project,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
               ],
             ),
-
             const SizedBox(height: 30),
           ],
         ),

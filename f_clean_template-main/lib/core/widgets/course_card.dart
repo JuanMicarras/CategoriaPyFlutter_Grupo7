@@ -4,7 +4,7 @@ import 'package:peer_sync/core/themes/app_theme.dart';
 class CourseProjectItem {
   final String title;
   final String subtitle;
-  final VoidCallback? onTap;
+  final Function(BuildContext context, String courseTitle, String projectTitle)? onTap;
 
   const CourseProjectItem({
     required this.title,
@@ -67,7 +67,6 @@ class _CourseCardState extends State<CourseCard> {
             color: Color(0x2E000000),
             offset: Offset(0, 2),
             blurRadius: 4,
-            spreadRadius: 0,
           ),
         ],
       ),
@@ -108,7 +107,6 @@ class _CourseCardState extends State<CourseCard> {
                     Text(
                       widget.progressText,
                       style: AppTheme.bodyS.copyWith(
-                        fontWeight: FontWeight.w500,
                         color: AppTheme.grayColor100,
                       ),
                     ),
@@ -127,22 +125,17 @@ class _CourseCardState extends State<CourseCard> {
                   ],
                 ),
               ),
-              const SizedBox(width: 10),
               GestureDetector(
                 onTap: _toggle,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Icon(
-                    _isExpanded
-                        ? Icons.keyboard_arrow_up_rounded
-                        : Icons.keyboard_arrow_down_rounded,
-                    color: AppTheme.textColor,
-                    size: 24,
-                  ),
+                child: Icon(
+                  _isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
                 ),
               ),
             ],
           ),
+
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 220),
             crossFadeState: _isExpanded
@@ -151,18 +144,15 @@ class _CourseCardState extends State<CourseCard> {
             firstChild: Column(
               children: [
                 const SizedBox(height: 18),
-                const Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: AppTheme.grayColor400,
-                ),
+                const Divider(),
                 const SizedBox(height: 16),
+
                 ...widget.projects.map(
                   (project) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _CourseProjectRow(item: project),
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: _CourseProjectRow(
+                      item: project,
+                      courseTitle: widget.title, // 🔥 dinámico
                     ),
                   ),
                 ),
@@ -178,54 +168,34 @@ class _CourseCardState extends State<CourseCard> {
 
 class _CourseProjectRow extends StatelessWidget {
   final CourseProjectItem item;
+  final String courseTitle;
 
-  const _CourseProjectRow({required this.item});
+  const _CourseProjectRow({
+    required this.item,
+    required this.courseTitle,
+  });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: item.onTap,
+      onTap: () => item.onTap?.call(
+        context,
+        courseTitle,
+        item.title, // 🔥 también dinámico
+      ),
       borderRadius: BorderRadius.circular(20),
       child: Row(
         children: [
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.title,
-                    style: AppTheme.bodyM.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppTheme.textColor,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    item.subtitle,
-                    style: AppTheme.bodyS.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: const Color(0xFF7E8A9A),
-                    ),
-                  ),
-                ],
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(item.title),
+                Text(item.subtitle),
+              ],
             ),
           ),
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: AppTheme.grayColor400, width: 1),
-            ),
-            child: const Icon(
-              Icons.chevron_right,
-              size: 18,
-              color: Color(0xFF9AA3AF),
-            ),
-          ),
+          const Icon(Icons.chevron_right),
         ],
       ),
     );
