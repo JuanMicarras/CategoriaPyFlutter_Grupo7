@@ -54,7 +54,7 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      // Llamamos al repositorio (que por ahora es Mock)
+      
       final loggedUser = await repository.signIn(email, password);
 
       _user.value = loggedUser;
@@ -102,6 +102,43 @@ class AuthController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  @override
+  void onInit() {
+    super.onInit();
+    _checkLoginStatus(); 
+  }
+
+  Future<void> _checkLoginStatus() async {
+    isLoading.value = true;
+    final savedUser = await repository.getSavedUser();
+    
+    if (savedUser != null) {
+      // Si había sesión, actualizamos nuestra variable reactiva.
+      // ¡Como Central.dart usa Obx, redirigirá al HomePage automáticamente!
+      _user.value = savedUser;
+    }
+    isLoading.value = false;
+  }
+
+  Future<void> signOut() async {
+    try {
+      isLoading.value = true;
+      
+      
+      await repository.clearUser(); 
+      
+      _user.value = null; 
+      
+      Get.offAllNamed('/login');
+      
+    } catch (e) {
+      print("Error al cerrar sesión: $e");
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
 
   @override
   void onClose() {

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:peer_sync/core/widgets/navbar.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/core/widgets/add_course_modal.dart';
+import 'package:peer_sync/features/student/ui/views/student_profile_page.dart';
 import 'student_home_page.dart';
 import 'student_courses_page.dart';
-import 'student_profile_page.dart';
+import 'Profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
