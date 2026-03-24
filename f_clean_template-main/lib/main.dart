@@ -56,8 +56,8 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/', page: () => const Central()),
         GetPage(
           name: '/login', 
-          page: () => const LoginPage(),
-          transition: Transition.fade,
+          page: () => LoginPage(),
+          transition: Transition.fadeIn,
           transitionDuration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
           opaque: true,
@@ -65,7 +65,7 @@ class MyApp extends StatelessWidget {
         GetPage(
           name: '/signup', 
           page: () => SignUpPage(),
-          transition: Transition.fade,
+          transition: Transition.fadeIn,
           transitionDuration: const Duration(milliseconds: 350),
           curve: Curves.easeInOut,
           opaque: true,

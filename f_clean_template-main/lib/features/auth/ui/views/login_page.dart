@@ -8,7 +8,11 @@ import '../../../../core/widgets/auth_input_container.dart';
 import '../../../../core/widgets//auth_text_field.dart';
 
 class LoginPage extends GetView<AuthController> {
-  const LoginPage({Key? key}) : super(key: key);
+  LoginPage({Key? key}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<AuthController>().clearErrors();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +59,9 @@ class LoginPage extends GetView<AuthController> {
                   AuthTextField(
                     hint: "pepitojm@uninorte.edu.co",
                     icon: Icons.email_outlined,
+                    isEmail: true,
                     controllerText: controller.emailController,
+                    errorText: controller.emailError.value,
                   ),
                   const Divider(height: 1, color: Colors.black38),
                   AuthTextField(
@@ -63,10 +69,27 @@ class LoginPage extends GetView<AuthController> {
                     icon: Icons.lock_outline,
                     isPassword: true,
                     controllerText: controller.passwordController,
+                    errorText: controller.passwordError.value,
                   ),
                 ],
               ),
 
+              Obx(() {
+                final error = controller.emailError.value ?? controller.passwordError.value;
+                if (error == null || error.isEmpty) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
+                  child: Text(
+                    error,
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                );
+              }),
+              
               const SizedBox(height: 20),
 
               TextButton(
@@ -86,11 +109,14 @@ class LoginPage extends GetView<AuthController> {
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
+                      disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    onPressed: controller.isLoading.value
+                    onPressed: controller.isLoading.value ||
+                              controller.emailError.value != null ||
+                              controller.passwordError.value != null
                         ? null
                         : () {
                             controller.login(

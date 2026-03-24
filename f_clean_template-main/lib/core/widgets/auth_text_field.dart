@@ -7,7 +7,10 @@ class AuthTextField extends GetView<AuthController> {
   final String hint;
   final IconData icon;
   final bool isPassword;
+  final bool isEmail;
   final TextEditingController controllerText;
+  final String? errorText;
+  final Function(String)? onChanged;
 
   const AuthTextField({
     super.key,
@@ -15,13 +18,59 @@ class AuthTextField extends GetView<AuthController> {
     required this.icon,
     required this.controllerText,
     this.isPassword = false,
+    this.isEmail = false,
+    this.errorText,
+    this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (!isPassword) {
+    if (isPassword) {
+      return Obx(
+        () => TextField(
+          controller: controllerText,
+          obscureText: controller.obscurePassword.value,
+          onChanged: onChanged ?? controller.validatePassword,
+          style: const TextStyle(color: Colors.black87),
+          decoration: InputDecoration(
+            fillColor: Colors.white,
+            hoverColor: Colors.white,
+            hintText: hint,
+            hintStyle: const TextStyle(color: Colors.black38),
+            prefixIcon: Icon(
+              icon,
+              color: AppTheme.primaryColor.withOpacity(0.6),
+            ),
+            suffixIcon: Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: IconButton(
+                icon: Icon(
+                  controller.obscurePassword.value
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                ),
+                onPressed: controller.togglePasswordVisibility,
+              ),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 20,
+              horizontal: 20,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (isEmail) {
       return TextField(
         controller: controllerText,
+        keyboardType: TextInputType.emailAddress,
+        onChanged:
+            onChanged ?? controller.validateEmail,
         style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
           fillColor: Colors.white,
@@ -29,7 +78,10 @@ class AuthTextField extends GetView<AuthController> {
           hintText: hint,
           hintStyle: const TextStyle(color: Colors.black38),
           prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
-          border: InputBorder.none,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
           contentPadding: const EdgeInsets.symmetric(
             vertical: 20,
             horizontal: 20,
@@ -38,38 +90,24 @@ class AuthTextField extends GetView<AuthController> {
       );
     }
 
-    return Obx(
-      () => TextField(
-        controller: controllerText,
-        obscureText: controller.obscurePassword.value,
-        onChanged: isPassword ? controller.validatePassword : null,
-        style: const TextStyle(color: Colors.black87),
-        decoration: InputDecoration(
-          errorText: isPassword
-              ? controller.passwordError.value
-              : null, // MUESTRA EL ERROR
-          errorStyle: const TextStyle(fontSize: 11, color: Colors.redAccent),
-          fillColor: Colors.white,
-          hoverColor: Colors.white,
-          hintText: hint,
-          hintStyle: const TextStyle(color: Colors.black38),
-          prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.only(right: 10),
-            child: IconButton(
-              icon: Icon(
-                controller.obscurePassword.value
-                    ? Icons.visibility_off
-                    : Icons.visibility,
-              ),
-              onPressed: controller.togglePasswordVisibility,
-            ),
-          ),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 20,
-            horizontal: 20,
-          ),
+    // Campo genérico (nombre, etc.)
+    return TextField(
+      controller: controllerText,
+      onChanged: onChanged,
+      style: const TextStyle(color: Colors.black87),
+      decoration: InputDecoration(
+        fillColor: Colors.white,
+        hoverColor: Colors.white,
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.black38),
+        prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.6)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 20,
+          horizontal: 20,
         ),
       ),
     );

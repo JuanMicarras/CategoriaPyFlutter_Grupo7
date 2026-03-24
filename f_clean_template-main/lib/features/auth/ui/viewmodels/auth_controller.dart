@@ -18,6 +18,8 @@ class AuthController extends GetxController {
   // Estados reactivos
   final isLoading = false.obs;
   final passwordError = RxnString();
+  final emailError = RxnString();
+  
   void validatePassword(String value) {
     if (value.isEmpty) {
       passwordError.value = null;
@@ -36,6 +38,24 @@ class AuthController extends GetxController {
     } else {
       passwordError.value = "Falta: ${missing.join(', ')}";
     }
+  }
+
+  void validateEmail(String value) {
+    if (value.isEmpty) {
+      emailError.value = null;
+      return;
+    }
+
+    if (!value.endsWith('@uninorte.edu.co')) {
+      emailError.value = 'El correo debe ser @uninorte.edu.co';
+    } else {
+      emailError.value = null;
+    }
+  }
+
+  void clearErrors() {
+    emailError.value = null;
+    passwordError.value = null;
   }
 
   final _user = Rxn<AuthUser>();

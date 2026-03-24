@@ -8,7 +8,11 @@ import '../../../../core/widgets/auth_input_container.dart';
 import '../../../../core/widgets//auth_text_field.dart';
 
 class SignUpPage extends GetView<AuthController> {
-  SignUpPage({super.key});
+  SignUpPage({super.key}) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Get.find<AuthController>().clearErrors();
+    });
+  }
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -65,7 +69,9 @@ class SignUpPage extends GetView<AuthController> {
                   AuthTextField(
                     hint: "Correo electrónico",
                     icon: Icons.email_outlined,
+                    isEmail: true,
                     controllerText: controller.signUpEmailController,
+                    errorText: controller.emailError.value,
                   ),
                   const Divider(height: 1, color: Colors.black38),
                   AuthTextField(
@@ -73,9 +79,26 @@ class SignUpPage extends GetView<AuthController> {
                     icon: Icons.lock_outline,
                     isPassword: true,
                     controllerText: controller.signUpPasswordController,
+                    errorText: controller.passwordError.value,
                   ),
                 ],
               ),
+
+              Obx(() {
+                final error = controller.emailError.value ?? controller.passwordError.value;
+                if (error == null || error.isEmpty) return const SizedBox.shrink();
+                return Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
+                  child: Text(
+                    error,
+                    style: const TextStyle(
+                      color: AppTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                );
+              }),
 
               const SizedBox(height: 40),
 
@@ -86,11 +109,14 @@ class SignUpPage extends GetView<AuthController> {
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
+                      disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    onPressed: controller.isLoading.value
+                    onPressed: controller.isLoading.value ||
+                            controller.passwordError.value != null ||
+                            controller.emailError.value != null
                         ? null
                         : () {
                             controller.signUp(

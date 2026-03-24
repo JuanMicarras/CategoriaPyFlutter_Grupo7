@@ -54,7 +54,7 @@ class AddCourseModal extends StatelessWidget {
           const SizedBox(height: 18),
           Container(
             height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 0),
             decoration: BoxDecoration(
               color: const Color(0xFFF8F8FB),
               borderRadius: BorderRadius.circular(8),
@@ -62,9 +62,14 @@ class AddCourseModal extends StatelessWidget {
             ),
             child: TextField(
               controller: codeController,
+              maxLength: 11,
               decoration: InputDecoration(
-                border: InputBorder.none,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
                 hintText: codeHintText,
+                counterText: '',
                 hintStyle: AppTheme.bodyM.copyWith(
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
@@ -77,7 +82,9 @@ class AddCourseModal extends StatelessWidget {
                 color: AppTheme.textColor,
               ),
             ),
+            
           ),
+          
           const SizedBox(height: 22),
           Row(
             children: [
