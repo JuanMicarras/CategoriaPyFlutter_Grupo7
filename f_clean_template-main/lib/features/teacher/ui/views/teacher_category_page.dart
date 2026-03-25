@@ -5,15 +5,18 @@ import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/core/widgets/category_card.dart';
 import 'package:peer_sync/core/widgets/create_category_modal.dart';
 import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
+import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
 
 class CourseDetailPage extends StatefulWidget {
   final String courseId;
   final String courseTitle;
+  final List<Map<String, dynamic>> categories;
 
   const CourseDetailPage({
     super.key,
     required this.courseId,
     required this.courseTitle,
+    required this.categories,
   });
 
   @override
@@ -32,6 +35,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   }
 
   void openCreateCategoryModal(BuildContext context) {
+    final groupsController = Get.find<GroupsController>();
     Get.dialog(
       barrierDismissible: false,
       Dialog(
@@ -40,7 +44,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         child: Center(
           child: CreateGroupCategoryModal(
             onCancel: () {
-              if (!categoryController.isLoading.value) {
+              if (!groupsController.isLoading.value) {
                 Get.back();
               }
             },
@@ -56,6 +60,11 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
                 /// 🔥 AQUÍ luego puedes conectar a tu API
                 print("CSV enviado: $csvString");
+
+                await groupsController.importCsvData(
+                  widget.courseId,
+                  csvString,
+                );
 
                 /// 🔥 RECARGAR LISTA
                 await categoryController.loadCategories(widget.courseId);
@@ -76,20 +85,23 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final groupsController = Get.find<GroupsController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
 
       /// 🔥 FAB DINÁMICO
-      floatingActionButton: Obx(() =>
-          categoryController.isLoading.value
-              ? const CircularProgressIndicator()
-              : FloatingActionButton(
-                  onPressed: () {
-                    openCreateCategoryModal(context);
-                  },
-                  backgroundColor: AppTheme.secondaryColor,
-                  child: const Icon(Icons.add),
-                )),
+      floatingActionButton: Obx(
+        () => groupsController.isLoading.value
+            ? const CircularProgressIndicator() // Si está cargando, mostramos un círculo
+            : FloatingActionButton(
+                onPressed: () {
+                  openCreateCategoryModal(context);
+                },
+                backgroundColor: AppTheme.secondaryColor,
+                child: const Icon(Icons.add),
+              ),
+      ),
 
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5F6FA),
