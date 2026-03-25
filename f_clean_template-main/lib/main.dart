@@ -23,6 +23,12 @@ import 'features/auth/ui/views/signup_page.dart';
 import 'features/student/ui/views/home_page.dart';
 import 'features/teacher/ui/views/home_page.dart';
 
+import 'features/course/data/datasources/remote/course_remote_source.dart';
+import 'features/course/data/datasources/remote/i_course_remote_source.dart';
+import 'features/course/domain/repositories/i_course_repository.dart';
+import 'features/course/data/repositories/course_repository_impl.dart';
+import 'features/course/ui/viewmodels/course_controller.dart';
+
 void main() {
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
 
@@ -33,7 +39,10 @@ void main() {
   Get.put<IAuthRepository>(AuthRepositoryImpl(Get.find()));
   Get.put<AuthController>(AuthController(repository: Get.find()));
 
-  
+  Get.put<ICourseRemoteSource>(CourseRemoteSource());
+  Get.put<ICourseRepository>(CourseRepositoryImpl(Get.find()));
+  Get.put<CourseController>(CourseController(Get.find()));
+
   Get.put<IProductSource>(LocalProductSource());
   Get.put<IProductRepository>(ProductRepository(Get.find()));
   Get.lazyPut(() => ProductController(Get.find()));
@@ -56,7 +65,7 @@ class MyApp extends StatelessWidget {
       getPages: [
         GetPage(name: '/', page: () => const Central()),
         GetPage(
-          name: '/login', 
+          name: '/login',
           page: () => LoginPage(),
           transition: Transition.fadeIn,
           transitionDuration: const Duration(milliseconds: 350),
@@ -64,7 +73,7 @@ class MyApp extends StatelessWidget {
           opaque: true,
         ),
         GetPage(
-          name: '/signup', 
+          name: '/signup',
           page: () => SignUpPage(),
           transition: Transition.fadeIn,
           transitionDuration: const Duration(milliseconds: 350),

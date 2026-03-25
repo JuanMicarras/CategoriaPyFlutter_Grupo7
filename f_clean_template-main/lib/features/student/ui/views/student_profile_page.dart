@@ -41,9 +41,7 @@ class StudentProfilePage extends StatelessWidget {
               // Extraemos la primera letra para el Avatar
               final firstLetter = email.isNotEmpty ? email[0].toUpperCase() : 'U';
               
-              // Como la entidad AuthUser actual solo tiene ID, Email y Rol,
-              // extraemos un "nombre" cortando lo que está antes del @
-              final name = email.split('@').first;
+              final name = user?.name ?? 'Estudiante';
 
               return Column(
                 children: [
