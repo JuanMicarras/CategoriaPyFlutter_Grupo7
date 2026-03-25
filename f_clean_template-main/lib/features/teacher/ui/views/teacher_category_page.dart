@@ -10,13 +10,11 @@ import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
 class CourseDetailPage extends StatefulWidget {
   final String courseId;
   final String courseTitle;
-  final List<Map<String, dynamic>> categories;
 
   const CourseDetailPage({
     super.key,
     required this.courseId,
     required this.courseTitle,
-    required this.categories,
   });
 
   @override
