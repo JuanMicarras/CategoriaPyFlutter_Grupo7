@@ -8,6 +8,7 @@ class AuthTextField extends GetView<AuthController> {
   final IconData icon;
   final bool isPassword;
   final bool isEmail;
+  final bool readOnly;
   final TextEditingController controllerText;
   final String? errorText;
   final Function(String)? onChanged;
@@ -18,6 +19,7 @@ class AuthTextField extends GetView<AuthController> {
     required this.icon,
     required this.controllerText,
     this.isPassword = false,
+    this.readOnly = false,
     this.isEmail = false,
     this.errorText,
     this.onChanged,
@@ -29,6 +31,7 @@ class AuthTextField extends GetView<AuthController> {
       return Obx(
         () => TextField(
           controller: controllerText,
+          readOnly: readOnly,
           obscureText: controller.obscurePassword.value,
           onChanged: onChanged ?? controller.validatePassword,
           style: const TextStyle(color: Colors.black87),
@@ -68,9 +71,9 @@ class AuthTextField extends GetView<AuthController> {
     if (isEmail) {
       return TextField(
         controller: controllerText,
+        readOnly: readOnly,
         keyboardType: TextInputType.emailAddress,
-        onChanged:
-            onChanged ?? controller.validateEmail,
+        onChanged: onChanged ?? controller.validateEmail,
         style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
           fillColor: Colors.white,
@@ -93,6 +96,7 @@ class AuthTextField extends GetView<AuthController> {
     // Campo genérico (nombre, etc.)
     return TextField(
       controller: controllerText,
+      readOnly: readOnly,
       onChanged: onChanged,
       style: const TextStyle(color: Colors.black87),
       decoration: InputDecoration(

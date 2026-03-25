@@ -10,7 +10,9 @@ import '../../../../core/widgets//auth_text_field.dart';
 class LoginPage extends GetView<AuthController> {
   LoginPage({Key? key}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Get.find<AuthController>().clearErrors();
+      final authController = Get.find<AuthController>();
+      authController.clearErrors();
+      authController.passwordController.text = 'ThePassword!1';
     });
   }
 
@@ -66,6 +68,7 @@ class LoginPage extends GetView<AuthController> {
                   const Divider(height: 1, color: Colors.black38),
                   AuthTextField(
                     hint: "*******",
+                    readOnly: true,
                     icon: Icons.lock_outline,
                     isPassword: true,
                     controllerText: controller.passwordController,
@@ -75,8 +78,11 @@ class LoginPage extends GetView<AuthController> {
               ),
 
               Obx(() {
-                final error = controller.emailError.value ?? controller.passwordError.value;
-                if (error == null || error.isEmpty) return const SizedBox.shrink();
+                final error =
+                    controller.emailError.value ??
+                    controller.passwordError.value;
+                if (error == null || error.isEmpty)
+                  return const SizedBox.shrink();
                 return Padding(
                   padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
                   child: Text(
@@ -89,7 +95,7 @@ class LoginPage extends GetView<AuthController> {
                   ),
                 );
               }),
-              
+
               const SizedBox(height: 20),
 
               TextButton(
@@ -109,14 +115,16 @@ class LoginPage extends GetView<AuthController> {
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
-                      disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.5),
+                      disabledBackgroundColor: AppTheme.primaryColor
+                          .withOpacity(0.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    onPressed: controller.isLoading.value ||
-                              controller.emailError.value != null ||
-                              controller.passwordError.value != null
+                    onPressed:
+                        controller.isLoading.value ||
+                            controller.emailError.value != null ||
+                            controller.passwordError.value != null
                         ? null
                         : () {
                             controller.login(

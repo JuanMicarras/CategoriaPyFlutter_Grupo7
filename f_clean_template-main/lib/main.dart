@@ -1,3 +1,4 @@
+import 'package:peer_sync/features/category/ui/bindings/category_binding.dart';
 import 'package:peer_sync/features/groups/data/datasources/remote/groups_remote_source.dart';
 import 'package:peer_sync/features/groups/data/datasources/remote/i_groups_remote_source.dart';
 import 'package:peer_sync/features/groups/data/repositories/groups_repository_impl.dart';
@@ -80,8 +81,22 @@ class MyApp extends StatelessWidget {
           curve: Curves.easeInOut,
           opaque: true,
         ),
-        GetPage(name: '/homeStudent', page: () => const HomePageSt(), binding: CourseBinding()),
-        GetPage(name: '/homeTeacher', page: () => const HomePageTe(), binding: CourseBinding()),
+        GetPage(
+          name: '/homeStudent',
+          page: () => const HomePageSt(),
+          binding: BindingsBuilder(() {
+            CourseBinding().dependencies();
+            CategoryBinding().dependencies();
+          }),
+        ),
+        GetPage(
+          name: '/homeTeacher',
+          page: () => const HomePageTe(),
+          binding: BindingsBuilder(() {
+            CourseBinding().dependencies();
+            CategoryBinding().dependencies();
+          }),
+        ),
       ],
     );
   }

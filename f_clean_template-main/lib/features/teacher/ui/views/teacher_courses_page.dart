@@ -95,7 +95,6 @@ class TeacherCoursesPage extends StatelessWidget {
                             builder: (_) => CourseDetailPage(
                               courseId: course.id,
                               courseTitle: course.name,
-                              categories: const [], // luego backend
                             ),
                           ),
                         );
