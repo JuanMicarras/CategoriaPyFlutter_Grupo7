@@ -17,6 +17,7 @@ import 'features/product/data/repositories/product_repository.dart';
 import 'features/product/domain/repositories/i_product_repository.dart';
 import 'features/product/ui/viewmodels/product_controller.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
+import 'features/teacher/ui/bindings/course_binding.dart';
 
 import 'features/auth/ui/views/login_page.dart';
 import 'features/auth/ui/views/signup_page.dart';
@@ -72,7 +73,7 @@ class MyApp extends StatelessWidget {
           opaque: true,
         ),
         GetPage(name: '/homeStudent', page: () => const HomePageSt()),
-        GetPage(name: '/homeTeacher', page: () => const HomePageTe()),
+        GetPage(name: '/homeTeacher', page: () => const HomePageTe(),binding: CourseBinding()),
       ],
     );
   }

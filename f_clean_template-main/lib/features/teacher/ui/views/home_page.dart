@@ -5,6 +5,8 @@ import 'package:peer_sync/core/widgets/create_course_modal.dart';
 import 'teacher_home_page.dart';
 import 'teacher_courses_page.dart';
 import 'teacher_profile_page.dart';
+import 'package:get/get.dart';
+import 'package:peer_sync/features/teacher/ui/viewmodels/course_controller.dart';
 
 class HomePageTe extends StatefulWidget {
   const HomePageTe({super.key});
@@ -38,8 +40,20 @@ class _HomePageState extends State<HomePageTe> {
               onCancel: () {
                 Navigator.pop(context);
               },
-              onCreate: () {
-                print("Nombre del curso: ${nameController.text}");
+              onCreate: () async {
+                final controller = Get.find<CourseController>();
+
+                final name = nameController.text.trim();
+
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("El nombre del curso es obligatorio"),
+                    ),
+                  );
+                  return;
+                }
+                await controller.createCourse(name);
                 Navigator.pop(context);
               },
               onCsvSelected: (file) {

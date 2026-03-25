@@ -17,7 +17,7 @@ class AddCourseModal extends StatelessWidget {
     this.onAdd,
     this.codeController,
     this.title = 'Agregar Curso',
-    this.codeHintText = '456-7890',
+    this.codeHintText = '45678901',
     this.cancelText = 'Cancelar',
     this.addText = 'Agregar',
     this.width = 300,
