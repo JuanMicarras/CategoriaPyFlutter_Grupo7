@@ -17,18 +17,12 @@ import 'features/product/data/repositories/product_repository.dart';
 import 'features/product/domain/repositories/i_product_repository.dart';
 import 'features/product/ui/viewmodels/product_controller.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
-import 'features/teacher/ui/bindings/course_binding.dart';
+import 'features/course/ui/bindings/course_binding.dart';
 
 import 'features/auth/ui/views/login_page.dart';
 import 'features/auth/ui/views/signup_page.dart';
 import 'features/student/ui/views/home_page.dart';
 import 'features/teacher/ui/views/home_page.dart';
-
-import 'features/course/data/datasources/remote/course_remote_source.dart';
-import 'features/course/data/datasources/remote/i_course_remote_source.dart';
-import 'features/course/domain/repositories/i_course_repository.dart';
-import 'features/course/data/repositories/course_repository_impl.dart';
-import 'features/course/ui/viewmodels/course_controller.dart';
 
 void main() {
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
@@ -39,10 +33,6 @@ void main() {
   Get.put<IAuthenticationSource>(AuthenticationSourceService());
   Get.put<IAuthRepository>(AuthRepositoryImpl(Get.find()));
   Get.put<AuthController>(AuthController(repository: Get.find()));
-
-  Get.put<ICourseRemoteSource>(CourseRemoteSource());
-  Get.put<ICourseRepository>(CourseRepositoryImpl(Get.find()));
-  Get.put<CourseController>(CourseController(Get.find()));
 
   Get.put<IProductSource>(LocalProductSource());
   Get.put<IProductRepository>(ProductRepository(Get.find()));
@@ -81,8 +71,8 @@ class MyApp extends StatelessWidget {
           curve: Curves.easeInOut,
           opaque: true,
         ),
-        GetPage(name: '/homeStudent', page: () => const HomePageSt()),
-        GetPage(name: '/homeTeacher', page: () => const HomePageTe(),binding: CourseBinding()),
+        GetPage(name: '/homeStudent', page: () => const HomePageSt(), binding: CourseBinding()),
+        GetPage(name: '/homeTeacher', page: () => const HomePageTe(), binding: CourseBinding()),
       ],
     );
   }

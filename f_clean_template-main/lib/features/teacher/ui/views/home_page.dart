@@ -6,7 +6,7 @@ import 'teacher_home_page.dart';
 import 'teacher_courses_page.dart';
 import 'teacher_profile_page.dart';
 import 'package:get/get.dart';
-import 'package:peer_sync/features/teacher/ui/viewmodels/course_controller.dart';
+import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
 
 class HomePageTe extends StatefulWidget {
   const HomePageTe({super.key});
