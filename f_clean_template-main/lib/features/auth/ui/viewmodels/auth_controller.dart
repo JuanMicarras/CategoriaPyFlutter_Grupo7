@@ -19,7 +19,7 @@ class AuthController extends GetxController {
   final isLoading = false.obs;
   final passwordError = RxnString();
   final emailError = RxnString();
-  
+
   void validatePassword(String value) {
     if (value.isEmpty) {
       passwordError.value = null;
@@ -74,18 +74,16 @@ class AuthController extends GetxController {
     try {
       isLoading.value = true;
 
-      
       final loggedUser = await repository.signIn(email, password);
 
       _user.value = loggedUser;
 
-      // Navegación limpia con GetX al Home
-      Get.offAllNamed('/home');
+      if (loggedUser.role == 'teacher') {
+        Get.offAllNamed('/homeTeacher');
+      } else {
+        Get.offAllNamed('/homeStudent');
+      }
     } catch (e) {
-      // print("🔴 ===== ERROR DE ROBLE =====");
-      // print(e.toString());
-      // print("🔴 ==========================");
-
       if (Get.context != null) {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(
@@ -102,13 +100,18 @@ class AuthController extends GetxController {
   Future<void> signUp(String email, String password, String name) async {
     try {
       isLoading.value = true;
+
       final newUser = await repository.signUp(email, password, name);
+
       _user.value = newUser;
-      Get.offAllNamed('/home');
+
+      if (newUser.role == 'teacher') {
+        Get.offAllNamed('/homeTeacher');
+      } else {
+        Get.offAllNamed('/homeStudent');
+      }
     } catch (e) {
-      print("🔴 ===== ERROR DE ROBLE =====");
       print(e.toString());
-      print("🔴 ==========================");
 
       if (Get.context != null) {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
@@ -126,13 +129,13 @@ class AuthController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _checkLoginStatus(); 
+    _checkLoginStatus();
   }
 
   Future<void> _checkLoginStatus() async {
     isLoading.value = true;
     final savedUser = await repository.getSavedUser();
-    
+
     if (savedUser != null) {
       // Si había sesión, actualizamos nuestra variable reactiva.
       // ¡Como Central.dart usa Obx, redirigirá al HomePage automáticamente!
@@ -144,21 +147,18 @@ class AuthController extends GetxController {
   Future<void> signOut() async {
     try {
       isLoading.value = true;
-      
-      
-      await repository.clearUser(); 
-      
-      _user.value = null; 
-      
+
+      await repository.clearUser();
+
+      _user.value = null;
+
       Get.offAllNamed('/login');
-      
     } catch (e) {
       print("Error al cerrar sesión: $e");
     } finally {
       isLoading.value = false;
     }
   }
-
 
   @override
   void onClose() {
