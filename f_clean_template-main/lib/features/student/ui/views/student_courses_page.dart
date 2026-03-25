@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/core/widgets/course_card.dart';
+import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
 import 'student_category_page.dart';
 
 class StudentCoursesPage extends StatelessWidget {
@@ -12,29 +14,26 @@ class StudentCoursesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CourseController controller = Get.find();
+
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.only(top: 40, left: 25, right: 25),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            /// 🔥 HEADER (IGUAL)
+            /// 🔹 HEADER
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Row(
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
-                      Text(
-                        "Cursos",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
-                        ),
-                      ),
-                    ],
+                  const Text(
+                    "Cursos",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryColor,
+                    ),
                   ),
                   const Spacer(),
                   IconButton(
@@ -51,64 +50,57 @@ class StudentCoursesPage extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            /// 🔥 CARD DE CURSO
-            Column(
-              children: [
-                CourseCard(
-                  title: "Programación Móvil",
-                  progressText: "3 de 5 actividades",
-                  progress: 0.6,
-                  leadingIcon: Icons.phone_android,
-                  projects: const [
-                    CourseProjectItem(
-                      title: "Proyecto CPU",
-                      subtitle: "Entrega en 2 días",
+            /// 🔥 LISTA DINÁMICA
+            Obx(() {
+              /// ⏳ LOADING
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 40),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+
+              /// 📭 VACÍO
+              if (controller.courses.isEmpty) {
+                return const Padding(
+                  padding: EdgeInsets.only(top: 40),
+                  child: Text(
+                    "No estás inscrito en ningún curso",
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                );
+              }
+
+              /// ✅ LISTA
+              return Column(
+                children: controller.courses.map((course) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: CourseCard(
+                      title: course.name,
+                      progressText: "0 de 0 actividades",
+                      progress: 0.0,
+                      leadingIcon: Icons.school,
+                      projects: const [],
+
+                      onTap: (context) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => CourseDetailPage(
+                              courseTitle: course.name,
+                              categories: const [],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    CourseProjectItem(
-                      title: "Proyecto CPU 2",
-                      subtitle: "En progreso",
-                    ),
-                    CourseProjectItem(
-                      title: "Proyecto CPU 3",
-                      subtitle: "Pendiente",
-                    ),
-                  ],
-                  
-                  onTap: (context) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CourseDetailPage(
-                          courseTitle: "Programación Móvil",
-                          categories: [
-                            {
-                              "title": "Proyecto CPU",
-                              "subtitle": "3 integrantes • 0/3 done",
-                              "icon": Icons.download,
-                            },
-                            {
-                              "title": "Proyecto CPU 2",
-                              "subtitle": "3 integrantes • 0/3 done",
-                              "icon": Icons.download,
-                            },
-                            {
-                              "title": "Proyecto CPU 3",
-                              "subtitle": "3 integrantes • 0/3 done",
-                              "icon": Icons.download,
-                            },
-                            {
-                              "title": "Proyecto CPU 4",
-                              "subtitle": "3 integrantes • 0/3 done",
-                              "icon": Icons.download,
-                            },
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                  );
+                }).toList(),
+              );
+            }),
 
             const SizedBox(height: 30),
           ],

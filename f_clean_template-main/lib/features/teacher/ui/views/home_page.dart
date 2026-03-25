@@ -22,6 +22,7 @@ class _HomePageState extends State<HomePageTe> {
     TeacherCoursesPage(),
     TeacherHomePage(),
     TeacherProfilePage(),
+    
   ];
 
   void openCreateCourseModal() {

@@ -134,6 +134,7 @@ class CourseRemoteSourceService implements ICourseRemoteSource {
   }
 
   /// 🔥 CREAR CURSO
+  /// 🔥 CREAR CURSO
   @override
   Future<Map<String, dynamic>> createCourse(
     String id,
@@ -164,6 +165,71 @@ class CourseRemoteSourceService implements ICourseRemoteSource {
       throw Exception('Error creando curso: ${response.body}');
     }
 
+    final prefs = await SharedPreferences.getInstance();
+    final tokenLocal = prefs.getString('tokenA');
+    final email = prefs.getString('email');
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $tokenLocal',
+    };
+
+    /// 1. BUSCAR EL CURSO RECIÉN CREADO POR EL CODE
+    final courseRes = await httpClient.get(
+      Uri.parse('$baseUrl/read?tableName=Course&code=$code'),
+      headers: headers,
+    );
+
+    final courseData = jsonDecode(courseRes.body);
+    List courses = courseData is List
+        ? courseData
+        : (courseData['data'] ?? courseData['records'] ?? []);
+
+    if (courses.isEmpty) {
+      throw Exception('No se pudo recuperar el curso creado');
+    }
+
+    final courseId = courses.first['course_id'] ?? courses.first['_id'];
+
+    /// 2. BUSCAR USUARIO
+    final userRes = await httpClient.get(
+      Uri.parse('$baseUrl/read?tableName=Users&email=$email'),
+      headers: headers,
+    );
+
+    final userData = jsonDecode(userRes.body);
+    List users = userData is List
+        ? userData
+        : (userData['data'] ?? userData['records'] ?? []);
+
+    if (users.isEmpty) {
+      throw Exception('No se encontró el usuario');
+    }
+
+    final userId = users.first['user_id'] ?? users.first['_id'];
+
+    /// 3. INSERTAR EN CourseMember
+    final memberRes = await httpClient.post(
+      Uri.parse('$baseUrl/insert'),
+      headers: headers,
+      body: jsonEncode({
+        'tableName': 'CourseMember',
+        'records': [
+          {'course_id': courseId, 'user_id': userId},
+        ],
+      }),
+    );
+
+    print(
+      '👥 INSERT CourseMember: ${memberRes.body}, code: ${memberRes.statusCode}',
+    );
+
+    if (memberRes.statusCode != 200 && memberRes.statusCode != 201) {
+      throw Exception('Curso creado pero no se pudo asignar el profesor');
+    }
+
+    // =========================================================
+
     return {"id": id, "name": name, "code": code};
   }
 
@@ -193,5 +259,91 @@ class CourseRemoteSourceService implements ICourseRemoteSource {
     if (response.statusCode != 200 && response.statusCode != 201) {
       throw Exception('Error actualizando curso');
     }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getCoursesByUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('tokenA');
+    final email = prefs.getString('email');
+
+    if (token == null) throw Exception('No hay sesión activa');
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    /// ============================
+    /// 1. OBTENER USER_ID
+    /// ============================
+    final userRes = await httpClient.get(
+      Uri.parse('$baseUrl/read?tableName=Users&email=$email'),
+      headers: headers,
+    );
+
+    final userData = jsonDecode(userRes.body);
+
+    List users = userData is List
+        ? userData
+        : (userData['data'] ?? userData['records'] ?? []);
+
+    if (users.isEmpty) {
+      throw Exception('No se encontró el usuario');
+    }
+
+    final userId = users.first['user_id'] ?? users.first['_id'];
+
+    /// ============================
+    /// 2. OBTENER COURSE_IDs
+    /// ============================
+    final memberRes = await httpClient.get(
+      Uri.parse('$baseUrl/read?tableName=CourseMember&user_id=$userId'),
+      headers: headers,
+    );
+
+    final memberData = jsonDecode(memberRes.body);
+
+    List members = memberData is List
+        ? memberData
+        : (memberData['data'] ?? memberData['records'] ?? []);
+
+    if (members.isEmpty) {
+      return [];
+    }
+
+    /// ============================
+    /// 3. OBTENER CURSOS
+    /// ============================
+    List<Map<String, dynamic>> courses = [];
+
+    for (var member in members) {
+      final courseId = member['course_id'];
+
+      final courseRes = await httpClient.get(
+        Uri.parse('$baseUrl/read?tableName=Course&course_id=$courseId'),
+        headers: headers,
+      );
+
+      final courseData = jsonDecode(courseRes.body);
+
+      List records = courseData is List
+          ? courseData
+          : (courseData['data'] ?? courseData['records'] ?? []);
+
+      if (records.isNotEmpty) {
+        final e = records.first;
+
+        courses.add({
+          "id": e['course_id'].toString(),
+          "name": e['course_name'],
+          "code": e['code'],
+        });
+      }
+    }
+
+    print('📚 CURSOS DEL USUARIO: $courses');
+
+    return courses;
   }
 }

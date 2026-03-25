@@ -5,4 +5,5 @@ abstract class ICourseRepository {
   Future<List<Course>> getCourses();
   Future<bool> createCourse(Course course);
   Future<bool> updateCourse(Course course);
+  Future<List<Course>> getCoursesByUser();
 }

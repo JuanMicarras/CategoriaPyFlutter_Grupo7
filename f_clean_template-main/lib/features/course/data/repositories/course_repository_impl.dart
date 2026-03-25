@@ -20,11 +20,7 @@ class CourseRepositoryImpl implements ICourseRepository {
       final response = await _dataSource.getCourses();
 
       final courses = response.map<Course>((e) {
-        return Course(
-          id: e['id'],
-          name: e['name'],
-          code: e['code'],
-        );
+        return Course(id: e['id'], name: e['name'], code: e['code']);
       }).toList();
 
       /// 2. Guardar en local (cache)
@@ -42,11 +38,7 @@ class CourseRepositoryImpl implements ICourseRepository {
       final List decoded = jsonDecode(stored);
 
       return decoded.map<Course>((e) {
-        return Course(
-          id: e['id'],
-          name: e['name'],
-          code: e['code'],
-        );
+        return Course(id: e['id'], name: e['name'], code: e['code']);
       }).toList();
     }
   }
@@ -85,10 +77,7 @@ class CourseRepositoryImpl implements ICourseRepository {
   @override
   Future<bool> updateCourse(Course course) async {
     try {
-      await _dataSource.updateCourse(
-        course.id,
-        course.name,
-      );
+      await _dataSource.updateCourse(course.id, course.name);
 
       /// actualizar local
       final prefs = await SharedPreferences.getInstance();
@@ -100,10 +89,7 @@ class CourseRepositoryImpl implements ICourseRepository {
 
       list = list.map((e) {
         if (e['id'] == course.id) {
-          return {
-            "id": course.id,
-            "name": course.name,
-          };
+          return {"id": course.id, "name": course.name};
         }
         return e;
       }).toList();
@@ -114,5 +100,14 @@ class CourseRepositoryImpl implements ICourseRepository {
     } catch (e) {
       return false;
     }
+  }
+
+  @override
+  Future<List<Course>> getCoursesByUser() async {
+    final data = await _dataSource.getCoursesByUser();
+
+    return data
+        .map((e) => Course(id: e['id'], name: e['name'], code: e['code']))
+        .toList();
   }
 }

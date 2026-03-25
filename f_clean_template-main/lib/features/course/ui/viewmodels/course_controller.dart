@@ -56,7 +56,7 @@ class CourseController extends GetxController {
       final success = await repository.createCourse(course);
 
       if (success) {
-        await loadCourses();
+        await loadCoursesByUser();
 
         _showSuccess("Curso creado correctamente");
       }
@@ -72,16 +72,12 @@ class CourseController extends GetxController {
     try {
       isLoading.value = true;
 
-      final updatedCourse = Course(
-        id: id,
-        name: newName,
-        code: newCode,
-      );
+      final updatedCourse = Course(id: id, name: newName, code: newCode);
 
       final success = await repository.updateCourse(updatedCourse);
 
       if (success) {
-        await loadCourses();
+        await loadCoursesByUser();
 
         _showSuccess("Curso actualizado");
       }
@@ -109,7 +105,21 @@ class CourseController extends GetxController {
 
       _showSuccess("¡Te has inscrito al curso correctamente!");
 
-      await loadCourses(); // 🔥 refresca lista
+      await loadCoursesByUser(); // 🔥 refresca lista
+    } catch (e) {
+      _showError(e);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> loadCoursesByUser() async {
+    try {
+      isLoading.value = true;
+
+      final response = await repository.getCoursesByUser();
+
+      courses.assignAll(response);
     } catch (e) {
       _showError(e);
     } finally {
@@ -132,10 +142,7 @@ class CourseController extends GetxController {
   void _showSuccess(String message) {
     if (Get.context != null) {
       ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: Colors.green,
-        ),
+        SnackBar(content: Text(message), backgroundColor: Colors.green),
       );
     }
   }
@@ -143,6 +150,6 @@ class CourseController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadCourses(); // 🔥 carga automática
+    loadCoursesByUser(); // 🔥 carga automática
   }
 }
