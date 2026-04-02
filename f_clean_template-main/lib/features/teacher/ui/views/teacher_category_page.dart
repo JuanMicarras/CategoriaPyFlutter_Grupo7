@@ -173,23 +173,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                         leadingIcon: Icons.group,
                       ),
                     ),
-                  ),
-                  
-                  // 👇 BOTÓN DE PRUEBA PARA CREAR ACTIVIDAD
-                  TextButton.icon(
-                    onPressed: () {
-                      Get.to(() => CreateActivityPage(
-                        categoryId: item.id,      // Sacamos el ID real del iterador
-                        categoryName: item.name,  // Sacamos el nombre real
-                      ));
-                    },
-                    icon: const Icon(Icons.add_task, color: AppTheme.secondaryColor),
-                    label: const Text(
-                      "Crear Actividad", 
-                      style: TextStyle(color: AppTheme.secondaryColor)
-                    ),
-                  ),
-                  
+                  ),                  
                   const SizedBox(height: 14),
                 ],
               );

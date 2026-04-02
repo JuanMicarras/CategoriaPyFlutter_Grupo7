@@ -4,7 +4,7 @@ import '../../domain/repositories/i_evaluation_repository.dart';
 
 class EvaluationController extends GetxController {
   final IEvaluationRepository repository;
-  
+
   final isLoading = false.obs;
 
   // Variables Reactivas para el formulario
@@ -14,48 +14,80 @@ class EvaluationController extends GetxController {
   final endDateController = TextEditingController();
   final startTimeController = TextEditingController();
   final endTimeController = TextEditingController();
-  
+
   // Inicializamos las fechas por defecto (Hoy y Mañana)
   final startDate = DateTime.now().obs;
-  final endDate = DateTime.now().add(const Duration(days: 1)).obs;
-  
+  final endDate = DateTime.now().add(const Duration(days: 7)).obs;
+  final startTime = Rxn<TimeOfDay>();
+  final endTime = Rxn<TimeOfDay>();
+
   final isVisible = true.obs;
 
   EvaluationController(this.repository);
 
   // Método para guardar en Base de Datos
-  Future<void> saveActivity(String categoryId) async {
-    if (nameController.text.trim().isEmpty) {
-      Get.snackbar('Error', 'El nombre es obligatorio', backgroundColor: Colors.redAccent, colorText: Colors.white);
-      return;
-    }
-
-    if (endDate.value.isBefore(startDate.value)) {
-      Get.snackbar('Error', 'La fecha de fin no puede ser antes de la fecha de inicio', backgroundColor: Colors.redAccent, colorText: Colors.white);
-      return;
-    }
-
+  Future<bool> saveActivity(String categoryId) async {
     try {
+      if (nameController.text.trim().isEmpty) {
+        _showMessage('El nombre de la actividad es obligatorio', Colors.orange);
+        return false;
+      }
+      if (startTime.value == null || endTime.value == null) {
+        _showMessage(
+          'Debes seleccionar la hora de inicio y fin',
+          Colors.orange,
+        );
+        return false;
+      }
+
       isLoading.value = true;
-      
+      DateTime finalStartDate = DateTime(
+        startDate.value.year,
+        startDate.value.month,
+        startDate.value.day,
+        startTime.value!.hour,
+        startTime.value!.minute,
+      );
+
+      DateTime finalEndDate = DateTime(
+        endDate.value.year,
+        endDate.value.month,
+        endDate.value.day,
+        endTime.value!.hour,
+        endTime.value!.minute,
+      );
+      if (finalStartDate.isAfter(finalEndDate) ||
+          finalStartDate.isAtSameMomentAs(finalEndDate)) {
+        _showMessage('La fecha de inicio debe ser anterior a la de fin', Colors.redAccent);
+        isLoading.value = false;
+        return false;
+      }
+
       await repository.createActivity(
         categoryId: categoryId,
         name: nameController.text.trim(),
         description: descriptionController.text.trim(),
-        startDate: startDate.value,
-        endDate: endDate.value,
+        startDate: finalStartDate,
+        endDate: finalEndDate,
         visibility: isVisible.value,
       );
 
       Get.back(); // Cerramos el modal/pantalla
-      Get.snackbar('¡Éxito!', 'Actividad creada correctamente', backgroundColor: Colors.green, colorText: Colors.white);
-      
+      _showMessage('Actividad creada correctamente', Colors.green);
+
       // Limpiamos el formulario para la próxima vez
       nameController.clear();
       descriptionController.clear();
-
+      isLoading.value = false;
+      return true;
     } catch (e) {
-      Get.snackbar('Error', e.toString().replaceAll('Exception: ', ''), backgroundColor: Colors.redAccent, colorText: Colors.white);
+      Get.snackbar(
+        'Error',
+        e.toString().replaceAll('Exception: ', ''),
+        backgroundColor: Colors.redAccent,
+        colorText: Colors.white,
+      );
+      return false;
     } finally {
       isLoading.value = false;
     }
@@ -69,20 +101,31 @@ class EvaluationController extends GetxController {
       lastDate: DateTime(2300),
     );
     if (picked != null) {
-      startDate.value = picked; 
-      startDateController.text = "${picked.day}/${picked.month}/${picked.year}"; 
+      startDate.value = picked;
+      startDateController.text = "${picked.day}/${picked.month}/${picked.year}";
+    }
+  }
+
+  void _showMessage(String message, Color color) {
+    if (Get.context != null) {
+      ScaffoldMessenger.of(Get.context!).showSnackBar(
+        SnackBar(
+          content: Text(message, style: const TextStyle(color: Colors.white)),
+          backgroundColor: color,
+        ),
+      );
     }
   }
 
   Future<void> pickEndDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(), 
+      initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
     if (picked != null) {
-      endDate.value = picked; 
+      endDate.value = picked;
       endDateController.text = "${picked.day}/${picked.month}/${picked.year}";
     }
   }
@@ -93,11 +136,9 @@ class EvaluationController extends GetxController {
       initialTime: TimeOfDay.now(),
     );
     if (picked != null) {
-      // Opcional: si tienes una variable reactiva para la hora, la guardas aquí
-      // startTime.value = picked; 
-      
+      startTime.value = picked;
       // format(context) convierte la hora a texto (ej. "14:30" o "2:30 PM") dependiendo de la configuración del celular
-      startTimeController.text = picked.format(context); 
+      startTimeController.text = picked.format(context);
     }
   }
 
@@ -108,10 +149,7 @@ class EvaluationController extends GetxController {
       initialTime: TimeOfDay.now(),
     );
     if (picked != null) {
-      // Opcional: si tienes una variable reactiva para la hora, la guardas aquí
-      // endTime.value = picked;
-      
-      // Actualizamos el controlador de texto para el Modal
+      endTime.value = picked;
       endTimeController.text = picked.format(context);
     }
   }

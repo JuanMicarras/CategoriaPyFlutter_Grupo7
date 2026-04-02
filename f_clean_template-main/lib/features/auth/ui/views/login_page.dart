@@ -68,7 +68,7 @@ class LoginPage extends GetView<AuthController> {
                   const Divider(height: 1, color: Colors.black38),
                   AuthTextField(
                     hint: "*******",
-                    readOnly: true,
+                    readOnly: false,
                     icon: Icons.lock_outline,
                     isPassword: true,
                     controllerText: controller.passwordController,

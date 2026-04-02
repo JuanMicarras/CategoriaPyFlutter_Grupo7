@@ -32,14 +32,19 @@ class CategoryDetailPage extends StatelessWidget {
             isPublic: controller.isVisible.value,
             onPublicChanged: (val) => controller.isVisible.value = val,
             onCancel: () => Get.back(),
-            onCreate: () {
+            onCreate: () async {
               if (!controller.isLoading.value) {
-                controller.saveActivity(categoryId); // 👈 Ya tiene acceso al ID
-                Get.back(); 
+                bool success = await controller.saveActivity(categoryId); 
+                if (success) {
+                  Get.back(); // Cerramos el modal solo si la creación fue exitosa
+                }
+                
               }
             },
             onTapStartDate: () => controller.pickStartDate(context),
             onTapEndDate: () => controller.pickEndDate(context),
+            onTapStartTime: () => controller.pickStartTime(context),
+            onTapEndTime: () => controller.pickEndTime(context),
           )),
         ),
       ),
