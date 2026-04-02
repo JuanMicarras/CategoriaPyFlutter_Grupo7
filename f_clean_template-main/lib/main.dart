@@ -4,7 +4,6 @@ import 'package:peer_sync/features/groups/data/datasources/remote/i_groups_remot
 import 'package:peer_sync/features/groups/data/repositories/groups_repository_impl.dart';
 import 'package:peer_sync/features/groups/domain/repositories/i_groups_repository.dart';
 import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
-import 'package:peer_sync/features/product/data/datasources/local/local_product_source.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -16,12 +15,14 @@ import 'core/themes/app_theme.dart';
 import 'features/auth/data/datasources/remote/authentication_source_service.dart';
 import 'features/auth/data/datasources/remote/i_authentication_source.dart';
 
+import 'features/evaluation/data/datasources/remote/i_evaluation_remote_source.dart';
+import 'features/evaluation/data/datasources/remote/evaluation_remote_source.dart';
+import 'features/evaluation/domain/repositories/i_evaluation_repository.dart';
+import 'features/evaluation/data/repositories/evaluation_repository_impl.dart';
+import 'features/evaluation/ui/viewmodels/evaluation_controller.dart';
+
 import 'features/auth/domain/repositories/i_auth_repository.dart';
 import 'features/auth/ui/viewmodels/auth_controller.dart';
-import 'features/product/data/datasources/i_remote_product_source.dart';
-import 'features/product/data/repositories/product_repository.dart';
-import 'features/product/domain/repositories/i_product_repository.dart';
-import 'features/product/ui/viewmodels/product_controller.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/course/ui/bindings/course_binding.dart';
 
@@ -44,9 +45,11 @@ void main() {
   Get.put<IGroupsRepository>(GroupsRepositoryImpl(Get.find()));
   Get.put<GroupsController>(GroupsController(Get.find()));
 
-  Get.put<IProductSource>(LocalProductSource());
-  Get.put<IProductRepository>(ProductRepository(Get.find()));
-  Get.lazyPut(() => ProductController(Get.find()));
+  // Inyecciones de Evaluation (Actividades)
+  Get.put<IEvaluationRemoteSource>(EvaluationRemoteSource());
+  Get.put<IEvaluationRepository>(EvaluationRepositoryImpl(Get.find()));
+  Get.put<EvaluationController>(EvaluationController(Get.find()));
+  
   runApp(const MyApp());
 }
 

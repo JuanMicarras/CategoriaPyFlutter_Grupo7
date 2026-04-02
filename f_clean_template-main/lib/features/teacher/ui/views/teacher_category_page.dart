@@ -5,6 +5,8 @@ import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/core/widgets/category_card.dart';
 import 'package:peer_sync/core/widgets/create_category_modal.dart';
 import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
+import 'package:peer_sync/features/category/ui/views/category_detail_page.dart';
+import 'package:peer_sync/features/evaluation/ui/views/create_activity_page.dart';
 import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
 
 class CourseDetailPage extends StatefulWidget {
@@ -156,12 +158,38 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                 children: [
                   Align(
                     alignment: Alignment.center,
-                    child: ProjectCategoryCard(
-                      title: item.name,
-                      subtitle: "Grupo",
-                      leadingIcon: Icons.group,
+                    
+                    child: GestureDetector(
+                      onTap: () {
+                        // Navegación a la vista de detalle que hicimos antes
+                        Get.to(() => CategoryDetailPage(
+                          categoryId: item.id, 
+                          categoryName: item.name,
+                        ));
+                      },
+                      child: ProjectCategoryCard(
+                        title: item.name,
+                        subtitle: "Grupo",
+                        leadingIcon: Icons.group,
+                      ),
                     ),
                   ),
+                  
+                  // 👇 BOTÓN DE PRUEBA PARA CREAR ACTIVIDAD
+                  TextButton.icon(
+                    onPressed: () {
+                      Get.to(() => CreateActivityPage(
+                        categoryId: item.id,      // Sacamos el ID real del iterador
+                        categoryName: item.name,  // Sacamos el nombre real
+                      ));
+                    },
+                    icon: const Icon(Icons.add_task, color: AppTheme.secondaryColor),
+                    label: const Text(
+                      "Crear Actividad", 
+                      style: TextStyle(color: AppTheme.secondaryColor)
+                    ),
+                  ),
+                  
                   const SizedBox(height: 14),
                 ],
               );

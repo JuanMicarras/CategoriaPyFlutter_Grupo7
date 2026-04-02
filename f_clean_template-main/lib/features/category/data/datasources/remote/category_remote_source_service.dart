@@ -37,7 +37,7 @@ class CategoryRemoteSourceService implements ICategoryRemoteSource {
 
     return records.map<Map<String, dynamic>>((e) {
       return {
-        "id": e['category_id'].toString(),
+        "id": (e['category_id'] ?? e['_id']).toString(),
         "name": e['category_name'],
         "course_id": e['course_id'].toString(),
       };
