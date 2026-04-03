@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/core/widgets/course_card.dart';
 import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
+import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
 import 'student_category_page.dart';
 
 class StudentCoursesPage extends StatelessWidget {
@@ -15,6 +16,7 @@ class StudentCoursesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final CourseController controller = Get.find();
+    final CategoryController categoryController = Get.find();
 
     return SingleChildScrollView(
       child: Padding(
@@ -76,6 +78,17 @@ class StudentCoursesPage extends StatelessWidget {
               /// ✅ LISTA
               return Column(
                 children: controller.courses.map((course) {
+
+                  /// 🔥 OBTENER CATEGORÍAS
+                  final categories =
+                      categoryController.getCategoriesPreview(course.id);
+
+                  /// 🔥 CARGAR SI NO EXISTEN
+                  if (categories.isEmpty) {
+                    categoryController
+                        .loadCategoriesForCourseCard(course.id);
+                  }
+
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: CourseCard(
@@ -83,14 +96,25 @@ class StudentCoursesPage extends StatelessWidget {
                       progressText: "0 de 0 actividades",
                       progress: 0.0,
                       leadingIcon: Icons.school,
-                      projects: const [],
 
+                      /// 🔥 SOLO 3 CATEGORÍAS
+                      projects: categories
+                          .take(3)
+                          .map(
+                            (c) => CourseProjectItem(
+                              title: c.name,
+                              subtitle: "Grupo",
+                            ),
+                          )
+                          .toList(),
+
+                      /// 🔥 NAVEGACIÓN
                       onTap: (context) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => CourseDetailPage(
-                              courseId: course.id, // 👈 IMPORTANTE
+                              courseId: course.id,
                               courseTitle: course.name,
                             ),
                           ),

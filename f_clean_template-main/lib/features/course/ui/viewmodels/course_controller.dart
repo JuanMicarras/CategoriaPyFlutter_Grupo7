@@ -127,6 +127,15 @@ class CourseController extends GetxController {
     }
   }
 
+  int? getCodeById(String courseId) {
+    try {
+      final course = courses.firstWhere((c) => c.id == courseId);
+      return course.code;
+    } catch (e) {
+      return null;
+    }
+  }
+
   /// 🔥 MENSAJES
   void _showError(dynamic e) {
     if (Get.context != null) {

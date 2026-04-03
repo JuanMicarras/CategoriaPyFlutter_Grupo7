@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:convert';
+import 'dart:async';
+
 import '../../domain/repositories/i_auth_repository.dart';
 import '../../domain/models/auth_user.dart';
+import '../../data/repositories/auth_repository_impl.dart';
 
 class AuthController extends GetxController {
   final IAuthRepository repository;
 
+  AuthController({required this.repository});
+
+  /// 🔥 Controllers
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -13,12 +20,24 @@ class AuthController extends GetxController {
   final signUpEmailController = TextEditingController();
   final signUpPasswordController = TextEditingController();
 
-  AuthController({required this.repository});
-
-  // Estados reactivos
+  /// 🔥 Estados
   final isLoading = false.obs;
   final passwordError = RxnString();
   final emailError = RxnString();
+
+  final obscurePassword = true.obs;
+
+  final _user = Rxn<AuthUser>();
+  AuthUser? get user => _user.value;
+
+  bool get isLogged => _user.value != null;
+
+  /// 🔥 Timer para refresh automático
+  Timer? _refreshTimer;
+
+  /// =========================
+  /// VALIDACIONES
+  /// =========================
 
   void validatePassword(String value) {
     if (value.isEmpty) {
@@ -31,13 +50,12 @@ class AuthController extends GetxController {
     if (!value.contains(RegExp(r'[A-Z]'))) missing.add("mayúscula");
     if (!value.contains(RegExp(r'[a-z]'))) missing.add("minúscula");
     if (!value.contains(RegExp(r'[0-9]'))) missing.add("número");
-    if (!value.contains(RegExp(r'[!@#$_\-]'))) missing.add(r"símbolo (!@#_-$)");
-
-    if (missing.isEmpty) {
-      passwordError.value = null;
-    } else {
-      passwordError.value = "Falta: ${missing.join(', ')}";
+    if (!value.contains(RegExp(r'[!@#$_\-]'))) {
+      missing.add("símbolo (!@#_-\$)");
     }
+
+    passwordError.value =
+        missing.isEmpty ? null : "Falta: ${missing.join(', ')}";
   }
 
   void validateEmail(String value) {
@@ -58,18 +76,67 @@ class AuthController extends GetxController {
     passwordError.value = null;
   }
 
-  final _user = Rxn<AuthUser>();
-  AuthUser? get user => _user.value;
-
-  final obscurePassword = true.obs;
-
   void togglePasswordVisibility() {
     obscurePassword.value = !obscurePassword.value;
   }
 
-  bool get isLogged => _user.value != null;
+  /// =========================
+  /// 🔥 TOKEN HELPERS
+  /// =========================
 
-  // Método para el Login
+  int getTokenExpiration(String token) {
+    final parts = token.split('.');
+    final payload = parts[1];
+
+    final normalized = base64.normalize(payload);
+    final decoded = utf8.decode(base64Decode(normalized));
+
+    final data = jsonDecode(decoded);
+
+    return data['exp'];
+  }
+
+  /// =========================
+  /// 🔥 AUTO REFRESH INTELIGENTE
+  /// =========================
+
+  void startAutoRefresh() {
+    final repo = repository as AuthRepositoryImpl;
+
+    _refreshTimer?.cancel();
+
+    final token = user?.tokenA;
+
+    if (token == null) return;
+
+    final exp = getTokenExpiration(token);
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    /// 🔥 refrescar 2 min antes
+    final refreshTime = (exp - now - 120).clamp(0, 999999);
+
+    print("⏳ Token expira en: ${exp - now}s");
+    print("🔄 Refresh programado en: $refreshTime segundos");
+
+    _refreshTimer = Timer(Duration(seconds: refreshTime), () async {
+      print("🔄 Ejecutando refresh automático...");
+
+      final newToken = await repo.refreshAccessToken();
+
+      if (newToken != null) {
+        /// 🔁 reprogramar con nuevo token
+        startAutoRefresh();
+      } else {
+        print("❌ Sesión expirada → login");
+        Get.offAllNamed('/login');
+      }
+    });
+  }
+
+  /// =========================
+  /// 🔐 LOGIN
+  /// =========================
+
   Future<void> login(String email, String password) async {
     try {
       isLoading.value = true;
@@ -77,6 +144,13 @@ class AuthController extends GetxController {
       final loggedUser = await repository.signIn(email, password);
 
       _user.value = loggedUser;
+
+      print(
+        '✅ Usuario logueado: tokenA: ${loggedUser.tokenA}, tokenR: ${loggedUser.tokenR}',
+      );
+
+      /// 🔥 iniciar auto refresh
+      startAutoRefresh();
 
       if (loggedUser.role == 'teacher') {
         Get.offAllNamed('/homeTeacher');
@@ -97,6 +171,10 @@ class AuthController extends GetxController {
     }
   }
 
+  /// =========================
+  /// 📝 SIGN UP
+  /// =========================
+
   Future<void> signUp(String email, String password, String name) async {
     try {
       isLoading.value = true;
@@ -105,14 +183,15 @@ class AuthController extends GetxController {
 
       _user.value = newUser;
 
+      /// 🔥 iniciar auto refresh
+      startAutoRefresh();
+
       if (newUser.role == 'teacher') {
         Get.offAllNamed('/homeTeacher');
       } else {
         Get.offAllNamed('/homeStudent');
       }
     } catch (e) {
-      print(e.toString());
-
       if (Get.context != null) {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           SnackBar(
@@ -126,6 +205,10 @@ class AuthController extends GetxController {
     }
   }
 
+  /// =========================
+  /// 🔄 INIT
+  /// =========================
+
   @override
   void onInit() {
     super.onInit();
@@ -134,19 +217,28 @@ class AuthController extends GetxController {
 
   Future<void> _checkLoginStatus() async {
     isLoading.value = true;
+
     final savedUser = await repository.getSavedUser();
 
     if (savedUser != null) {
-      // Si había sesión, actualizamos nuestra variable reactiva.
-      // ¡Como Central.dart usa Obx, redirigirá al HomePage automáticamente!
       _user.value = savedUser;
+
+      /// 🔥 iniciar auto refresh si ya estaba logueado
+      startAutoRefresh();
     }
+
     isLoading.value = false;
   }
+
+  /// =========================
+  /// 🚪 LOGOUT
+  /// =========================
 
   Future<void> signOut() async {
     try {
       isLoading.value = true;
+
+      _refreshTimer?.cancel();
 
       await repository.clearUser();
 
@@ -160,8 +252,14 @@ class AuthController extends GetxController {
     }
   }
 
+  /// =========================
+  /// 🔚 DISPOSE
+  /// =========================
+
   @override
   void onClose() {
+    _refreshTimer?.cancel();
+
     emailController.dispose();
     passwordController.dispose();
 

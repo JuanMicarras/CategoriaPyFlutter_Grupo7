@@ -5,7 +5,7 @@ class CourseProjectItem {
   final String title;
   final String subtitle;
   final Function(BuildContext context, String courseTitle, String projectTitle)?
-  onTap;
+      onTap;
 
   const CourseProjectItem({
     required this.title,
@@ -144,6 +144,7 @@ class _CourseCardState extends State<CourseCard> {
                 ],
               ),
 
+              /// 🔥 EXPANSIÓN
               AnimatedCrossFade(
                 duration: const Duration(milliseconds: 220),
                 crossFadeState: _isExpanded
@@ -155,6 +156,7 @@ class _CourseCardState extends State<CourseCard> {
                     const Divider(),
                     const SizedBox(height: 16),
 
+                    /// 🔥 LISTA DE CATEGORÍAS
                     ...widget.projects.map(
                       (project) => Padding(
                         padding: const EdgeInsets.only(bottom: 16),
@@ -192,7 +194,10 @@ class _CourseProjectRow extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Text(item.title), Text(item.subtitle)],
+              children: [
+                Text(item.title),
+                Text(item.subtitle),
+              ],
             ),
           ),
           Container(

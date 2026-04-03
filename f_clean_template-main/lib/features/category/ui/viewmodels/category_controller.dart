@@ -9,9 +9,11 @@ class CategoryController extends GetxController {
   CategoryController({required this.repository});
 
   final categories = <Category>[].obs;
+  final categoriesByCourse = <String, List<Category>>{}.obs;
   final isLoading = false.obs;
 
   Future<void> loadCategories(String courseId) async {
+    print('el id del curso es: $courseId');
     try {
       print("🔥 Cargando categorías para curso: $courseId");
 
@@ -28,6 +30,24 @@ class CategoryController extends GetxController {
     } finally {
       isLoading.value = false;
     }
+  }
+
+  Future<void> loadCategoriesForCourseCard(String courseId) async {
+    try {
+      /// 🚫 Evitar llamadas repetidas
+      if (categoriesByCourse.containsKey(courseId)) return;
+
+      final response = await repository.getCategoriesByCourse(courseId);
+
+      categoriesByCourse[courseId] = response;
+    } catch (e) {
+      print("❌ Error cargando categorías para curso $courseId: $e");
+    }
+  }
+
+  /// 🔥 NUEVO: OBTENER PREVIEW
+  List<Category> getCategoriesPreview(String courseId) {
+    return categoriesByCourse[courseId] ?? [];
   }
 
   void _showError(dynamic e) {

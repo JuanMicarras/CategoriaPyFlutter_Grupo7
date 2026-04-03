@@ -22,8 +22,14 @@ class AuthRepositoryImpl implements IAuthRepository {
     await prefs.setString('tokenR', tokenR);
     await prefs.setString('name', name);
     await prefs.setString('role', role);
-    
-    return AuthUser(tokenA: tokenA,tokenR: tokenR, email: email, role: role, name: name);
+
+    return AuthUser(
+      tokenA: tokenA,
+      tokenR: tokenR,
+      email: email,
+      role: role,
+      name: name,
+    );
   }
 
   @override
@@ -37,9 +43,15 @@ class AuthRepositoryImpl implements IAuthRepository {
     await prefs.setString('tokenA', tokenA);
     await prefs.setString('tokenR', tokenR);
     await prefs.setString('email', email);
-    await prefs.setString('role', role );
-    await prefs.setString('name', name );
-    return AuthUser(tokenA: tokenA,tokenR: tokenR, email: email, role: role, name: name);
+    await prefs.setString('role', role);
+    await prefs.setString('name', name);
+    return AuthUser(
+      tokenA: tokenA,
+      tokenR: tokenR,
+      email: email,
+      role: role,
+      name: name,
+    );
   }
 
   // 3. Método para leer la sesión al abrir la app
@@ -51,19 +63,80 @@ class AuthRepositoryImpl implements IAuthRepository {
     final email = prefs.getString('email');
     final role = prefs.getString('role');
     final name = prefs.getString('name');
-    print('🔍 Verificando sesión guardada, tokenA: $tokenA, tokenR: $tokenR, email: $email, role: $role, name: $name');
+    print(
+      '🔍 Verificando sesión guardada, tokenA: $tokenA, tokenR: $tokenR, email: $email, role: $role, name: $name',
+    );
     if (tokenA != null && tokenR != null && email != null) {
-      return AuthUser(tokenA: tokenA,tokenR: tokenR, email: email, role: role!, name: name!);
+      return AuthUser(
+        tokenA: tokenA,
+        tokenR: tokenR,
+        email: email,
+        role: role!,
+        name: name!,
+      );
     }
     return null; // No hay sesión activa
+  }
+
+  Future<String?> refreshAccessToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final refreshToken = prefs.getString('tokenR');
+
+    if (refreshToken == null) return null;
+
+    try {
+      final response = await _dataSource.refreshToken(refreshToken);
+
+      final newAccessToken = response['accessToken'];
+      final newRefreshToken = response['refreshToken'];
+
+      /// 🔥 Guardar nuevos tokens
+      await prefs.setString('tokenA', newAccessToken);
+
+      if (newRefreshToken != null) {
+        await prefs.setString('tokenR', newRefreshToken);
+      }
+
+      print("🔄 Token refrescado correctamente");
+
+      return newAccessToken;
+    } catch (e) {
+      print("❌ Error refrescando token: $e");
+
+      /// 🔒 Si falla → logout
+      await clearUser();
+      return null;
+    }
+  }
+
+  Future<T> safeRequest<T>(Future<T> Function() request) async {
+    try {
+      return await request();
+    } catch (e) {
+      if (e.toString().contains('401')) {
+        print("🔄 Token expirado, intentando refresh...");
+
+        final newToken = await refreshAccessToken();
+
+        if (newToken != null) {
+          print("✅ Reintentando request...");
+          return await request(); // 🔁 retry
+        } else {
+          print("❌ No se pudo refrescar token");
+        }
+      }
+
+      rethrow;
+    }
   }
 
   // 4. Método para borrar la sesión al dar "Logout"
   @override
   Future<void> clearUser() async {
-  
     final prefs = await SharedPreferences.getInstance();
-    print('name: ${prefs.getString('name')}, email: ${prefs.getString('email')}, role: ${prefs.getString('role')}');
+    print(
+      'name: ${prefs.getString('name')}, email: ${prefs.getString('email')}, role: ${prefs.getString('role')}',
+    );
     await prefs.remove('tokenA');
     await prefs.remove('tokenR');
     await prefs.remove('email');

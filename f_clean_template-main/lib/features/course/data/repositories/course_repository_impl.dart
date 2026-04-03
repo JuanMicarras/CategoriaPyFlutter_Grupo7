@@ -1,35 +1,42 @@
 import 'package:peer_sync/features/course/domain/models/course.dart';
 import 'package:peer_sync/features/course/domain/repositories/i_course_repository.dart';
 import 'package:peer_sync/features/course/data/datasources/remote/i_course_remote_source.dart';
+import 'package:peer_sync/features/auth/domain/repositories/i_auth_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class CourseRepositoryImpl implements ICourseRepository {
   final ICourseRemoteSource _dataSource;
+  final IAuthRepository _authRepository;
+ // 👈 NUEVO
 
-  CourseRepositoryImpl(this._dataSource);
+  CourseRepositoryImpl(this._dataSource, this._authRepository);
 
   @override
   Future<void> joinCourse(String code, String email) async {
-    await _dataSource.joinCourse(code, email);
+    await _authRepository.safeRequest(() {
+      return _dataSource.joinCourse(code, email);
+    });
   }
 
   @override
   Future<List<Course>> getCourses() async {
     try {
-      final response = await _dataSource.getCourses();
+      final response = await _authRepository.safeRequest(() {
+        return _dataSource.getCourses();
+      });
 
       final courses = response.map<Course>((e) {
         return Course(id: e['id'], name: e['name'], code: e['code']);
       }).toList();
 
-      /// 2. Guardar en local (cache)
+      /// 🔥 Guardar en cache
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('courses', jsonEncode(response));
 
       return courses;
     } catch (e) {
-      /// 🔥 fallback: leer local
+      /// 🔥 fallback local
       final prefs = await SharedPreferences.getInstance();
       final stored = prefs.getString('courses');
 
@@ -43,17 +50,17 @@ class CourseRepositoryImpl implements ICourseRepository {
     }
   }
 
-  /// 🔥 CREAR CURSO
   @override
   Future<bool> createCourse(Course course) async {
     try {
-      final response = await _dataSource.createCourse(
-        course.id,
-        course.name,
-        course.code,
-      );
+      final response = await _authRepository.safeRequest(() {
+        return _dataSource.createCourse(
+          course.id,
+          course.name,
+          course.code,
+        );
+      });
 
-      /// guardar local
       final prefs = await SharedPreferences.getInstance();
       final stored = prefs.getString('courses');
 
@@ -73,13 +80,13 @@ class CourseRepositoryImpl implements ICourseRepository {
     }
   }
 
-  /// 🔥 ACTUALIZAR CURSO
   @override
   Future<bool> updateCourse(Course course) async {
     try {
-      await _dataSource.updateCourse(course.id, course.name);
+      await _authRepository.safeRequest(() {
+        return _dataSource.updateCourse(course.id, course.name);
+      });
 
-      /// actualizar local
       final prefs = await SharedPreferences.getInstance();
       final stored = prefs.getString('courses');
 
@@ -104,7 +111,9 @@ class CourseRepositoryImpl implements ICourseRepository {
 
   @override
   Future<List<Course>> getCoursesByUser() async {
-    final data = await _dataSource.getCoursesByUser();
+    final data = await _authRepository.safeRequest(() {
+      return _dataSource.getCoursesByUser();
+    });
 
     return data
         .map((e) => Course(id: e['id'], name: e['name'], code: e['code']))
