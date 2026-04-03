@@ -11,12 +11,14 @@ class StudentEvaluationPage extends StatefulWidget {
   final String activityId;
   final String activityName;
   final String categoryId;
+  final bool isExpired;
 
   const StudentEvaluationPage({
     super.key,
     required this.activityId,
     required this.activityName,
     required this.categoryId,
+    this.isExpired = false,
   });
 
   @override
@@ -139,7 +141,7 @@ class _StudentEvaluationPageState extends State<StudentEvaluationPage> {
                 final savedScores = isAlreadyEvaluated
                     ? controller.completedEvaluations[peer.email]!
                     : <String, double>{};
-
+                final isReadOnly = isAlreadyEvaluated || widget.isExpired;
                 // Función auxiliar para extraer la nota guardada por nombre del criterio
                 double? getSavedScore(String criteriaName) {
                   if (!isAlreadyEvaluated) return null;
@@ -150,6 +152,15 @@ class _StudentEvaluationPageState extends State<StudentEvaluationPage> {
                       ? savedScores[criteriaObj.id]
                       : null;
                 }
+                // Definimos los textos visuales
+                String progressTextStr;
+                if (isAlreadyEvaluated) {
+                  progressTextStr = "Evaluación Completada";
+                } else if (widget.isExpired) {
+                  progressTextStr = "No evaluado (Actividad Cerrada)";
+                } else {
+                  progressTextStr = "Pendiente por evaluar";
+                }
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 20),
@@ -158,7 +169,7 @@ class _StudentEvaluationPageState extends State<StudentEvaluationPage> {
                       EditablePeerEvaluationCard(
                         width: double.infinity,
                         studentName: "${peer.firstName} ${peer.lastName}",
-                        progressText: isAlreadyEvaluated ? "Evaluación Completada" : "Pendiente por evaluar",
+                        progressText: progressTextStr,
                         progress: isAlreadyEvaluated ? 1.0 : 0.0,
                         initiallyExpanded: false,
                         
@@ -181,7 +192,7 @@ class _StudentEvaluationPageState extends State<StudentEvaluationPage> {
                       const SizedBox(height: 8),
                       
                       // Ocultamos el botón de Guardar si ya lo evaluamos
-                      if (!isAlreadyEvaluated)
+                      if (!isReadOnly)
                         Align(
                           alignment: Alignment.centerRight,
                           child: TextButton.icon(

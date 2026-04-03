@@ -141,13 +141,13 @@ class _StudentActivitiesPageState extends State<StudentActivitiesPage> {
                 dateBgColor: dateBgColor,
                 dateTextColor: dateTextColor,
                 onTap: () {
-                  if (isActive) {
+                  if (isActive || isExpired) {
                     Get.to(
                       () => StudentEvaluationPage(
                         activityId: activity.id,
                         activityName: activity.name,
-                        categoryId: widget
-                            .categoryId, 
+                        categoryId: widget.categoryId, 
+                        isExpired: isExpired,
                       ),
                     );
                   } else if (isExpired) {
