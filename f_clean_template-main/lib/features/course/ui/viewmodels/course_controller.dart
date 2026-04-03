@@ -56,6 +56,11 @@ class CourseController extends GetxController {
       final success = await repository.createCourse(course);
 
       if (success) {
+        final email = authController.user?.email ?? '';
+
+        // 🔥 ESTA LÍNEA TE FALTA
+        await repository.joinCourse(course.code.toString(), email);
+
         await loadCoursesByUser();
 
         _showSuccess("Curso creado correctamente");
