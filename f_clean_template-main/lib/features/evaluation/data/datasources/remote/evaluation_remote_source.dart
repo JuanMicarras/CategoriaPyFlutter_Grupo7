@@ -63,10 +63,10 @@ class EvaluationRemoteSource implements IEvaluationRemoteSource {
       'Authorization': 'Bearer $token',
     };
 
-    // Convertimos las fechas a UTC ISO-8601 para que PostgreSQL no se queje
     final startIso = startDate.toUtc().toIso8601String();
     final endIso = endDate.toUtc().toIso8601String();
 
+    // 1. CREAMOS LA ACTIVIDAD
     final res = await httpClient.post(
       Uri.parse('$dbUrl/insert'),
       headers: headers,
@@ -74,10 +74,9 @@ class EvaluationRemoteSource implements IEvaluationRemoteSource {
         'tableName': 'Activity',
         'records': [
           {
-            // No mandamos _id para que ROBLE lo genere automáticamente
             'category_id': categoryId,
             'name': name,
-            'description': description.isEmpty ? null : description, // Manejo de Nulos
+            'description': description.isEmpty ? null : description,
             'start_date': startIso,
             'end_date': endIso,
             'visibility': visibility,
@@ -89,8 +88,58 @@ class EvaluationRemoteSource implements IEvaluationRemoteSource {
     if (res.statusCode != 200 && res.statusCode != 201) {
       throw Exception('Error al crear la actividad: ${res.body}');
     }
-  }
 
+    // 2. CREAMOS LAS NOTIFICACIONES (Solo si es visible)
+    if (visibility) {
+      try {
+        // === NUEVO: Averiguamos el nombre de la categoría y del curso ===
+        String catName = "tu grupo";
+        String courseName = "tu curso";
+
+        final categoryData = await _readTable('Category', {'_id': categoryId}, headers);
+        if (categoryData.isNotEmpty) {
+          catName = categoryData.first['category_name'] ?? catName;
+          final courseId = categoryData.first['course_id'];
+
+          if (courseId != null) {
+            // Nota: Uso 'course_id' según la estructura de tu primer mensaje, ajústalo si tu PK en BD es '_id'
+            final courseData = await _readTable('Course', {'course_id': courseId.toString()}, headers); 
+            if (courseData.isNotEmpty) {
+              courseName = courseData.first['course_name'] ?? courseData.first['name'] ?? courseName;
+            }
+          }
+        }
+        // ================================================================
+
+        // Buscamos todos los grupos de esta categoría
+        final groups = await _readTable('Group', {'category_id': categoryId}, headers);
+        List<Map<String, dynamic>> notificationRecords = [];
+        final nowIso = DateTime.now().toUtc().toIso8601String();
+
+        // Buscamos todos los miembros de cada grupo
+        for (var g in groups) {
+          final members = await _readTable('GroupMember', {'group_id': g['_id']}, headers);
+          for (var m in members) {
+            notificationRecords.add({
+              'user_id': m['email'],
+              'title': 'Nueva Actividad: $name',
+              // Incluimos el contexto rico en el cuerpo
+              'body': 'Se ha creado esta actividad en $catName para el curso de $courseName.',
+              'is_read': false,
+              'created_at': nowIso
+            });
+          }
+        }
+
+        // Si hay miembros, insertamos todas las notificaciones
+        if (notificationRecords.isNotEmpty) {
+          await _insertTable('Notification', notificationRecords, headers);
+        }
+      } catch (e) {
+        print('Aviso: Actividad creada, pero falló el envío de notificaciones ricas: $e');
+      }
+    }
+  }
   @override
   Future<List<dynamic>> getActivitiesByCategory(String categoryId) async {
     final prefs = await SharedPreferences.getInstance();

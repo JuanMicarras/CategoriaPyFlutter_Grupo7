@@ -6,6 +6,8 @@ import 'package:peer_sync/features/category/ui/viewmodels/category_controller.da
 import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
 import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
 import 'package:peer_sync/features/evaluation/ui/views/student_activities_page.dart';
+import 'package:peer_sync/features/notifications/ui/viewmodels/notification_controller.dart';
+import 'package:peer_sync/features/notifications/ui/views/notifications_page.dart';
 import 'student_category_page.dart';
 
 class StudentCoursesPage extends StatelessWidget {
@@ -13,6 +15,7 @@ class StudentCoursesPage extends StatelessWidget {
 
   void openNotifications() {
     print("Abrir notificaciones");
+    Get.to(() => const NotificationsPage());
   }
 
   @override
@@ -41,14 +44,51 @@ class StudentCoursesPage extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.notifications_none,
-                      size: 28,
-                      color: Color(0xFF110E47),
-                    ),
-                    onPressed: openNotifications,
-                  ),
+                  Obx(() {
+                        // Asegúrate de tener importado tu NotificationController arriba en el archivo
+                        final notifController =
+                            Get.find<NotificationController>();
+
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.notifications_none,
+                                size: 28, // Mantenemos tu tamaño original
+                                color: Color(
+                                  0xFF110E47,
+                                ), // Mantenemos tu color original
+                              ),
+                              // Aquí puedes dejar openNotifications o usar el Get.to() que te pasaron
+                              onPressed: openNotifications,
+                            ),
+
+                            // La burbuja roja solo aparece si hay más de 0 notificaciones
+                            if (notifController.unreadCount > 0)
+                              Positioned(
+                                right:
+                                    8, // Lo ajusté un poco para que cuadre con tu ícono tamaño 28
+                                top: 8,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.redAccent,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    '${notifController.unreadCount}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        );
+                      }),
                 ],
               ),
             ),
