@@ -14,14 +14,10 @@ class SignUpPage extends GetView<AuthController> {
     });
   }
 
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
-
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -31,27 +27,15 @@ class SignUpPage extends GetView<AuthController> {
               const AuthLogo(),
               const SizedBox(height: 20),
 
-              Text(
-                "Crear cuenta",
-                style: AppTheme.h1.copyWith(color: AppTheme.textColor),
-              ),
+              Text("Crear cuenta", style: AppTheme.h1.copyWith(color: AppTheme.textColor)),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Text(
-                    "¿Ya tienes una cuenta? ",
-                    style: TextStyle(color: Colors.grey),
-                  ),
+                  const Text("¿Ya tienes una cuenta? ", style: TextStyle(color: Colors.grey)),
                   GestureDetector(
                     onTap: () => Get.toNamed('/login'),
-                    child: const Text(
-                      "Inicia sesión",
-                      style: TextStyle(
-                        color: AppTheme.secondaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                    child: const Text("Inicia sesión", style: TextStyle(color: AppTheme.secondaryColor, fontWeight: FontWeight.bold)),
                   ),
                 ],
               ),
@@ -91,11 +75,7 @@ class SignUpPage extends GetView<AuthController> {
                   padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
                   child: Text(
                     error,
-                    style: const TextStyle(
-                      color: AppTheme.primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
+                    style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontSize: 12),
                   ),
                 );
               }),
@@ -110,30 +90,21 @@ class SignUpPage extends GetView<AuthController> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
                       disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     ),
-                    onPressed: controller.isLoading.value ||
-                            controller.passwordError.value != null ||
-                            controller.emailError.value != null
-                        ? null
-                        : () {
-                            controller.signUp(
+                    // ¡Limpio!
+                    onPressed: controller.canSubmitSignUp
+                        ? () => controller.signUp(
                               controller.signUpEmailController.text.trim(),
                               controller.signUpPasswordController.text.trim(),
                               controller.signUpNameController.text.trim(),
-                            );
-                          },
+                            )
+                        : null,
                     child: controller.isLoading.value
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Registrarse",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),

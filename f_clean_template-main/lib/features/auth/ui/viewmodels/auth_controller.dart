@@ -33,13 +33,11 @@ class AuthController extends GetxController {
   AuthUser? get user => _user.value;
 
   bool get isLogged => _user.value != null;
+  bool get canSubmitLogin => !isLoading.value && emailError.value == null && passwordError.value == null;
+  bool get canSubmitSignUp => !isLoading.value && emailError.value == null && passwordError.value == null;
 
   /// 🔥 Timer para refresh automático
   Timer? _refreshTimer;
-
-  /// =========================
-  /// VALIDACIONES
-  /// =========================
 
   void validatePassword(String value) {
     if (value.isEmpty) {
@@ -82,9 +80,7 @@ class AuthController extends GetxController {
     obscurePassword.value = !obscurePassword.value;
   }
 
-  /// =========================
-  /// 🔥 TOKEN HELPERS
-  /// =========================
+  /// TOKEN HELPERS
 
   int getTokenExpiration(String token) {
     final parts = token.split('.');
@@ -98,9 +94,9 @@ class AuthController extends GetxController {
     return data['exp'];
   }
 
-  /// =========================
-  /// 🔥 AUTO REFRESH INTELIGENTE
-  /// =========================
+
+  /// AUTO REFRESH INTELIGENTE
+
 
   void startAutoRefresh() {
     final repo = repository as AuthRepositoryImpl;
@@ -134,10 +130,6 @@ class AuthController extends GetxController {
       }
     });
   }
-
-  /// =========================
-  /// 🔐 LOGIN
-  /// =========================
 
   Future<void> login(String email, String password) async {
     try {
@@ -173,10 +165,6 @@ class AuthController extends GetxController {
     }
   }
 
-  /// =========================
-  /// 📝 SIGN UP
-  /// =========================
-
   Future<void> signUp(String email, String password, String name) async {
     try {
       isLoading.value = true;
@@ -207,10 +195,6 @@ class AuthController extends GetxController {
     }
   }
 
-  /// =========================
-  /// 🔄 INIT
-  /// =========================
-
   @override
   void onInit() {
     super.onInit();
@@ -232,10 +216,6 @@ class AuthController extends GetxController {
     isLoading.value = false;
   }
 
-  /// =========================
-  /// 🚪 LOGOUT
-  /// =========================
-
   Future<void> signOut() async {
     try {
       isLoading.value = true;
@@ -254,10 +234,6 @@ class AuthController extends GetxController {
     }
   }
 
-  /// =========================
-  /// 🔚 DISPOSE
-  /// =========================
-
   @override
   void onClose() {
     _refreshTimer?.cancel();
@@ -268,6 +244,7 @@ class AuthController extends GetxController {
     signUpNameController.dispose();
     signUpEmailController.dispose();
     signUpPasswordController.dispose();
+    resetEmailController.dispose();
 
     super.onClose();
   }

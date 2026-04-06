@@ -119,32 +119,21 @@ class LoginPage extends GetView<AuthController> {
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
-                      disabledBackgroundColor: AppTheme.primaryColor
-                          .withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                      disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     ),
-                    onPressed:
-                        controller.isLoading.value ||
-                            controller.emailError.value != null ||
-                            controller.passwordError.value != null
-                        ? null
-                        : () {
-                            controller.login(
+                    // ¡Limpio! Le preguntamos al controlador
+                    onPressed: controller.canSubmitLogin 
+                        ? () => controller.login(
                               controller.emailController.text.trim(),
                               controller.passwordController.text.trim(),
-                            );
-                          },
+                            )
+                        : null,
                     child: controller.isLoading.value
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Iniciar Sesión",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),

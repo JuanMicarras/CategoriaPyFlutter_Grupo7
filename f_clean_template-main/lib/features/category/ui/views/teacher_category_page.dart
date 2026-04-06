@@ -4,17 +4,14 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/core/utils/loading_overlay.dart';
+import 'package:peer_sync/core/utils/teacher_navigation_helpers.dart';
 import 'package:peer_sync/features/category/ui/widgets/category_card.dart';
 import 'package:peer_sync/features/category/ui/widgets/create_category_modal.dart';
+// Asumo que tienes un TeacherNavigationHelpers o usas el NavBar global
 import 'package:peer_sync/core/widgets/navbar.dart';
 import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
 import 'package:peer_sync/features/category/ui/views/category_detail_page.dart';
 import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
-
-import '../../../teacher/ui/views/teacher_home_page.dart';
-import '../../../teacher/ui/views/teacher_profile_page.dart';
-
-// 🔥 IMPORTAR COURSE CONTROLLER
 import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
 
 class CourseDetailPage extends StatefulWidget {
@@ -36,8 +33,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
   final groupsController = Get.find<GroupsController>();
   final courseController = Get.find<CourseController>();
 
-  int currentIndex = 0;
-
   @override
   void initState() {
     super.initState();
@@ -53,32 +48,23 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         child: Center(
           child: CreateGroupCategoryModal(
             onCancel: () {
-              if (!groupsController.isLoading.value) {
-                Get.back();
-              }
+              if (!groupsController.isLoading.value) Get.back();
             },
-            onCreate: () {
-              Get.back();
-            },
+            onCreate: () => Get.back(),
             onCsvSelected: (file) async {
               if (file != null && file.bytes != null) {
                 final csvString = utf8.decode(file.bytes!);
 
-                Get.back();
+                Get.back(); // Cerramos el modal
                 LoadingOverlay.show("Importando grupos y estudiantes...");
                 try {
+                  // El controlador ahora importa Y recarga las categorías él solo
                   await groupsController.importCsvData(widget.courseId, csvString);
-                  await categoryController.loadCategories(widget.courseId);
                 } finally {
                   LoadingOverlay.hide();
                 }
               } else {
-                Get.snackbar(
-                  'Error',
-                  'No se pudo leer el archivo seleccionado',
-                  backgroundColor: Colors.redAccent,
-                  colorText: Colors.white,
-                );
+                Get.snackbar('Error', 'No se pudo leer el archivo seleccionado', backgroundColor: Colors.redAccent, colorText: Colors.white);
               }
             },
           ),
@@ -89,42 +75,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      _buildCourseDetail(),
-      const TeacherHomePage(),
-      const TeacherProfilePage(),
-    ];
-
-    return Scaffold(
-      body: pages[currentIndex],
-      backgroundColor: const Color(0xFFF5F6FA),
-
-      floatingActionButton: currentIndex == 0
-          ? Obx(
-              () => groupsController.isLoading.value
-                  ? const CircularProgressIndicator()
-                  : FloatingActionButton(
-                      onPressed: () {
-                        openCreateCategoryModal(context);
-                      },
-                      backgroundColor: AppTheme.secondaryColor,
-                      child: const Icon(Icons.add),
-                    ),
-            )
-          : null,
-
-      bottomNavigationBar: NavBar(
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-      ),
-    );
-  }
-
-  Widget _buildCourseDetail() {
+    // Adiós al Scaffold anidado, ahora es una página directa y limpia
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
@@ -134,11 +85,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         iconTheme: const IconThemeData(color: AppTheme.primaryColor),
         title: Text(
           widget.courseTitle,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: AppTheme.primaryColor,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
         ),
         actions: const [
           Padding(
@@ -147,6 +94,20 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           ),
         ],
       ),
+
+      floatingActionButton: Obx(() => groupsController.isLoading.value
+          ? const CircularProgressIndicator()
+          : FloatingActionButton(
+              onPressed: () => openCreateCategoryModal(context),
+              backgroundColor: AppTheme.secondaryColor,
+              child: const Icon(Icons.add, color: Colors.white),
+            )),
+
+      bottomNavigationBar: NavBar(
+        currentIndex: 0,
+        onTap: (index) => TeacherNavigationHelpers.handleNavTap(index),
+      ),
+
       body: Obx(() {
         final categories = categoryController.categories;
 
@@ -154,137 +115,91 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 20),
+        return SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 20),
 
-            /// 🔥 TÍTULO DEL CÓDIGO
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 45),
-              child: Text(
-                "Código del curso",
-                style: AppTheme.bodyM.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryColor300,
+              //TÍTULO DEL CÓDIGO
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 45),
+                child: Text(
+                  "Código del curso",
+                  style: AppTheme.bodyM.copyWith(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor300),
                 ),
               ),
-            ),
+              const SizedBox(height: 12),
 
-            const SizedBox(height: 12),
+              //CARD DEL CÓDIGO
+              Center(
+                // Usamos Obx directamente sobre el widget que lo necesita
+                child: Obx(() {
+                  final code = courseController.getCodeById(widget.courseId);
+                  if (code == null) return const SizedBox();
 
-            /// 🔥 CARD DEL CÓDIGO
-            Center(
-              child: Obx(() {
-                final code =
-                    courseController.getCodeById(widget.courseId);
-
-                if (code == null) return const SizedBox();
-
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 40),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        code.toString(),
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppTheme.primaryColor,
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 40),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          code.toString(),
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                         ),
-                      ),
+                        GestureDetector(
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(text: code.toString()));
+                            Get.snackbar("Copiado", "Código copiado al portapapeles", snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.black87, colorText: Colors.white);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(color: AppTheme.primaryColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                            child: const Icon(Icons.copy, color: AppTheme.primaryColor),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ),
 
-                      GestureDetector(
+              const SizedBox(height: 30),
+
+              /// CATEGORÍAS
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 45),
+                child: Text(
+                  "Categorias de Grupos",
+                  style: AppTheme.bodyM.copyWith(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor300),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              ...categories.map((item) {
+                return Column(
+                  children: [
+                    Align(
+                      alignment: Alignment.center,
+                      child: GestureDetector(
                         onTap: () {
-                          Clipboard.setData(
-                            ClipboardData(text: code.toString()),
-                          );
-
-                          Get.snackbar(
-                            "Copiado",
-                            "Código copiado al portapapeles",
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.black87,
-                            colorText: Colors.white,
-                          );
+                          Get.to(() => CategoryDetailPage(categoryId: item.id, categoryName: item.name));
                         },
-                        child: Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: AppTheme.primaryColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(
-                            Icons.copy,
-                            color: AppTheme.primaryColor,
-                          ),
-                        ),
+                        child: ProjectCategoryCard(title: item.name, subtitle: "Grupo", leadingIcon: Icons.group),
                       ),
-                    ],
-                  ),
+                    ),                  
+                    const SizedBox(height: 14),
+                  ],
                 );
               }),
-            ),
-
-            const SizedBox(height: 30),
-
-            /// 🔥 CATEGORÍAS
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 45),
-              child: Text(
-                "Categorias de Grupos",
-                style: AppTheme.bodyM.copyWith(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppTheme.primaryColor300,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            ...categories.map((item) {
-              return Column(
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: GestureDetector(
-                      onTap: () {
-                        // Navegación a la vista de detalle que hicimos antes
-                        Get.to(() => CategoryDetailPage(
-                          categoryId: item.id, 
-                          categoryName: item.name,
-                        ));
-                      },
-                      child: ProjectCategoryCard(
-                        title: item.name,
-                        subtitle: "Grupo",
-                        leadingIcon: Icons.group,
-                      ),
-                    ),
-                  ),                  
-                  const SizedBox(height: 14),
-                ],
-              );
-            }),
-          ],
+            ],
+          ),
         );
       }),
     );
