@@ -15,7 +15,6 @@ import '../../../category/ui/views/student_category_page.dart';
 
 class StudentCoursesPage extends StatelessWidget {
   const StudentCoursesPage({super.key});
-  
   void openAddCourseModal(BuildContext context) {
     final TextEditingController codeController = TextEditingController();
     final CourseController courseController = Get.find();
@@ -29,7 +28,8 @@ class StudentCoursesPage extends StatelessWidget {
           child: AddCourseModal(
             codeController: codeController,
             onCancel: () => Get.back(),
-            onAdd: () => courseController.joinCourse(codeController.text.trim()),
+            onAdd: () =>
+                courseController.joinCourse(codeController.text.trim()),
           ),
         ),
       ),
@@ -63,17 +63,27 @@ class StudentCoursesPage extends StatelessWidget {
                   children: [
                     const Text(
                       "Cursos",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.primaryColor,
+                      ),
                     ),
                     const Spacer(),
                     Obx(() {
-                      final notifController = Get.find<NotificationController>();
+                      final notifController =
+                          Get.find<NotificationController>();
                       return Stack(
                         alignment: Alignment.center,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.notifications_none, size: 28, color: Color(0xFF110E47)),
-                            onPressed: () => Get.to(() => const NotificationsPage()),
+                            icon: const Icon(
+                              Icons.notifications_none,
+                              size: 28,
+                              color: Color(0xFF110E47),
+                            ),
+                            onPressed: () =>
+                                Get.to(() => const NotificationsPage()),
                           ),
                           if (notifController.unreadCount > 0)
                             Positioned(
@@ -81,10 +91,17 @@ class StudentCoursesPage extends StatelessWidget {
                               top: 8,
                               child: Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(color: Colors.redAccent, shape: BoxShape.circle),
+                                decoration: const BoxDecoration(
+                                  color: Colors.redAccent,
+                                  shape: BoxShape.circle,
+                                ),
                                 child: Text(
                                   '${notifController.unreadCount}',
-                                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
@@ -95,39 +112,53 @@ class StudentCoursesPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 20),
-      
               /// 🔹 LISTA DE CURSOS
               Obx(() {
                 if (controller.isLoading.value) {
                   return const Center(
-                    child: Padding(padding: EdgeInsets.only(top: 40), child: CircularProgressIndicator()),
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 40),
+                      child: CircularProgressIndicator(),
+                    ),
                   );
                 }
-      
+
                 if (controller.courses.isEmpty) {
                   return const Padding(
                     padding: EdgeInsets.only(top: 40),
-                    child: Text("No estás inscrito en ningún curso", style: TextStyle(color: Colors.grey)),
+                    child: Text(
+                      "No estás inscrito en ningún curso",
+                      style: TextStyle(color: Colors.grey),
+                    ),
                   );
                 }
-      
+
                 return Column(
                   children: controller.courses.map((course) {
                     // 1. Pedimos los datos pre-procesados a los controladores
-                    final previewCategories = categoryController.getCategoriesPreview(course.id).take(3);
-                    final progressText = categoryController.getCategoryCountText(course.id);
-      
+                    final previewCategories = categoryController
+                        .getCategoriesPreview(course.id)
+                        .take(3);
+                    final progressText = categoryController
+                        .getCategoryCountText(course.id);
+
                     // 2. Mapeamos las categorías a las pastillitas (Projects)
                     final projects = previewCategories.map((c) {
                       return CourseProjectItem(
                         title: c.name,
-                        subtitle: evaluationController.getActiveActivitySubtitle(c.id),
+                        subtitle: evaluationController
+                            .getActiveActivitySubtitle(c.id),
                         onTap: (context, courseTitle, projectTitle) {
-                          Get.to(() => StudentActivitiesPage(categoryId: c.id, categoryName: c.name));
+                          Get.to(
+                            () => StudentActivitiesPage(
+                              categoryId: c.id,
+                              categoryName: c.name,
+                            ),
+                          );
                         },
                       );
                     }).toList();
-      
+
                     // 3. Pintamos la tarjeta
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
@@ -137,7 +168,12 @@ class StudentCoursesPage extends StatelessWidget {
                         leadingIcon: Icons.school,
                         projects: projects,
                         onTap: (context) {
-                          Get.to(() => CourseDetailPage(courseId: course.id, courseTitle: course.name)); 
+                          Get.to(
+                            () => CourseDetailPage(
+                              courseId: course.id,
+                              courseTitle: course.name,
+                            ),
+                          );
                         },
                       ),
                     );

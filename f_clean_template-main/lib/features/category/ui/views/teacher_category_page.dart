@@ -3,40 +3,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
-import 'package:peer_sync/core/utils/loading_overlay.dart';
 import 'package:peer_sync/core/utils/teacher_navigation_helpers.dart';
+import 'package:peer_sync/core/utils/loading_overlay.dart';
+import 'package:peer_sync/features/category/ui/views/category_detail_page.dart';
 import 'package:peer_sync/features/category/ui/widgets/category_card.dart';
-import 'package:peer_sync/features/category/ui/widgets/create_category_modal.dart';
-// Asumo que tienes un TeacherNavigationHelpers o usas el NavBar global
 import 'package:peer_sync/core/widgets/navbar.dart';
 import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
-import 'package:peer_sync/features/category/ui/views/category_detail_page.dart';
-import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
+import 'package:peer_sync/features/category/ui/widgets/create_category_modal.dart';
 import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
+import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
+import 'package:peer_sync/features/notifications/ui/viewmodels/notification_controller.dart';
+import 'package:peer_sync/features/notifications/ui/views/notifications_page.dart';
 
-class CourseDetailPage extends StatefulWidget {
+class TeacherCourseDetailPage extends StatefulWidget {
   final String courseId;
   final String courseTitle;
 
-  const CourseDetailPage({
+  const TeacherCourseDetailPage({
     super.key,
     required this.courseId,
     required this.courseTitle,
   });
 
   @override
-  State<CourseDetailPage> createState() => _CourseDetailPageState();
+  State<TeacherCourseDetailPage> createState() =>
+      _TeacherCourseDetailPageState();
 }
 
-class _CourseDetailPageState extends State<CourseDetailPage> {
-  final categoryController = Get.find<CategoryController>();
-  final groupsController = Get.find<GroupsController>();
-  final courseController = Get.find<CourseController>();
+class _TeacherCourseDetailPageState extends State<TeacherCourseDetailPage> {
+  final CategoryController controller = Get.find<CategoryController>();
+  final EvaluationController evaluationController =
+      Get.find<EvaluationController>();
+  final GroupsController groupsController = Get.find<GroupsController>();
+  final CourseController courseController = Get.find<CourseController>();
 
   @override
   void initState() {
     super.initState();
-    categoryController.loadCategories(widget.courseId);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await controller.loadCategories(widget.courseId);
+
+      for (final category in controller.categories) {
+        evaluationController.loadActiveActivitiesCount(category.id);
+      }
+    });
   }
 
   void openCreateCategoryModal(BuildContext context) {
@@ -55,16 +67,30 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               if (file != null && file.bytes != null) {
                 final csvString = utf8.decode(file.bytes!);
 
-                Get.back(); // Cerramos el modal
+                Get.back();
                 LoadingOverlay.show("Importando grupos y estudiantes...");
+
                 try {
-                  // El controlador ahora importa Y recarga las categorías él solo
-                  await groupsController.importCsvData(widget.courseId, csvString);
+                  await groupsController.importCsvData(
+                    widget.courseId,
+                    csvString,
+                  );
+
+                  await controller.loadCategories(widget.courseId);
+
+                  for (final category in controller.categories) {
+                    evaluationController.loadActiveActivitiesCount(category.id);
+                  }
                 } finally {
                   LoadingOverlay.hide();
                 }
               } else {
-                Get.snackbar('Error', 'No se pudo leer el archivo seleccionado', backgroundColor: Colors.redAccent, colorText: Colors.white);
+                Get.snackbar(
+                  'Error',
+                  'No se pudo leer el archivo seleccionado',
+                  backgroundColor: Colors.redAccent,
+                  colorText: Colors.white,
+                );
               }
             },
           ),
@@ -75,7 +101,6 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    // Adiós al Scaffold anidado, ahora es una página directa y limpia
     return Scaffold(
       backgroundColor: const Color(0xFFF5F6FA),
       appBar: AppBar(
@@ -85,123 +110,215 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
         iconTheme: const IconThemeData(color: AppTheme.primaryColor),
         title: Text(
           widget.courseTitle,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.notifications_none),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryColor,
           ),
+        ),
+        actions: [
+          Obx(() {
+            final notifController = Get.find<NotificationController>();
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(
+                    Icons.notifications_none,
+                    size: 28,
+                    color: Color(0xFF110E47),
+                  ),
+                  onPressed: () => Get.to(() => const NotificationsPage()),
+                ),
+                if (notifController.unreadCount > 0)
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.redAccent,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        '${notifController.unreadCount}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          }),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => openCreateCategoryModal(context),
+        backgroundColor: AppTheme.secondaryColor,
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
+      body: Obx(() {
+        final categories = controller.categories;
 
-      floatingActionButton: Obx(() => groupsController.isLoading.value
-          ? const CircularProgressIndicator()
-          : FloatingActionButton(
-              onPressed: () => openCreateCategoryModal(context),
-              backgroundColor: AppTheme.secondaryColor,
-              child: const Icon(Icons.add, color: Colors.white),
-            )),
+        if (controller.isLoading.value && categories.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
+        if (categories.isEmpty) {
+          return const Center(
+            child: Text(
+              "Este curso no tiene categorías",
+              style: TextStyle(color: Colors.grey),
+            ),
+          );
+        }
+
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(
+              top: 10,
+              left: 20,
+              right: 20,
+              bottom: 20,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+
+                //TÍTULO DEL CÓDIGO
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 45),
+                  child: Text(
+                    "Código del curso",
+                    style: AppTheme.bodyM.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryColor300,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                //CARD DEL CÓDIGO
+                Center(
+                  // Usamos Obx directamente sobre el widget que lo necesita
+                  child: Obx(() {
+                    final code = courseController.getCodeById(widget.courseId);
+                    if (code == null) return const SizedBox();
+
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 40),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            code.toString(),
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryColor,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Clipboard.setData(
+                                ClipboardData(text: code.toString()),
+                              );
+                              Get.snackbar(
+                                "Copiado",
+                                "Código copiado al portapapeles",
+                                snackPosition: SnackPosition.BOTTOM,
+                                backgroundColor: Colors.black87,
+                                colorText: Colors.white,
+                              );
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: AppTheme.primaryColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.copy,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ),
+
+                const SizedBox(height: 30),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25),
+                  child: Text(
+                    "Categorias de Grupos",
+                    style: AppTheme.bodyM.copyWith(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.primaryColor300,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ...categories.map((item) {
+                  final subtitle = evaluationController
+                      .getActiveActivitySubtitle(item.id);
+
+                  return Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.center,
+                        child: GestureDetector(
+                          onTap: () {
+                            Get.to(
+                              () => CategoryDetailPage(
+                                categoryId: item.id,
+                                categoryName: item.name,
+                              ),
+                            );
+                          },
+                          child: ProjectCategoryCard(
+                            title: item.name,
+                            subtitle: subtitle,
+                            leadingIcon: Icons.group,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                    ],
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      }),
       bottomNavigationBar: NavBar(
         currentIndex: 0,
         onTap: (index) => TeacherNavigationHelpers.handleNavTap(index),
       ),
-
-      body: Obx(() {
-        final categories = categoryController.categories;
-
-        if (categoryController.isLoading.value && categories.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-
-              //TÍTULO DEL CÓDIGO
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 45),
-                child: Text(
-                  "Código del curso",
-                  style: AppTheme.bodyM.copyWith(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor300),
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              //CARD DEL CÓDIGO
-              Center(
-                // Usamos Obx directamente sobre el widget que lo necesita
-                child: Obx(() {
-                  final code = courseController.getCodeById(widget.courseId);
-                  if (code == null) return const SizedBox();
-
-                  return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 40),
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4))],
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          code.toString(),
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(ClipboardData(text: code.toString()));
-                            Get.snackbar("Copiado", "Código copiado al portapapeles", snackPosition: SnackPosition.BOTTOM, backgroundColor: Colors.black87, colorText: Colors.white);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(color: AppTheme.primaryColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
-                            child: const Icon(Icons.copy, color: AppTheme.primaryColor),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
-
-              const SizedBox(height: 30),
-
-              /// CATEGORÍAS
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 45),
-                child: Text(
-                  "Categorias de Grupos",
-                  style: AppTheme.bodyM.copyWith(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor300),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              ...categories.map((item) {
-                return Column(
-                  children: [
-                    Align(
-                      alignment: Alignment.center,
-                      child: GestureDetector(
-                        onTap: () {
-                          Get.to(() => CategoryDetailPage(categoryId: item.id, categoryName: item.name));
-                        },
-                        child: ProjectCategoryCard(title: item.name, subtitle: "Grupo", leadingIcon: Icons.group),
-                      ),
-                    ),                  
-                    const SizedBox(height: 14),
-                  ],
-                );
-              }),
-            ],
-          ),
-        );
-      }),
     );
   }
 }
