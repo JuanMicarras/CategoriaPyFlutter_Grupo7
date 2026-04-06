@@ -174,7 +174,7 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   const SizedBox(height: 14),
                 ],
               );
-            }).toList(),
+            }),
           ],
         );
       }),

@@ -1,16 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
+import 'package:peer_sync/core/utils/student_navigation_helpers.dart';
 import 'package:peer_sync/core/widgets/evaluation_card.dart';
 import 'package:peer_sync/core/widgets/navbar.dart';
 import 'package:peer_sync/core/widgets/peer_evaluation.dart';
-import 'package:peer_sync/features/category/ui/bindings/category_binding.dart';
-import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
-import 'package:peer_sync/features/course/ui/bindings/course_binding.dart';
-import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
-import 'package:peer_sync/features/student/ui/views/student_courses_page.dart';
-import 'package:peer_sync/features/student/ui/views/student_home_page.dart';
-import 'package:peer_sync/features/student/ui/views/student_profile_page.dart';
 import '../viewmodels/evaluation_form_controller.dart';
 
 class StudentEvaluationPage extends StatefulWidget {
@@ -51,52 +45,6 @@ class _StudentEvaluationPageState extends State<StudentEvaluationPage> {
         .where((word) => word.trim().isNotEmpty)
         .map((word) => word[0].toUpperCase() + word.substring(1))
         .join(' ');
-  }
-
-  void _ensureStudentCourseDependencies() {
-    if (!Get.isRegistered<dynamic>(tag: 'student_courses_binding_marker')) {
-      CourseBinding().dependencies();
-      CategoryBinding().dependencies();
-      Get.put<Object>(Object(), tag: 'student_courses_binding_marker');
-    } else {
-      if (!Get.isRegistered<CourseController>()) {
-        CourseBinding().dependencies();
-      }
-      if (!Get.isRegistered<CategoryController>()) {
-        CategoryBinding().dependencies();
-      }
-    }
-  }
-
-  void _handleNavTap(int index) {
-    _ensureStudentCourseDependencies();
-
-    if (index == 0) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const _StudentCoursesShell()),
-        (route) => false,
-      );
-      return;
-    }
-
-    if (index == 1) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const _StudentHomeShell()),
-        (route) => false,
-      );
-      return;
-    }
-
-    if (index == 2) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const _StudentProfileShell()),
-        (route) => false,
-      );
-      return;
-    }
   }
 
   @override
@@ -336,126 +284,16 @@ class _StudentEvaluationPageState extends State<StudentEvaluationPage> {
                     ],
                   ),
                 );
-              }).toList(),
+              }),
 
               const SizedBox(height: 40),
             ],
           ),
         );
       }),
-      bottomNavigationBar: NavBar(currentIndex: 0, onTap: _handleNavTap),
-    );
-  }
-}
-
-class _StudentCoursesShell extends StatelessWidget {
-  const _StudentCoursesShell();
-
-  void _ensureBindings() {
-    if (!Get.isRegistered<dynamic>(tag: 'student_courses_binding_marker')) {
-      CourseBinding().dependencies();
-      CategoryBinding().dependencies();
-      Get.put<Object>(Object(), tag: 'student_courses_binding_marker');
-    } else {
-      if (!Get.isRegistered<CourseController>()) {
-        CourseBinding().dependencies();
-      }
-      if (!Get.isRegistered<CategoryController>()) {
-        CategoryBinding().dependencies();
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    _ensureBindings();
-
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: const StudentCoursesPage(),
       bottomNavigationBar: NavBar(
         currentIndex: 0,
-        onTap: (index) {
-          if (index == 0) return;
-          if (index == 1) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const _StudentHomeShell()),
-              (route) => false,
-            );
-          }
-          if (index == 2) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const _StudentProfileShell()),
-              (route) => false,
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class _StudentHomeShell extends StatelessWidget {
-  const _StudentHomeShell();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: const StudentHomePage(),
-      bottomNavigationBar: NavBar(
-        currentIndex: 1,
-        onTap: (index) {
-          if (index == 1) return;
-          if (index == 0) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const _StudentCoursesShell()),
-              (route) => false,
-            );
-          }
-          if (index == 2) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const _StudentProfileShell()),
-              (route) => false,
-            );
-          }
-        },
-      ),
-    );
-  }
-}
-
-class _StudentProfileShell extends StatelessWidget {
-  const _StudentProfileShell();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppTheme.backgroundColor,
-      body: const StudentProfilePage(),
-      bottomNavigationBar: NavBar(
-        currentIndex: 2,
-        onTap: (index) {
-          if (index == 2) return;
-          if (index == 0) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const _StudentCoursesShell()),
-              (route) => false,
-            );
-          }
-          if (index == 1) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const _StudentHomeShell()),
-              (route) => false,
-            );
-          }
-        },
+        onTap: (index) => StudentNavigationHelpers.handleNavTap(index),
       ),
     );
   }

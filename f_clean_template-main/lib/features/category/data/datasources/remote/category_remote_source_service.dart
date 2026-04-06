@@ -49,7 +49,7 @@ class CategoryRemoteSourceService implements ICategoryRemoteSource {
   Future<List<Map<String, dynamic>>> getCategoriesByStudent(
       String courseId) async {
     final email = Get.find<AuthController>().user?.email ?? '';
-    print("📧 Email del usuario: $email");
+    // print("📧 Email del usuario: $email");
     /// 1. 🔥 GROUP MEMBERS
     final memberResponse = await httpClient.get(
       Uri.parse('$baseUrl/read?tableName=GroupMember&email=$email'),

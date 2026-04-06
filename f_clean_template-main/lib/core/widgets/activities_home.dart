@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ActivitiesSection extends StatelessWidget {
+  const ActivitiesSection({super.key});
+
   @override
   Widget build(BuildContext context) {
     return IntrinsicWidth(
@@ -41,6 +43,8 @@ class ActivitiesSection extends StatelessWidget {
 }
 
 class ActivityCard extends StatelessWidget {
+  const ActivityCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(

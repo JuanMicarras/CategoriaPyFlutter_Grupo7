@@ -9,7 +9,7 @@ import '../../../../core/widgets/auth_input_container.dart';
 import '../../../../core/widgets//auth_text_field.dart';
 
 class LoginPage extends GetView<AuthController> {
-  LoginPage({Key? key}) {
+  LoginPage({super.key}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authController = Get.find<AuthController>();
       authController.clearErrors();
@@ -82,8 +82,9 @@ class LoginPage extends GetView<AuthController> {
                 final error =
                     controller.emailError.value ??
                     controller.passwordError.value;
-                if (error == null || error.isEmpty)
+                if (error == null || error.isEmpty) {
                   return const SizedBox.shrink();
+                }
                 return Padding(
                   padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
                   child: Text(

@@ -11,7 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:loggy/loggy.dart';
 
 import 'package:peer_sync/features/notifications/data/datasources/remote/notification_remote_source.dart';
-import 'package:peer_sync/features/notifications/data/repositories/notification_repository_Impl.dart';
+import 'package:peer_sync/features/notifications/data/repositories/notification_repository_impl.dart';
 import 'package:peer_sync/features/notifications/domain/repositories/i_notification_repository.dart';
 import 'package:peer_sync/features/notifications/ui/viewmodels/notification_controller.dart';
 

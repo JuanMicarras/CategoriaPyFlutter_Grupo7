@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:peer_sync/core/widgets/graph.dart';
-import 'package:peer_sync/core/widgets/curses_home.dart';
-import 'package:peer_sync/core/widgets/activities_home.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 
 class TeacherHomePage extends StatelessWidget {

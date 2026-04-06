@@ -113,7 +113,7 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                         ),
                       ),
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: 10),
                 ],
               ),

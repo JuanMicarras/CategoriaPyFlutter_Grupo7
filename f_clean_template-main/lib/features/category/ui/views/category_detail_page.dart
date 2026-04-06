@@ -137,11 +137,13 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
             final timeStr = "$hour:$minute $amPm";
 
             // Mensajes adaptados al profesor
-            String statusText = isExpired ? "Finalizada" : (isPending ? "Programada" : "En curso");
+            String statusTag = isExpired ? "Finalizada" : (isPending ? "Programada" : "En curso");
+            
+            String statusDetail = "";
             if (!activity.visibility) {
-              statusText += " • Oculta (Borrador)";
+              statusDetail = "• Oculta (Borrador)";
             } else {
-               statusText += " • Cierra $timeStr";
+              statusDetail = "• Cierra $timeStr";
             }
 
             final dateBgColor = isExpired ? Colors.grey[200]! : const Color(0xFFE5DBF5);
@@ -149,11 +151,12 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
 
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: ActivityCard(
+              child: ActivityStatusCard(
                 title: activity.name,
                 month: monthStr,
                 day: dayStr,
-                statusText: statusText,
+                statusTag: statusTag,       // <-- Aquí va la palabra clave
+                statusDetail: statusDetail, // <-- Aquí va el resto de la info
                 dateBgColor: dateBgColor,
                 dateTextColor: dateTextColor,
                 onTap: () {

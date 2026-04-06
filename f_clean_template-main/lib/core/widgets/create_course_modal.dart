@@ -39,7 +39,6 @@ class CreateCourseModal extends StatefulWidget {
 
 class _CreateCourseModalState extends State<CreateCourseModal> {
   String? _selectedFileName;
-  PlatformFile? _selectedFile;
 
   Future<void> _pickCsvFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -54,7 +53,6 @@ class _CreateCourseModalState extends State<CreateCourseModal> {
     final file = result.files.first;
 
     setState(() {
-      _selectedFile = file;
       _selectedFileName = file.name;
     });
 
