@@ -11,9 +11,11 @@ import 'package:http/http.dart' as http;
 import 'package:loggy/loggy.dart';
 
 import 'package:peer_sync/features/notifications/data/datasources/remote/notification_remote_source.dart';
-import 'package:peer_sync/features/notifications/data/repositories/notification_repository_Impl.dart';
+import 'package:peer_sync/features/notifications/data/repositories/notification_repository_impl.dart';
 import 'package:peer_sync/features/notifications/domain/repositories/i_notification_repository.dart';
 import 'package:peer_sync/features/notifications/ui/viewmodels/notification_controller.dart';
+import 'package:peer_sync/features/student/ui/views/student_home_page.dart';
+import 'package:peer_sync/features/teacher/ui/views/teacher_home_page.dart';
 
 import 'central.dart';
 import 'core/themes/app_theme.dart';
@@ -34,8 +36,7 @@ import 'features/course/ui/bindings/course_binding.dart';
 
 import 'features/auth/ui/views/login_page.dart';
 import 'features/auth/ui/views/signup_page.dart';
-import 'features/student/ui/views/home_page.dart';
-import 'features/teacher/ui/views/home_page.dart';
+
 
 void main() {
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
@@ -98,7 +99,7 @@ class MyApp extends StatelessWidget {
         ),
         GetPage(
           name: '/homeStudent',
-          page: () => const HomePageSt(),
+          page: () => const StudentHomePage(),
           binding: BindingsBuilder(() {
             CourseBinding().dependencies();
             CategoryBinding().dependencies();
@@ -106,7 +107,7 @@ class MyApp extends StatelessWidget {
         ),
         GetPage(
           name: '/homeTeacher',
-          page: () => const HomePageTe(),
+          page: () => const TeacherHomePage(),
           binding: BindingsBuilder(() {
             CourseBinding().dependencies();
             CategoryBinding().dependencies();

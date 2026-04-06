@@ -109,6 +109,7 @@ class AuthRepositoryImpl implements IAuthRepository {
     }
   }
 
+  @override
   Future<T> safeRequest<T>(Future<T> Function() request) async {
     try {
       return await request();

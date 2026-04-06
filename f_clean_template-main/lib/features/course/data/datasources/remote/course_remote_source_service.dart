@@ -162,7 +162,7 @@ class CourseRemoteSourceService implements ICourseRemoteSource {
         'tableName': 'Course',
         'records': [
           {
-            'course_id': generateIntId(),
+            'course_id': int.parse(id),
             'course_name': name,
             'code': code,
           },

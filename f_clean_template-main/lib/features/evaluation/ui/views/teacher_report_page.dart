@@ -7,7 +7,7 @@ class TeacherReportPage extends StatefulWidget {
   final String activityId;
   final String activityName;
   final String categoryId;
-
+  
   const TeacherReportPage({
     super.key,
     required this.activityId,
@@ -71,9 +71,14 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                 children: [
                   const Divider(),
                   ...group.students.map((student) {
+                    // Pedimos al controlador cómo debe verse este estudiante
+                    final statusUI = controller.getStudentStatusUI(student.isComplete);
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                      title: Text("${student.firstName} ${student.lastName}", style: const TextStyle(fontWeight: FontWeight.bold)),
+                      title: Text(
+                        controller.formatStudentName(student.firstName, student.lastName), 
+                        style: const TextStyle(fontWeight: FontWeight.bold)
+                      ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -83,14 +88,14 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
-                              color: student.isComplete ? Colors.green.withOpacity(0.1) : Colors.orange.withOpacity(0.1),
+                              color: statusUI.bgColor, // Sacado del Record
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              student.isComplete ? "Evaluaciones completas" : "Falta por evaluar",
+                              statusUI.text, // Sacado del Record
                               style: TextStyle(
                                 fontSize: 11,
-                                color: student.isComplete ? Colors.green[700] : Colors.orange[800],
+                                color: statusUI.textColor, // Sacado del Record
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -107,13 +112,13 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                         ),
                         child: Center(
                           child: Text(
-                            student.finalGrade.toStringAsFixed(1),
+                            controller.formatGrade(student.finalGrade), 
                             style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryColor, fontSize: 16),
                           ),
                         ),
                       ),
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: 10),
                 ],
               ),

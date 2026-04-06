@@ -28,6 +28,53 @@ class EvaluationFormController extends GetxController {
 
   // Saber quién soy yo
   String get myEmail => authController.user?.email ?? '';
+  Peer? get myPeerData => peers.firstWhereOrNull((p) => p.email == myEmail);
+  List<Peer> get otherPeers => peers.where((p) => p.email != myEmail).toList();
+  // 3. Formateador de texto (Title Case)
+  String formatName(String firstName, String lastName) {
+    final text = "$firstName $lastName";
+    return text.toLowerCase().split(' ')
+        .where((word) => word.trim().isNotEmpty)
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
+
+  // 4. Obtener mi nota para un criterio específico
+  String getMyScoreText(String criteriaName) {
+    if (myAverageResults.isEmpty) return "0.0";
+
+    final normalizedTarget = criteriaName.toLowerCase().replaceAll('ó', 'o');
+    final matchedCriteria = criteriaList.firstWhereOrNull((c) {
+      return c.name.toLowerCase().replaceAll('ó', 'o') == normalizedTarget;
+    });
+
+    if (matchedCriteria != null && myAverageResults.containsKey(matchedCriteria.id)) {
+      return myAverageResults[matchedCriteria.id]!.toStringAsFixed(1);
+    }
+    return "0.0";
+  }
+
+  // 5. Obtener mi nota general
+  String get myGeneralScore {
+    return myAverageResults['general_score']?.toStringAsFixed(1) ?? "0.0";
+  }
+
+  // 6. Obtener la nota que yo le guardé a un compañero
+  double? getSavedScoreForPeer(String peerEmail, String criteriaName) {
+    if (!completedEvaluations.containsKey(peerEmail)) return null;
+    
+    final savedScores = completedEvaluations[peerEmail]!;
+    final criteriaObj = criteriaList.firstWhereOrNull((c) => c.name == criteriaName);
+    
+    return criteriaObj != null ? savedScores[criteriaObj.id] : null;
+  }
+
+  // 7. Calcular el estado de la evaluación para mostrar en UI
+  String getEvaluationStatusText(String peerEmail, bool isExpired) {
+    if (completedEvaluations.containsKey(peerEmail)) return "Completado";
+    if (isExpired) return "No evaluado";
+    return "Pendiente";
+  }
 
   bool isPeerSubmitting(String peerEmail) {
     return submittingPeers[peerEmail] ?? false;

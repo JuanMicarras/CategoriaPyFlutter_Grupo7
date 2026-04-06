@@ -4,12 +4,12 @@ import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/features/auth/ui/views/forgot_password_page.dart';
 
-import '../../../../core/widgets/auth_logo.dart';
-import '../../../../core/widgets/auth_input_container.dart';
-import '../../../../core/widgets//auth_text_field.dart';
+import '../widgets/auth_logo.dart';
+import '../widgets/auth_input_container.dart';
+import '../widgets/auth_text_field.dart';
 
 class LoginPage extends GetView<AuthController> {
-  LoginPage({Key? key}) {
+  LoginPage({super.key}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authController = Get.find<AuthController>();
       authController.clearErrors();
@@ -82,8 +82,9 @@ class LoginPage extends GetView<AuthController> {
                 final error =
                     controller.emailError.value ??
                     controller.passwordError.value;
-                if (error == null || error.isEmpty)
+                if (error == null || error.isEmpty) {
                   return const SizedBox.shrink();
+                }
                 return Padding(
                   padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
                   child: Text(
@@ -118,32 +119,21 @@ class LoginPage extends GetView<AuthController> {
                   () => ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
-                      disabledBackgroundColor: AppTheme.primaryColor
-                          .withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
+                      disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     ),
-                    onPressed:
-                        controller.isLoading.value ||
-                            controller.emailError.value != null ||
-                            controller.passwordError.value != null
-                        ? null
-                        : () {
-                            controller.login(
+                    // ¡Limpio! Le preguntamos al controlador
+                    onPressed: controller.canSubmitLogin 
+                        ? () => controller.login(
                               controller.emailController.text.trim(),
                               controller.passwordController.text.trim(),
-                            );
-                          },
+                            )
+                        : null,
                     child: controller.isLoading.value
                         ? const CircularProgressIndicator(color: Colors.white)
                         : const Text(
                             "Iniciar Sesión",
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
                           ),
                   ),
                 ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:file_picker/file_picker.dart';
 import '../../domain/repositories/i_groups_repository.dart';
+import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart'; 
 
 class GroupsController extends GetxController {
   final IGroupsRepository repository;
@@ -56,6 +57,10 @@ class GroupsController extends GetxController {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
           const SnackBar(content: Text('¡Grupos importados exitosamente!'), backgroundColor: Colors.green),
         );
+      }
+
+      if (Get.isRegistered<CategoryController>()) {
+        Get.find<CategoryController>().loadCategories(courseId);
       }
     } catch (e) {
       if (Get.context != null) {

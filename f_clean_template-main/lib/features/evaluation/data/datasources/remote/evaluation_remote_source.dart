@@ -200,6 +200,7 @@ class EvaluationRemoteSource implements IEvaluationRemoteSource {
   }
 
   // NUEVO MÉTODO: Trae las evaluaciones que ya le hice a mis compañeros en esta actividad
+  @override
   Future<Map<String, Map<String, double>>> getMyEvaluations(String activityId, String myEmail) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('tokenA');
@@ -259,7 +260,9 @@ class EvaluationRemoteSource implements IEvaluationRemoteSource {
 
     // === CÁLCULO EXACTO ENTRE 4 ===
     double total = 0;
-    scores.values.forEach((v) => total += v);
+    for (var v in scores.values) {
+      total += v;
+    }
     double generalScore = total / 4.0; // Dividimos explícitamente entre 4
     // ================================
 
@@ -296,6 +299,7 @@ class EvaluationRemoteSource implements IEvaluationRemoteSource {
   }
 
   // NUEVO MÉTODO: Trae el promedio de las calificaciones que me han puesto
+  @override
   Future<Map<String, double>> getMyAverageResults(String activityId, String myEmail) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('tokenA');
@@ -338,6 +342,7 @@ class EvaluationRemoteSource implements IEvaluationRemoteSource {
     return averages;
   }
 
+  @override
   Future<List<GroupReport>> getActivityReport(String activityId, String categoryId) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('tokenA');

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
 import '../../../course/domain/models/course.dart';
 import '../../domain/repositories/i_course_repository.dart';
 import '../../../auth/ui/viewmodels/auth_controller.dart';
+import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart'; 
 
 class CourseController extends GetxController {
   final ICourseRepository repository;
@@ -43,12 +45,13 @@ class CourseController extends GetxController {
   }
 
   /// 🔥 CREAR CURSO
-  Future<void> createCourse(String name) async {
+  Future<String?> createCourse(String name) async {
     try {
       isLoading.value = true;
+      final newCourseId = _generateId();
 
       final course = Course(
-        id: _generateId(),
+        id: newCourseId,
         name: name,
         code: _generateCode(),
       );
@@ -64,9 +67,12 @@ class CourseController extends GetxController {
         await loadCoursesByUser();
 
         _showSuccess("Curso creado correctamente");
+        return newCourseId;
       }
+      return null;
     } catch (e) {
       _showError(e);
+      return null;
     } finally {
       isLoading.value = false;
     }
@@ -121,10 +127,30 @@ class CourseController extends GetxController {
   Future<void> loadCoursesByUser() async {
     try {
       isLoading.value = true;
-
       final response = await repository.getCoursesByUser();
-
       courses.assignAll(response);
+
+      // 🔥 LA MAGIA DE LA ORQUESTACIÓN
+      // El CourseController le avisa a los demás que hagan su trabajo
+      if (Get.isRegistered<CategoryController>()) {
+        final categoryCtrl = Get.find<CategoryController>();
+        // Buscamos si el controlador de evaluación está en memoria
+        final evalCtrl = Get.isRegistered<EvaluationController>() ? Get.find<EvaluationController>() : null;
+
+        for (var course in response) {
+          // 1. Cargamos el preview del profesor
+          categoryCtrl.loadCategoriesForCourseCard(course.id);
+          
+          // 2. Cargamos el preview del estudiante y ENCADENAMOS la carga de evaluaciones
+          categoryCtrl.loadCategoriesForCourseCardByStudent(course.id).then((_) {
+            // Cuando las categorías del estudiante llegan, mandamos a contar las actividades
+            final studentCategories = categoryCtrl.getCategoriesPreview(course.id);
+            for (var category in studentCategories.take(3)) {
+              evalCtrl?.loadActiveActivitiesCount(category.id);
+            }
+          });
+        }
+      }
     } catch (e) {
       _showError(e);
     } finally {

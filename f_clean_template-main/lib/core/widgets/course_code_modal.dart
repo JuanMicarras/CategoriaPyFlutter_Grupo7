@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
-
+//TODO:este widget es muy especifico y no se esta usando
 class CourseCodeModal extends StatelessWidget {
   final String title;
   final String code;

@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 // Ajusta esta ruta según la ubicación real de tu controlador:
 import '../viewmodels/evaluation_controller.dart'; 
-
+//TODO ESTA VISTA NO SE USA, SE PUEDE BORRAR SI SE QUIERE, SOLO ES UN EJEMPLO DE CÓMO PODRÍA SER LA PANTALLA PARA CREAR UNA ACTIVIDAD NUEVA DENTRO DE UNA CATEGORÍA. 
 class CreateActivityPage extends StatelessWidget {
   // Pedimos el ID de la categoría a la que pertenecerá esta actividad
   final String categoryId;

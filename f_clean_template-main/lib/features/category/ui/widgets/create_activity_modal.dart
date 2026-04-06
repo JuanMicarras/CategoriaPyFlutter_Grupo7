@@ -124,7 +124,7 @@ class CreateActivityModal extends StatelessWidget {
                 child: Switch(
                   value: isPublic,
                   onChanged: onPublicChanged,
-                  activeColor: Colors.white,
+                  activeThumbColor: Colors.white,
                   activeTrackColor: AppTheme.primaryColor,
                   inactiveThumbColor: Colors.white,
                   inactiveTrackColor: const Color(0xFFD1D5DB),

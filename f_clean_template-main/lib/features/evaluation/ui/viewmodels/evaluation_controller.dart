@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
+import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
 import 'package:peer_sync/features/evaluation/domain/models/activity.dart';
 import '../../domain/repositories/i_evaluation_repository.dart';
 
@@ -26,6 +28,163 @@ class EvaluationController extends GetxController {
   // Actividades de una categoría específica
   final activities = <Activity>[].obs;
   final isLoadingActivities = false.obs;
+
+  // 1. Getter que devuelve la lista ordenada automáticamente
+  List<Activity> get sortedActivities {
+    final sorted = List<Activity>.from(activities);
+
+    sorted.sort((a, b) {
+      final priorityA = _getActivityPriority(a);
+      final priorityB = _getActivityPriority(b);
+
+      if (priorityA != priorityB) return priorityA.compareTo(priorityB);
+      if (priorityA == 0) return a.endDate.compareTo(b.endDate);
+      if (priorityA == 1) return a.startDate.compareTo(b.startDate);
+      return b.endDate.compareTo(a.endDate);
+    });
+
+    return sorted;
+  }
+
+  // Helper privado para la prioridad
+  int _getActivityPriority(Activity activity) {
+    final now = DateTime.now();
+    if (now.isAfter(activity.endDate)) return 2; // Vencida
+    if (now.isBefore(activity.startDate)) return 1; // Pendiente (futuro)
+    return 0; // Activa
+  }
+
+  // 2. Función que formatea toda la UI para que la vista no tenga que pensar
+  ({
+    String month,
+    String day,
+    String statusLabel,
+    String statusDetail,
+    bool isExpired,
+    bool isPending,
+    bool isActive,
+  })
+  getActivityUIData(Activity activity) {
+    final now = DateTime.now();
+    final isExpired = now.isAfter(activity.endDate);
+    final isPending = now.isBefore(activity.startDate);
+    final isActive = !isExpired && !isPending;
+
+    const monthNames = [
+      'ENE',
+      'FEB',
+      'MAR',
+      'ABR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AGO',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DIC',
+    ];
+
+    // Si está pendiente usamos la fecha de inicio, si no, la de fin.
+    final targetDate = isPending ? activity.startDate : activity.endDate;
+
+    final monthStr = monthNames[targetDate.month - 1];
+    final dayStr = targetDate.day.toString();
+
+    // Lógica de hora
+    final hour = targetDate.hour > 12
+        ? targetDate.hour - 12
+        : (targetDate.hour == 0 ? 12 : targetDate.hour);
+    final amPm = targetDate.hour >= 12 ? 'PM' : 'AM';
+    final minute = targetDate.minute.toString().padLeft(2, '0');
+    final timeStr = "$hour:$minute $amPm";
+
+    // Textos de estado
+    String label;
+    String detail;
+
+    if (isExpired) {
+      label = 'Vencida';
+      detail = '• Cierre: $dayStr $monthStr $timeStr';
+    } else if (isPending) {
+      label = 'Próximamente';
+      detail = '• Abre: $dayStr $monthStr $timeStr';
+    } else {
+      label = 'Pendiente'; // Significa "Pendiente de entregar / En curso"
+      detail = '• Cierre: $dayStr $monthStr $timeStr';
+    }
+
+    return (
+      month: monthStr,
+      day: dayStr,
+      statusLabel: label,
+      statusDetail: detail,
+      isExpired: isExpired,
+      isPending: isPending,
+      isActive: isActive,
+    );
+  }
+
+  // --- LÓGICA DE UI PARA EL PROFESOR ---
+
+  ({
+    String month,
+    String day,
+    String statusTag,
+    String statusDetail,
+    bool isExpired,
+  })
+  getTeacherActivityUIData(Activity activity) {
+    final now = DateTime.now();
+    final isExpired = now.isAfter(activity.endDate);
+    final isPending = now.isBefore(activity.startDate);
+
+    const monthNames = [
+      'ENE',
+      'FEB',
+      'MAR',
+      'ABR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AGO',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DIC',
+    ];
+    final monthStr = monthNames[activity.endDate.month - 1];
+    final dayStr = activity.endDate.day.toString();
+
+    // Lógica de hora
+    final hour = activity.endDate.hour > 12
+        ? activity.endDate.hour - 12
+        : (activity.endDate.hour == 0 ? 12 : activity.endDate.hour);
+    final amPm = activity.endDate.hour >= 12 ? 'PM' : 'AM';
+    final minute = activity.endDate.minute.toString().padLeft(2, '0');
+    final timeStr = "$hour:$minute $amPm";
+
+    // Textos de estado específicos para el profesor
+    String statusTag = isExpired
+        ? "Finalizada"
+        : (isPending ? "Programada" : "En curso");
+
+    String statusDetail = "";
+    if (!activity.visibility) {
+      statusDetail = "• Oculta (Borrador)";
+    } else {
+      statusDetail = "• Cierra $timeStr";
+    }
+
+    return (
+      month: monthStr,
+      day: dayStr,
+      statusTag: statusTag,
+      statusDetail: statusDetail,
+      isExpired: isExpired,
+    );
+  }
+
   // Variables para la vista del profesor
   final teacherActivities = <Activity>[].obs;
   final isLoadingTeacherActivities = false.obs;
@@ -253,6 +412,13 @@ class EvaluationController extends GetxController {
     return activeActivitiesCountByCategory[categoryId] ?? 0;
   }
 
+  String getActiveActivitySubtitle(String categoryId) {
+    final count = getActiveActivitiesCount(categoryId);
+    if (count == 0) return "Sin actividades activas";
+    if (count == 1) return "1 actividad activa";
+    return "$count actividades activas";
+  }
+
   bool isLoadingActiveActivitiesCount(String categoryId) {
     return loadingActiveCountByCategory[categoryId] ?? false;
   }
@@ -306,6 +472,26 @@ class EvaluationController extends GetxController {
     } finally {
       isLoadingHomeActivities.value = false;
     }
+  }
+
+  // 🔥 NUEVA FUNCIÓN ORQUESTADORA PARA EL HOME
+  Future<void> loadHomeDataGlobal() async {
+    // Buscamos los controladores hermanos
+    final courseCtrl = Get.find<CourseController>();
+    final categoryCtrl = Get.find<CategoryController>();
+
+    // 1. Recargamos los cursos
+    await courseCtrl.loadCoursesByUser();
+
+    // 2. Extraemos todos los IDs de las categorías de esos cursos
+    final categoryIds = <String>[];
+    for (final course in courseCtrl.courses) {
+      final categories = categoryCtrl.getCategoriesPreview(course.id);
+      categoryIds.addAll(categories.map((c) => c.id));
+    }
+
+    // 3. Cargamos las actividades recientes con esos IDs
+    await loadHomeActivitiesPreview(categoryIds);
   }
 
   void _showMessage(String message, Color color) {

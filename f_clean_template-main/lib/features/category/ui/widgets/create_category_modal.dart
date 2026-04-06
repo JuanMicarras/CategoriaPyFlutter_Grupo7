@@ -34,7 +34,6 @@ class CreateGroupCategoryModal extends StatefulWidget {
 
 class _CreateGroupCategoryModalState extends State<CreateGroupCategoryModal> {
   String? _selectedFileName;
-  PlatformFile? _selectedFile;
 
   Future<void> _pickCsvFile() async {
     final result = await FilePicker.platform.pickFiles(
@@ -49,7 +48,6 @@ class _CreateGroupCategoryModalState extends State<CreateGroupCategoryModal> {
     final file = result.files.first;
 
     setState(() {
-      _selectedFile = file;
       _selectedFileName = file.name;
     });
 
