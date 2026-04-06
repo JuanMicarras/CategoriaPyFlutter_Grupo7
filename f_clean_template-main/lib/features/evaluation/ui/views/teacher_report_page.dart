@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
+import 'package:peer_sync/core/utils/teacher_navigation_helpers.dart';
+import 'package:peer_sync/core/widgets/navbar.dart';
 import '../viewmodels/teacher_report_controller.dart';
 
 class TeacherReportPage extends StatefulWidget {
   final String activityId;
   final String activityName;
   final String categoryId;
-  
+
   const TeacherReportPage({
     super.key,
     required this.activityId,
@@ -20,7 +22,8 @@ class TeacherReportPage extends StatefulWidget {
 }
 
 class _TeacherReportPageState extends State<TeacherReportPage> {
-  final TeacherReportController controller = Get.find<TeacherReportController>();
+  final TeacherReportController controller =
+      Get.find<TeacherReportController>();
 
   @override
   void initState() {
@@ -40,7 +43,11 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
         iconTheme: const IconThemeData(color: AppTheme.primaryColor),
         title: Text(
           'Reporte: ${widget.activityName}',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppTheme.primaryColor,
+          ),
         ),
       ),
       body: Obx(() {
@@ -60,49 +67,70 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
 
             return Card(
               margin: const EdgeInsets.only(bottom: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: ExpansionTile(
-                shape: const Border(), // Quita las líneas bordes feos al expandir
+                shape: const Border(),
                 title: Text(
                   group.groupName,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppTheme.primaryColor),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: AppTheme.primaryColor,
+                  ),
                 ),
                 subtitle: Text("${group.students.length} estudiantes"),
                 children: [
                   const Divider(),
                   ...group.students.map((student) {
-                    // Pedimos al controlador cómo debe verse este estudiante
-                    final statusUI = controller.getStudentStatusUI(student.isComplete);
+                    final statusUI = controller.getStudentStatusUI(
+                      student.isComplete,
+                    );
+
                     return ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
                       title: Text(
-                        controller.formatStudentName(student.firstName, student.lastName), 
-                        style: const TextStyle(fontWeight: FontWeight.bold)
+                        controller.formatStudentName(
+                          student.firstName,
+                          student.lastName,
+                        ),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(student.email, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                          Text(
+                            student.email,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
                           const SizedBox(height: 4),
-                          // Etiqueta de Estado (Completó o le falta)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: statusUI.bgColor, // Sacado del Record
+                              color: statusUI.bgColor,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              statusUI.text, // Sacado del Record
+                              statusUI.text,
                               style: TextStyle(
                                 fontSize: 11,
-                                color: statusUI.textColor, // Sacado del Record
+                                color: statusUI.textColor,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      // El Círculo con la Nota
                       trailing: Container(
                         width: 50,
                         height: 50,
@@ -112,8 +140,12 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
                         ),
                         child: Center(
                           child: Text(
-                            controller.formatGrade(student.finalGrade), 
-                            style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryColor, fontSize: 16),
+                            controller.formatGrade(student.finalGrade),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppTheme.primaryColor,
+                              fontSize: 16,
+                            ),
                           ),
                         ),
                       ),
@@ -126,6 +158,10 @@ class _TeacherReportPageState extends State<TeacherReportPage> {
           },
         );
       }),
+      bottomNavigationBar: NavBar(
+        currentIndex: 0,
+        onTap: (index) => TeacherNavigationHelpers.handleNavTap(index),
+      ),
     );
   }
 }
