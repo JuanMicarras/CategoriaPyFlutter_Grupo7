@@ -338,11 +338,8 @@ class EvaluationController extends GetxController {
 
       final result = await repository.getActivitiesByCategory(categoryId);
 
-      final visibleActivities = result
-          .where((act) => act.visibility == true)
-          .toList();
+      activities.assignAll(result);
 
-      activities.assignAll(visibleActivities);
     } catch (e) {
       Get.snackbar(
         'Error',

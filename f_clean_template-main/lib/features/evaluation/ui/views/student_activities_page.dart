@@ -89,6 +89,7 @@ class _StudentActivitiesPageState extends State<StudentActivitiesPage> {
                         activityId: activity.id,
                         activityName: activity.name,
                         categoryId: widget.categoryId,
+                        visibility: activity.visibility,
                         isExpired: uiData.isExpired,
                       ),
                     );
