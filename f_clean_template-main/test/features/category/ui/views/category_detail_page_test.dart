@@ -13,6 +13,9 @@ import 'package:peer_sync/features/category/ui/widgets/create_activity_modal.dar
 // --- FAKES Y MOCKS ---
 class FakeBuildContext extends Fake implements BuildContext {}
 
+// NUEVO: Fake para el modelo Activity
+class FakeActivity extends Fake implements Activity {}
+
 class MockEvaluationController extends GetxController
     with Mock
     implements EvaluationController {}
@@ -21,7 +24,9 @@ void main() {
   late MockEvaluationController mockController;
 
   setUpAll(() {
+    // Registramos ambos fallbacks
     registerFallbackValue(FakeBuildContext());
+    registerFallbackValue(FakeActivity());
   });
 
   setUp(() {
@@ -33,7 +38,7 @@ void main() {
     when(() => mockController.isVisible).thenReturn(true.obs);
     when(() => mockController.isLoading).thenReturn(false.obs);
 
-    // 2. MOCKS DE CONTROLADORES DE TEXTO (Necesarios para el modal)
+    // 2. MOCKS DE CONTROLADORES DE TEXTO
     when(() => mockController.nameController).thenReturn(TextEditingController());
     when(() => mockController.descriptionController).thenReturn(TextEditingController());
     when(() => mockController.startDateController).thenReturn(TextEditingController());
@@ -45,7 +50,6 @@ void main() {
     when(() => mockController.loadTeacherActivities(any())).thenAnswer((_) async {});
     when(() => mockController.saveActivity(any())).thenAnswer((_) async => true);
     
-    // Mock de los pickers para que no fallen al abrirlos
     when(() => mockController.pickStartDate(any())).thenAnswer((_) async {});
     when(() => mockController.pickEndDate(any())).thenAnswer((_) async {});
     when(() => mockController.pickStartTime(any())).thenAnswer((_) async {});
@@ -83,14 +87,14 @@ void main() {
       ),
     );
 
-    await tester.pump(); // Procesar el frame inicial
+    await tester.pump();
 
     expect(find.textContaining("No hay actividades creadas aún"), findsOneWidget);
     verify(() => mockController.loadTeacherActivities('1')).called(1);
   });
 
   // ----------------------------------------------------
-  // TEST 3: LISTA CON DATOS (Corregido)
+  // TEST 3: LISTA CON DATOS
   // ----------------------------------------------------
   testWidgets('3. Debe renderizar la lista de actividades correctamente', (WidgetTester tester) async {
     final mockActivity = Activity(
@@ -103,10 +107,9 @@ void main() {
       visibility: true,
     );
 
-    // Seteamos el mock con la actividad
     when(() => mockController.teacherActivities).thenReturn(<Activity>[mockActivity].obs);
     
-    // Mockeamos la data que el Card espera recibir para pintar
+    // Ahora el any() de Activity funcionará por el registerFallbackValue
     when(() => mockController.getTeacherActivityUIData(any())).thenReturn((
       month: 'ABR',
       day: '08',
@@ -121,17 +124,15 @@ void main() {
       ),
     );
 
-    // pumpAndSettle para asegurar que GetX actualice el Obx con la lista
     await tester.pumpAndSettle();
 
-    // Verificamos por texto parcial para evitar errores de mayúsculas/minúsculas
     expect(find.textContaining('Exposición Final'), findsOneWidget);
     expect(find.text('En curso'), findsOneWidget);
     expect(find.byType(ActivityStatusCard), findsOneWidget);
   });
 
   // ----------------------------------------------------
-  // TEST 4: APERTURA DEL MODAL (Corregido)
+  // TEST 4: APERTURA DEL MODAL
   // ----------------------------------------------------
   testWidgets('4. Debe abrir el modal de creación al presionar el FAB', (WidgetTester tester) async {
     await tester.pumpWidget(
@@ -140,13 +141,9 @@ void main() {
       ),
     );
 
-    // Presionamos el botón de añadir
     await tester.tap(find.byType(FloatingActionButton));
-    
-    // Esperamos a que la animación de Get.dialog termine
     await tester.pumpAndSettle();
 
-    // Verificamos que el widget del modal existe en el árbol
     expect(find.byType(CreateActivityModal), findsOneWidget);
   });
 }
