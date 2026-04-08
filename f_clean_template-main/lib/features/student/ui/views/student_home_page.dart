@@ -135,6 +135,7 @@ class StudentHomePage extends StatelessWidget {
                               activityId: activity.id,
                               activityName: activity.name,
                               categoryId: activity.categoryId,
+                              visibility: activity.visibility,
                               isExpired: uiData.isExpired,
                             ));
                           },

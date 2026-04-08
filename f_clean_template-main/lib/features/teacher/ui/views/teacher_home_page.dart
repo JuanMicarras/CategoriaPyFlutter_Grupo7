@@ -42,18 +42,8 @@ class TeacherHomePage extends StatelessWidget {
 
   String _formatMonth(int month) {
     const monthNames = [
-      'ENE',
-      'FEB',
-      'MAR',
-      'ABR',
-      'MAY',
-      'JUN',
-      'JUL',
-      'AGO',
-      'SEP',
-      'OCT',
-      'NOV',
-      'DIC',
+      'ENE','FEB','MAR','ABR','MAY','JUN',
+      'JUL','AGO','SEP','OCT','NOV','DIC',
     ];
     return monthNames[month - 1];
   }
@@ -97,14 +87,14 @@ class TeacherHomePage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       body: Obx(() {
-        final recentCourses = courseController.courses.reversed
-            .take(2)
-            .toList();
+        final recentCourses =
+            courseController.courses.reversed.take(2).toList();
         final recentActivities = evaluationController.homeActivities;
 
         final isLoading =
             courseController.isLoading.value ||
             evaluationController.isLoadingHomeActivities.value;
+
         final hasAnyContent =
             recentCourses.isNotEmpty || recentActivities.isNotEmpty;
 
@@ -121,6 +111,7 @@ class TeacherHomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  /// HEADER
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
@@ -147,9 +138,12 @@ class TeacherHomePage extends StatelessWidget {
                           ],
                         ),
                         const Spacer(),
+
+                        /// NOTIFICACIONES
                         Obx(() {
                           final notifController =
                               Get.find<NotificationController>();
+
                           return Stack(
                             alignment: Alignment.center,
                             children: [
@@ -188,14 +182,19 @@ class TeacherHomePage extends StatelessWidget {
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
                   const EvaluationCard(),
                   const SizedBox(height: 20),
+
+                  /// LOADING
                   if (isLoading && !hasAnyContent)
                     const Padding(
-                      padding: EdgeInsets.only(top: 40, bottom: 40),
+                      padding: EdgeInsets.symmetric(vertical: 40),
                       child: CircularProgressIndicator(),
                     ),
+
+                  /// VACÍO
                   if (!isLoading && !hasAnyContent)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.35,
@@ -211,6 +210,8 @@ class TeacherHomePage extends StatelessWidget {
                         ),
                       ),
                     ),
+
+                  /// ACTIVIDADES
                   if (recentActivities.isNotEmpty) ...[
                     const Align(
                       alignment: Alignment.centerLeft,
@@ -224,6 +225,7 @@ class TeacherHomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
+
                     ...recentActivities.map((activity) {
                       final now = DateTime.now();
                       final isExpired = now.isAfter(activity.endDate);
@@ -231,6 +233,7 @@ class TeacherHomePage extends StatelessWidget {
                       final dateBgColor = isExpired
                           ? Colors.grey[200]!
                           : const Color(0xFFE5DBF5);
+
                       final dateTextColor = isExpired
                           ? Colors.grey[600]!
                           : const Color(0xFF8761BE);
@@ -245,23 +248,25 @@ class TeacherHomePage extends StatelessWidget {
                           month: _formatMonth(activity.endDate.month),
                           day: activity.endDate.day.toString(),
                           statusTag: parts.first,
-                          statusDetail: parts.length > 1 ? parts.last : '',
+                          statusDetail:
+                              parts.length > 1 ? parts.last : '',
                           dateBgColor: dateBgColor,
                           dateTextColor: dateTextColor,
                           onTap: () {
-                            Get.to(
-                              () => TeacherReportPage(
-                                activityId: activity.id,
-                                activityName: activity.name,
-                                categoryId: activity.categoryId,
-                              ),
-                            );
+                            Get.to(() => TeacherReportPage(
+                                  activityId: activity.id,
+                                  activityName: activity.name,
+                                  categoryId: activity.categoryId,
+                                ));
                           },
                         ),
                       );
                     }),
+
                     const SizedBox(height: 30),
                   ],
+
+                  /// CURSOS
                   if (recentCourses.isNotEmpty) ...[
                     const Align(
                       alignment: Alignment.centerLeft,
@@ -275,8 +280,8 @@ class TeacherHomePage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
+
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: List.generate(recentCourses.length, (index) {
                         final course = recentCourses[index];
                         final progressText = categoryController
@@ -285,7 +290,8 @@ class TeacherHomePage extends StatelessWidget {
                         return Expanded(
                           child: Padding(
                             padding: EdgeInsets.only(
-                              right: index == 0 && recentCourses.length > 1
+                              right: index == 0 &&
+                                      recentCourses.length > 1
                                   ? 8
                                   : 0,
                               left: index == 1 ? 8 : 0,
@@ -294,12 +300,10 @@ class TeacherHomePage extends StatelessWidget {
                               title: course.name,
                               subtitle: progressText,
                               onTap: () {
-                                Get.to(
-                                  () => TeacherCourseDetailPage(
-                                    courseId: course.id,
-                                    courseTitle: course.name,
-                                  ),
-                                );
+                                Get.to(() => TeacherCourseDetailPage(
+                                      courseId: course.id,
+                                      courseTitle: course.name,
+                                    ));
                               },
                             ),
                           ),
@@ -307,6 +311,7 @@ class TeacherHomePage extends StatelessWidget {
                       }),
                     ),
                   ],
+
                   const SizedBox(height: 30),
                 ],
               ),
@@ -314,14 +319,18 @@ class TeacherHomePage extends StatelessWidget {
           ),
         );
       }),
+
+      /// ✅ SOLO AQUÍ VA EL NAVBAR
       bottomNavigationBar: NavBar(
         currentIndex: 1,
-        onTap: (index) => TeacherNavigationHelpers.handleNavTap(index),
+        onTap: (index) =>
+            TeacherNavigationHelpers.handleNavTap(index),
       ),
     );
   }
 }
 
+/// CARD DE CURSO (CORREGIDA)
 class _HomeCourseCard extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -423,10 +432,6 @@ class _HomeCourseCard extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: NavBar(
-        currentIndex: 1, // 1 = Home
-        onTap: (index) => TeacherNavigationHelpers.handleNavTap(index),
       ),
     );
   }

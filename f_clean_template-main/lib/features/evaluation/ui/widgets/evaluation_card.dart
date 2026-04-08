@@ -20,6 +20,8 @@ class PeerEvaluationCard extends StatefulWidget {
   final PeerEvaluationData actitud;
   final PeerEvaluationData general;
 
+  final bool canExpand; // ✅ NUEVO
+
   const PeerEvaluationCard({
     super.key,
     required this.studentName,
@@ -32,6 +34,7 @@ class PeerEvaluationCard extends StatefulWidget {
     this.initiallyExpanded = false,
     this.leadingIcon = Icons.person_sharp,
     this.width = 330,
+    this.canExpand = true, // ✅ NUEVO
   });
 
   @override
@@ -48,6 +51,8 @@ class _PeerEvaluationCardState extends State<PeerEvaluationCard> {
   }
 
   void _toggle() {
+    if (!widget.canExpand) return; // 🔒 bloqueo
+
     setState(() {
       _isExpanded = !_isExpanded;
     });
@@ -114,20 +119,29 @@ class _PeerEvaluationCardState extends State<PeerEvaluationCard> {
                   ],
                 ),
               ),
+
+              /// 🔽 ICONO CONTROLADO POR visibility
               GestureDetector(
-                onTap: _toggle,
-                child: Icon(
-                  _isExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  color: AppTheme.textColor,
-                ),
+                onTap: widget.canExpand ? _toggle : null,
+                child: widget.canExpand
+                    ? Icon(
+                        _isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: AppTheme.textColor,
+                      )
+                    : const Icon(
+                        Icons.lock,
+                        color: Colors.grey,
+                      ),
               ),
             ],
           ),
+
+          /// CONTENIDO
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 220),
-            crossFadeState: _isExpanded
+            crossFadeState: (_isExpanded && widget.canExpand)
                 ? CrossFadeState.showFirst
                 : CrossFadeState.showSecond,
             firstChild: Column(
