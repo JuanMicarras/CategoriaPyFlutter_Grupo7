@@ -32,8 +32,6 @@ class EditablePeerEvaluationCard extends StatefulWidget {
     this.initialCompromiso,
     this.initialActitud,
     this.onScoresChanged,
-
-    /// ✅ NUEVO (por defecto true)
     this.canExpand = true,
   });
 
@@ -55,28 +53,43 @@ class _EditablePeerEvaluationCardState
 
   static final Map<String, Map<double, String>> _criteriaDescriptions = {
     'Puntualidad': {
-      2.0: 'Llegó tarde a todas las sesiones o se estuvo ausentando constantemente lo cual afectó el trabajo del equipo.',
-      3.0: 'Llegó tarde con mucha frecuencia y se ausentó varias veces del trabajo del equipo.',
-      4.0: 'En la mayoría de las sesiones llegó puntualmente y no se ausentó con frecuencia.',
+      2.0:
+          'Llegó tarde a todas las sesiones o se estuvo ausentando constantemente lo cual afectó el trabajo del equipo.',
+      3.0:
+          'Llegó tarde con mucha frecuencia y se ausentó varias veces del trabajo del equipo.',
+      4.0:
+          'En la mayoría de las sesiones llegó puntualmente y no se ausentó con frecuencia.',
       5.0: 'Acudió puntualmente a todas las sesiones de trabajo.',
     },
     'Contribución': {
-      2.0: 'En todo momento estuvo como observador y no aportó al trabajo del equipo.',
-      3.0: 'En algunas ocasiones participó dentro del equipo y en los intercambios generales.',
-      4.0: 'Hizo varios aportes al equipo; sin embargo, puede ser más crítico y propositivo.',
-      5.0: 'Sus aportes fueron muy acertados y enriquecieron en todo momento el trabajo del equipo.',
+      2.0:
+          'En todo momento estuvo como observador y no aportó al trabajo del equipo.',
+      3.0:
+          'En algunas ocasiones participó dentro del equipo y en los intercambios generales.',
+      4.0:
+          'Hizo varios aportes al equipo; sin embargo, puede ser más crítico y propositivo.',
+      5.0:
+          'Sus aportes fueron muy acertados y enriquecieron en todo momento el trabajo del equipo.',
     },
     'Compromiso': {
-      2.0: 'Mostró poco compromiso con las tareas y roles asignados tanto por el profesor como por los miembros del equipo.',
-      3.0: 'En algunos momentos observamos que su compromiso con el trabajo disminuyó.',
-      4.0: 'La mayor parte del tiempo asumió tareas con responsabilidad y compromiso.',
-      5.0: 'Mostró en todo momento un compromiso serio con las tareas asignadas.',
+      2.0:
+          'Mostró poco compromiso con las tareas y roles asignados tanto por el profesor como por los miembros del equipo.',
+      3.0:
+          'En algunos momentos observamos que su compromiso con el trabajo disminuyó.',
+      4.0:
+          'La mayor parte del tiempo asumió tareas con responsabilidad y compromiso.',
+      5.0:
+          'Mostró en todo momento un compromiso serio con las tareas asignadas.',
     },
     'Actitud': {
-      2.0: 'Mantuvo una actitud negativa hacia las actividades del taller.',
-      3.0: 'En algunas oportunidades tuvo una actitud abierta y positiva.',
-      4.0: 'La mayor parte del tiempo muestra actitud positiva.',
-      5.0: 'Su actitud es positiva y demuestra deseos de calidad.',
+      2.0:
+          'Mantuvo una actitud negativa hacia las actividades del taller.',
+      3.0:
+          'En algunas oportunidades tuvo una actitud abierta y positiva.',
+      4.0:
+          'La mayor parte del tiempo muestra actitud positiva.',
+      5.0:
+          'Su actitud es positiva y demuestra deseos de calidad.',
     },
   };
 
@@ -105,7 +118,6 @@ class _EditablePeerEvaluationCardState
     }
   }
 
-  /// ✅ SOLO EXPANDE SI canExpand ES TRUE
   void _toggle() {
     if (!widget.canExpand) return;
 
@@ -167,7 +179,7 @@ class _EditablePeerEvaluationCardState
     if (normalized.contains('cerrada')) {
       return (
         background: const Color(0xFFFDECEC),
-        text: Color.fromARGB(255, 193, 95, 95),
+        text: const Color.fromARGB(255, 193, 95, 95),
         border: const Color(0xFFF6D0D0),
       );
     }
@@ -225,16 +237,43 @@ class _EditablePeerEvaluationCardState
                   children: [
                     Text(
                       widget.studentName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: AppTheme.bodyL.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppTheme.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: tagStyle.background,
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(color: tagStyle.border, width: 1),
+                        ),
+                        child: Text(
+                          widget.progressText,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTheme.bodyS.copyWith(
+                            color: tagStyle.text,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11.5,
+                            height: 1,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
 
-              /// ✅ SOLO MUESTRA FLECHA SI PUEDE EXPANDIR
               if (widget.canExpand)
                 GestureDetector(
                   onTap: _toggle,
@@ -242,12 +281,12 @@ class _EditablePeerEvaluationCardState
                     _isExpanded
                         ? Icons.keyboard_arrow_up
                         : Icons.keyboard_arrow_down,
+                    color: AppTheme.textColor,
                   ),
                 ),
             ],
           ),
 
-          /// ✅ SOLO MUESTRA CONTENIDO SI PUEDE EXPANDIR
           if (widget.canExpand)
             AnimatedCrossFade(
               duration: const Duration(milliseconds: 220),
@@ -260,13 +299,162 @@ class _EditablePeerEvaluationCardState
                   Divider(color: AppTheme.grayColor100),
                   const SizedBox(height: 16),
 
-                  /// ... TODO LO DEMÁS IGUAL (no lo toqué)
+                  _EditableEvaluationRow(
+                    title: 'Puntualidad',
+                    description:
+                        _descriptionFor('Puntualidad', _puntualidad),
+                    value: _puntualidad,
+                    options: _scoreOptions,
+                    isReadOnly: widget.isReadOnly,
+                    onChanged: (value) =>
+                        _updateScore('Puntualidad', value),
+                  ),
+                  const SizedBox(height: 18),
+
+                  _EditableEvaluationRow(
+                    title: 'Contribución',
+                    description:
+                        _descriptionFor('Contribución', _contribucion),
+                    value: _contribucion,
+                    options: _scoreOptions,
+                    isReadOnly: widget.isReadOnly,
+                    onChanged: (value) =>
+                        _updateScore('Contribución', value),
+                  ),
+                  const SizedBox(height: 18),
+
+                  _EditableEvaluationRow(
+                    title: 'Compromiso',
+                    description:
+                        _descriptionFor('Compromiso', _compromiso),
+                    value: _compromiso,
+                    options: _scoreOptions,
+                    isReadOnly: widget.isReadOnly,
+                    onChanged: (value) =>
+                        _updateScore('Compromiso', value),
+                  ),
+                  const SizedBox(height: 18),
+
+                  _EditableEvaluationRow(
+                    title: 'Actitud',
+                    description:
+                        _descriptionFor('Actitud', _actitud),
+                    value: _actitud,
+                    options: _scoreOptions,
+                    isReadOnly: widget.isReadOnly,
+                    onChanged: (value) =>
+                        _updateScore('Actitud', value),
+                  ),
                 ],
               ),
               secondChild: const SizedBox.shrink(),
             ),
         ],
       ),
+    );
+  }
+}
+
+class _EditableEvaluationRow extends StatelessWidget {
+  final String title;
+  final String description;
+  final double? value;
+  final List<double> options;
+  final bool isReadOnly;
+  final ValueChanged<double> onChanged;
+
+  const _EditableEvaluationRow({
+    required this.title,
+    required this.description,
+    required this.value,
+    required this.options,
+    required this.isReadOnly,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final textColor =
+        isReadOnly ? const Color(0xFF7B8494) : const Color(0xFF9CA3AF);
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTheme.bodyL.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.textColor,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: AppTheme.bodyS.copyWith(
+                  color: const Color(0xFF718096),
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Container(
+            width: 100, // 🔥 FIX para evitar salto de línea
+            height: 40,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8F8FB),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: AppTheme.grayColor100, width: 1),
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<double>(
+                value: value,
+                isExpanded: true,
+                alignment: Alignment.centerLeft,
+                borderRadius: BorderRadius.circular(14),
+                icon: const Icon(Icons.keyboard_arrow_down,
+                    color: Color(0xFF9CA3AF)),
+                style: AppTheme.bodyM.copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.w500,
+                ),
+                selectedItemBuilder: (context) {
+                  return options.map((score) {
+                    return Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        score.toStringAsFixed(1),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTheme.bodyM.copyWith(
+                          color: textColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }).toList();
+                },
+                items: options.map((score) {
+                  return DropdownMenuItem<double>(
+                    value: score,
+                    child: Text(score.toStringAsFixed(1)),
+                  );
+                }).toList(),
+                onChanged:
+                    isReadOnly ? null : (v) => v != null ? onChanged(v) : null,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
