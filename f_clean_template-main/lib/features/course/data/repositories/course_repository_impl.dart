@@ -162,6 +162,7 @@ class CourseRepositoryImpl implements ICourseRepository {
     print("🌐 GET COURSES BY USER → API ($userEmail)");
 
     final response = await _authRepository.safeRequest(() {
+      print(_dataSource.getCoursesByUser());
       return _dataSource.getCoursesByUser();
     });
 

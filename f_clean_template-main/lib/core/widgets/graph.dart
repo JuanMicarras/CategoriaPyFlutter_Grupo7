@@ -43,31 +43,21 @@ class HeaderSection extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          "Last Evaluation",
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2D3748),
-          ),
-        ),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: Color(0xFFE1D7F3),
-            borderRadius: BorderRadius.circular(10),
-          ),
+        // Envolvemos el texto en Expanded para que no empuje el icono fuera de los 294px
+        Expanded(
           child: Text(
-            "Active",
+            "Last Evaluation",
             style: TextStyle(
               fontFamily: 'Inter',
-              fontSize: 12,
-              fontWeight: FontWeight.w600, // semibold
-              color: Color(0xFF8761BE),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1A202C),
             ),
+            overflow: TextOverflow.ellipsis, // Si el texto es muy largo, pone "..."
           ),
         ),
+        const SizedBox(width: 8), // Espacio mínimo entre texto e icono
+        Icon(Icons.more_horiz, color: Color(0xFF718096)),
       ],
     );
   }

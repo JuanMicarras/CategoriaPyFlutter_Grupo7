@@ -30,6 +30,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
   get: ^4.7.2
   loggy: ^2.0.3
   http: ^1.3.0
