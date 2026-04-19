@@ -132,6 +132,7 @@ Sigue estos pasos para ejecutar el proyecto localmente:
 ```bash
 # Clonar repositorio
 git clone https://github.com/JuanMicarras/CategoriaPyFlutter_Grupo7.git
+
 # Entrar al proyecto
 cd peersync
 
