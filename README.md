@@ -13,19 +13,19 @@ Aplicación móvil desarrollada en **Flutter** que permite la coevaluación estr
 <br>
 
 ## 📋 Tabla de Contenidos
-1. [Descripción de la Aplicación](#descripción-de-la-aplicación)
-   * [Propósito del Proyecto](#propósito-del-proyecto)
-   * [Objetivos](#objetivos)
-   * [Funcionalidades Principales](#funcionalidades-principales)
-   * [Roles del Sistema](#roles-del-sistema)
-   * [Tecnologías Utilizadas](#tecnologías-utilizadas)
-   * [Alcance](#alcance)
-2. [Demos de la Aplicación](#demos-de-la-aplicación)
-3. [Instalación](#instalación)
-4. [Estructura del proyecto](#estructura_del_proyecto)
-5. [¿Cómo surge PeerSync?](#cómo-surge-peersync)
-   * [Referentes y Análisis del Contexto Actual](#referentes-y-análisis-del-contexto-actual)
-6. [Referencias](#referencias)
+1. [Descripción de la Aplicación](#-descripción-de-la-aplicación)
+   - [Propósito del Proyecto](#-propósito-del-proyecto)
+   - [Objetivos](#-objetivos)
+   - [Funcionalidades Principales](#️-funcionalidades-principales)
+   - [Roles del Sistema](#-roles-del-sistema)
+   - [Tecnologías Utilizadas](#-tecnologías-utilizadas)
+   - [Alcance](#-alcance)
+2. [Demos de la Aplicación](#-demos-de-la-aplicación)
+3. [Instalación](#️-instalación)
+4. [Estructura del Proyecto](#-estructura-del-proyecto)
+5. [¿Cómo surge PeerSync?](#-cómo-surge-peersync)
+   - [Referentes y Análisis del Contexto Actual](#-referentes-y-análisis-del-contexto-actual)
+6. [Referencias](#-referencias)
 
 
 <br>
