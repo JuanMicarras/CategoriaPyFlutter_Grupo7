@@ -29,6 +29,12 @@ import 'features/evaluation/domain/repositories/i_evaluation_repository.dart';
 import 'features/evaluation/data/repositories/evaluation_repository_impl.dart';
 import 'features/evaluation/ui/viewmodels/evaluation_controller.dart';
 
+import 'features/evaluation/data/datasources/remote/i_evaluation_analytics_remote_source.dart';
+import 'features/evaluation/data/datasources/remote/evaluation_analytics_remote_source.dart';
+import 'features/evaluation/domain/repositories/i_evaluation_analytics_repository.dart';
+import 'features/evaluation/data/repositories/evaluation_analytics_repository_impl.dart';
+import 'features/evaluation/ui/viewmodels/evaluation_analytics_controller.dart';
+
 import 'features/auth/domain/repositories/i_auth_repository.dart';
 import 'features/auth/ui/viewmodels/auth_controller.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
@@ -36,7 +42,6 @@ import 'features/course/ui/bindings/course_binding.dart';
 
 import 'features/auth/ui/views/login_page.dart';
 import 'features/auth/ui/views/signup_page.dart';
-
 
 void main() {
   Loggy.initLoggy(logPrinter: const PrettyPrinter(showColors: true));
@@ -48,21 +53,33 @@ void main() {
   Get.put<IAuthRepository>(AuthRepositoryImpl(Get.find()));
   Get.put<AuthController>(AuthController(repository: Get.find()));
 
+  // Groups
   Get.put<IGroupsRemoteSource>(GroupsRemoteSource());
   Get.put<IGroupsRepository>(GroupsRepositoryImpl(Get.find()));
   Get.put<GroupsController>(GroupsController(Get.find()));
 
-  // Inyecciones de Evaluation (Actividades)
+  // Evaluation (Actividades)
   Get.put<IEvaluationRemoteSource>(EvaluationRemoteSource());
   Get.put<IEvaluationRepository>(EvaluationRepositoryImpl(Get.find()));
   Get.put<EvaluationController>(EvaluationController(Get.find()));
 
+  // Teacher report
   Get.put<TeacherReportController>(TeacherReportController(Get.find()));
 
+  // Notifications
   Get.put(NotificationRemoteSource());
   Get.put<INotificationRepository>(NotificationRepositoryImpl(Get.find()));
   Get.put(NotificationController(Get.find()));
-  
+
+  // ANALYTICS
+  Get.put<IEvaluationAnalyticsRemoteSource>(EvaluationAnalyticsRemoteSource());
+  Get.put<IEvaluationAnalyticsRepository>(
+    EvaluationAnalyticsRepositoryImpl(Get.find()),
+  );
+  Get.put<EvaluationAnalyticsController>(
+    EvaluationAnalyticsController(Get.find()),
+  );
+
   runApp(const MyApp());
 }
 
@@ -76,9 +93,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       debugShowCheckedModeBanner: false,
-
       initialRoute: '/',
-
       getPages: [
         GetPage(name: '/', page: () => const Central()),
         GetPage(

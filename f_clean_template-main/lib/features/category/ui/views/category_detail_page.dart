@@ -7,8 +7,11 @@ import 'package:peer_sync/core/widgets/activity_card.dart';
 import 'package:peer_sync/core/widgets/navbar.dart';
 import 'package:peer_sync/features/category/ui/widgets/create_activity_modal.dart';
 import 'package:peer_sync/features/evaluation/domain/models/activity.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_analytics_controller.dart';
 import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
 import 'package:peer_sync/features/evaluation/ui/views/teacher_report_page.dart';
+import 'package:peer_sync/features/evaluation/ui/widgets/analytics_card.dart';
+import 'package:peer_sync/features/evaluation/ui/widgets/criteria_bar_chart.dart';
 
 class CategoryDetailPage extends StatefulWidget {
   final String categoryId;
@@ -26,12 +29,15 @@ class CategoryDetailPage extends StatefulWidget {
 
 class _CategoryDetailPageState extends State<CategoryDetailPage> {
   final EvaluationController controller = Get.find<EvaluationController>();
+  final EvaluationAnalyticsController analyticsController =
+      Get.find<EvaluationAnalyticsController>();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.loadTeacherActivities(widget.categoryId);
+      analyticsController.loadTeacherCategoryAnalytics(widget.categoryId);
     });
   }
 
@@ -65,6 +71,9 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
                       Get.back();
                     }
                     await controller.loadTeacherActivities(widget.categoryId);
+                    await analyticsController.loadTeacherCategoryAnalytics(
+                      widget.categoryId,
+                    );
                   }
                 }
               },
@@ -115,6 +124,22 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
     return sorted;
   }
 
+  Map<String, dynamic> _getGeneralTagData(double? generalValue) {
+    if (generalValue == null || generalValue <= 0) {
+      return {
+        'label': 'Sin dato',
+        'backgroundColor': const Color(0xFFE5E7EB),
+        'textColor': const Color(0xFF6B7280),
+      };
+    }
+
+    return {
+      'label': generalValue.toStringAsFixed(1),
+      'backgroundColor': const Color(0xFFEDE9FE),
+      'textColor': const Color(0xFF7C3AED),
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,60 +163,113 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
         ),
       ),
       body: Obx(() {
-        if (controller.isLoadingTeacherActivities.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
+        final chartData = analyticsController.teacherCategoryCriteriaChart;
+        final generalValue = CriteriaBarChart.extractGeneralValue(chartData);
+        final tagData = _getGeneralTagData(generalValue);
 
-        if (controller.teacherActivities.isEmpty) {
-          return const Center(
-            child: Text(
-              "No hay actividades creadas aún.\nToca el botón '+' para comenzar.",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, color: Colors.black54),
-            ),
-          );
+        if (controller.isLoadingTeacherActivities.value &&
+            analyticsController.isLoadingTeacherCategoryAnalytics.value) {
+          return const Center(child: CircularProgressIndicator());
         }
 
         final sortedActivities = _sortedTeacherActivities(
           controller.teacherActivities,
         );
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: sortedActivities.length,
-          itemBuilder: (context, index) {
-            final activity = sortedActivities[index];
-            final uiData = controller.getTeacherActivityUIData(activity);
-
-            final dateBgColor = uiData.isExpired
-                ? Colors.grey[200]!
-                : const Color(0xFFE5DBF5);
-            final dateTextColor = uiData.isExpired
-                ? Colors.grey[600]!
-                : const Color(0xFF8761BE);
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: ActivityStatusCard(
-                title: activity.name,
-                month: uiData.month,
-                day: uiData.day,
-                statusTag: uiData.statusTag,
-                statusDetail: uiData.statusDetail,
-                dateBgColor: dateBgColor,
-                dateTextColor: dateTextColor,
-                onTap: () {
-                  Get.to(
-                    () => TeacherReportPage(
-                      activityId: activity.id,
-                      activityName: activity.name,
-                      categoryId: widget.categoryId,
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Obx(
+                () => AnalyticsCard(
+                  title: "Rendimiento por criterio",
+                  subtitle: "Promedio del grupo en esta categoría",
+                  trailing: Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: tagData['backgroundColor'] as Color,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'General: ${tagData['label']}',
+                        style: TextStyle(
+                          color: tagData['textColor'] as Color,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
                     ),
-                  );
-                },
+                  ),
+                  chart:
+                      analyticsController
+                          .isLoadingTeacherCategoryAnalytics
+                          .value
+                      ? const SizedBox(
+                          height: 220,
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      : CriteriaBarChart(data: chartData, hideGeneralBar: true),
+                ),
               ),
-            );
-          },
+            ),
+            if (sortedActivities.isEmpty)
+              const Expanded(
+                child: Center(
+                  child: Text(
+                    "No hay actividades creadas aún.\nToca el botón '+' para comenzar.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  ),
+                ),
+              )
+            else
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: sortedActivities.length,
+                  itemBuilder: (context, index) {
+                    final activity = sortedActivities[index];
+                    final uiData = controller.getTeacherActivityUIData(
+                      activity,
+                    );
+
+                    final dateBgColor = uiData.isExpired
+                        ? Colors.grey[200]!
+                        : const Color(0xFFE5DBF5);
+                    final dateTextColor = uiData.isExpired
+                        ? Colors.grey[600]!
+                        : const Color(0xFF8761BE);
+
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: ActivityStatusCard(
+                        title: activity.name,
+                        month: uiData.month,
+                        day: uiData.day,
+                        statusTag: uiData.statusTag,
+                        statusDetail: uiData.statusDetail,
+                        dateBgColor: dateBgColor,
+                        dateTextColor: dateTextColor,
+                        onTap: () {
+                          Get.to(
+                            () => TeacherReportPage(
+                              activityId: activity.id,
+                              activityName: activity.name,
+                              categoryId: widget.categoryId,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+          ],
         );
       }),
       bottomNavigationBar: NavBar(
