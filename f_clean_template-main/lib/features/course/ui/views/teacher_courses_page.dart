@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:convert';
 import 'package:peer_sync/core/themes/app_theme.dart';
+import 'package:peer_sync/core/utils/loading_overlay.dart';
 import 'package:peer_sync/core/utils/teacher_navigation_helpers.dart';
 import 'package:peer_sync/core/widgets/navbar.dart';
 import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
@@ -9,6 +11,7 @@ import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
 import 'package:peer_sync/features/course/ui/widgets/create_course_modal.dart';
 import 'package:peer_sync/features/course/ui/widgets/course_card.dart';
 import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
+import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
 import 'package:peer_sync/features/notifications/ui/viewmodels/notification_controller.dart';
 import 'package:peer_sync/features/notifications/ui/views/notifications_page.dart';
 import 'package:peer_sync/features/category/ui/views/teacher_category_page.dart';
@@ -18,7 +21,7 @@ class TeacherCoursesPage extends StatelessWidget {
 
   void openCreateCourseModal(BuildContext context) {
     final TextEditingController nameController = TextEditingController();
-    final CourseController courseController = Get.find();
+    dynamic selectedCsvFile;
 
     Get.dialog(
       barrierDismissible: false,
@@ -30,26 +33,42 @@ class TeacherCoursesPage extends StatelessWidget {
             nameController: nameController,
             onCancel: () => Get.back(),
             onCreate: () async {
-              final name = nameController.text.trim();
+              final courseController = Get.find<CourseController>();
+                final groupsController = Get.find<GroupsController>();
 
-              if (name.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text("El nombre del curso es obligatorio"),
-                  ),
-                );
-                return;
-              }
+                final name = nameController.text.trim();
 
-              await courseController.createCourse(name);
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("El nombre del curso es obligatorio")),
+                  );
+                  return;
+                }
+                LoadingOverlay.show("Configurando curso y procesando estudiantes...");
 
-              if (Get.isDialogOpen == true) {
-                Get.back();
-              }
-            },
-            onCsvSelected: (file) {
-              print("CSV seleccionado: ${file?.name}");
-            },
+                try {
+                  final newCourseId = await courseController.createCourse(name);
+
+                  if (newCourseId != null) {
+                    if (selectedCsvFile != null && selectedCsvFile!.bytes != null) {
+                      final csvString = utf8.decode(selectedCsvFile!.bytes!);
+                      await groupsController.importCsvData(newCourseId, csvString);
+                    }
+                    LoadingOverlay.hide(); 
+                    Navigator.pop(context); 
+                  } else {
+                    LoadingOverlay.hide();
+                  }
+                } catch (e) {
+                  LoadingOverlay.hide();
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Ocurrió un error inesperado: $e"), backgroundColor: Colors.red),
+                  );
+                }
+              },
+              onCsvSelected: (file) {
+                selectedCsvFile = file;
+              },
           ),
         ),
       ),

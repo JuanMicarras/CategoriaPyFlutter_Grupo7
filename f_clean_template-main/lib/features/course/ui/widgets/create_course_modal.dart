@@ -108,6 +108,7 @@ class _CreateCourseModalState extends State<CreateCourseModal> {
               border: Border.all(color: AppTheme.grayColor100, width: 1),
             ),
             child: TextField(
+              key: const Key('course_name_input'),
               controller: widget.nameController,
               decoration: InputDecoration(
                 border: InputBorder.none,
@@ -138,6 +139,7 @@ class _CreateCourseModalState extends State<CreateCourseModal> {
           ),
           const SizedBox(height: 6),
           InkWell(
+            key: const Key('import_csv_button'),
             onTap: _pickCsvFile,
             borderRadius: BorderRadius.circular(10),
             child: DottedBorder(
@@ -212,6 +214,7 @@ class _CreateCourseModalState extends State<CreateCourseModal> {
                 child: SizedBox(
                   height: 40,
                   child: ElevatedButton(
+                    key: const Key('submit_course_button'),
                     onPressed: widget.onCreate,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,

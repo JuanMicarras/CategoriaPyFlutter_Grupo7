@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:peer_sync/core/themes/app_theme.dart';
-import 'package:peer_sync/core/widgets/navbar.dart';
 import 'package:peer_sync/features/category/ui/bindings/category_binding.dart';
 import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
 import 'package:peer_sync/features/course/ui/bindings/course_binding.dart';

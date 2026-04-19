@@ -60,6 +60,7 @@ class LoginPage extends GetView<AuthController> {
               AuthInputContainer(
                 children: [
                   AuthTextField(
+                    key: const Key('login_email_field'),
                     hint: "pepitojm@uninorte.edu.co",
                     icon: Icons.email_outlined,
                     isEmail: true,
@@ -68,6 +69,7 @@ class LoginPage extends GetView<AuthController> {
                   ),
                   const Divider(height: 1, color: Colors.black38),
                   AuthTextField(
+                    key: const Key('login_password_field'),
                     hint: "*******",
                     readOnly: false,
                     icon: Icons.lock_outline,
@@ -117,6 +119,7 @@ class LoginPage extends GetView<AuthController> {
                 height: 55,
                 child: Obx(
                   () => ElevatedButton(
+                    key: const Key('login_submit_button'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
                       disabledBackgroundColor: AppTheme.primaryColor.withOpacity(0.5),
