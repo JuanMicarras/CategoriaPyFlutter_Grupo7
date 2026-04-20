@@ -5,21 +5,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "f_clean_template-main",
-            "cwd": "f_clean_template-main",
+            "name": "peer_sync",
+            "cwd": "peer_sync",
             "request": "launch",
             "type": "dart"
         },
         {
-            "name": "f_clean_template-main (profile mode)",
-            "cwd": "f_clean_template-main",
+            "name": "peer_sync (profile mode)",
+            "cwd": "peer_sync",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
         },
         {
-            "name": "f_clean_template-main (release mode)",
-            "cwd": "f_clean_template-main",
+            "name": "peer_sync (release mode)",
+            "cwd": "peer_sync",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release"
