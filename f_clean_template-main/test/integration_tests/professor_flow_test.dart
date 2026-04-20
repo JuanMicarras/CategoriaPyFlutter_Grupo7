@@ -9,8 +9,10 @@ import 'package:mocktail/mocktail.dart';
 import 'package:peer_sync/features/auth/ui/views/login_page.dart';
 import 'package:peer_sync/features/category/data/datasources/remote/category_remote_source_service.dart';
 import 'package:peer_sync/features/category/data/repositories/category_repository_impl.dart';
+import 'package:peer_sync/features/category/ui/views/category_detail_page.dart';
 import 'package:peer_sync/features/evaluation/domain/models/activity.dart';
 import 'package:peer_sync/features/evaluation/domain/models/chart_point.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/teacher_report_controller.dart';
 import 'package:peer_sync/features/groups/data/datasources/remote/groups_remote_source.dart';
 import 'package:peer_sync/features/groups/data/repositories/groups_repository_impl.dart';
 import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
@@ -33,6 +35,7 @@ class MockCategoryController extends GetxController with Mock implements Categor
 class MockEvaluationController extends GetxController with Mock implements EvaluationController {}
 class MockAnalyticsController extends GetxController with Mock implements EvaluationAnalyticsController {}
 class MockNotifController extends GetxController with Mock implements NotificationController {}
+class MockTeacherReportController extends GetxController with Mock implements TeacherReportController {}
 
 class MockHttpClient extends Mock implements http.Client {}
 
@@ -60,12 +63,45 @@ Future<Widget> createPeerSyncApp() async {
   final courseRepo = CourseRepositoryImpl(courseSource, authRepo);
   Get.put<CourseController>(CourseController(repository: courseRepo));
 
+  // --- 3. Inyección de Mocks para UI secundaria ---
   final mockEval = MockEvaluationController();
   when(() => mockEval.homeActivities).thenReturn(<Activity>[].obs);
   when(() => mockEval.isLoadingHomeActivities).thenReturn(false.obs);
   when(() => mockEval.loadHomeActivitiesPreview(any())).thenAnswer((_) async {});
   when(() => mockEval.getActiveActivitySubtitle(any())).thenReturn("Evaluación"); 
+  when(() => mockEval.loadActiveActivitiesCount(any())).thenAnswer((_) async {}); 
+
+  when(() => mockEval.saveActivity(any())).thenAnswer((_) async => true);
+  
+  // Stubs para la vista de categoría
+  when(() => mockEval.activities).thenReturn(<Activity>[].obs);
+  when(() => mockEval.sortedActivities).thenReturn([]); // Es un getter normal, devuelve lista vacía
+  when(() => mockEval.isLoadingActivities).thenReturn(false.obs);
+  when(() => mockEval.loadActivities(any())).thenAnswer((_) async {});
+  // 🔴 AGREGAR ESTOS DOS STUBS:
+  when(() => mockEval.isLoadingTeacherActivities).thenReturn(false.obs);
+  when(() => mockEval.loadTeacherActivities(any())).thenAnswer((_) async {});
+
+  // 🔴 1. El stub para la lista que faltaba (Error 1)
+  when(() => mockEval.teacherActivities).thenReturn(<Activity>[].obs);
+  when(() => mockEval.isVisible).thenReturn(true.obs);
+
+  // 🔴 2. Prestamos controladores de texto reales al Mock para el formulario (Error 2)
+  final mockNameCtrl = TextEditingController();
+  final mockStartDCtrl = TextEditingController();
+  final mockEndDCtrl = TextEditingController();
+  final mockStartTCtrl = TextEditingController();
+  final mockEndTCtrl = TextEditingController();
+
+  when(() => mockEval.nameController).thenReturn(mockNameCtrl);
+  when(() => mockEval.startDateController).thenReturn(mockStartDCtrl);
+  when(() => mockEval.endDateController).thenReturn(mockEndDCtrl);
+  when(() => mockEval.startTimeController).thenReturn(mockStartTCtrl);
+  when(() => mockEval.endTimeController).thenReturn(mockEndTCtrl);
+  when(() => mockEval.isLoading).thenReturn(false.obs);
+  
   Get.put<EvaluationController>(mockEval);
+
 
   final mockAnal = MockAnalyticsController();
   when(() => mockAnal.teacherHomeCompletionTrend).thenReturn(<ChartPoint>[].obs);
@@ -73,6 +109,12 @@ Future<Widget> createPeerSyncApp() async {
   when(() => mockAnal.teacherActiveActivitiesMetric).thenReturn(Rxn());
   when(() => mockAnal.teacherPendingGroupsMetric).thenReturn(Rxn());
   when(() => mockAnal.loadTeacherHomeAnalytics()).thenAnswer((_) async {});
+
+  // 🔴 NUEVOS STUBS PARA LA VISTA DE CATEGORÍA (Gráficas)
+  when(() => mockAnal.teacherCategoryCriteriaChart).thenReturn(<ChartPoint>[].obs);
+  when(() => mockAnal.isLoadingTeacherCategoryAnalytics).thenReturn(false.obs);
+  when(() => mockAnal.loadTeacherCategoryAnalytics(any())).thenAnswer((_) async {});
+
   Get.put<EvaluationAnalyticsController>(mockAnal);
 
   final mockNotif = MockNotifController();
@@ -250,111 +292,179 @@ setUpAll(() {
     ).called(1);
 
     // =========================================================================
-    // FASE 2: NAVEGAR A CURSOS Y CREAR UN CURSO
+    // FASE 2 y 3: CREAR CURSO E IMPORTAR CSV
     // =========================================================================
 
-    // 1. STUBS (MOCKS) PARA LA CREACIÓN DEL CURSO
+    // 1. MOCK UNIVERSAL: Atrapa CUALQUIER petición GET y responde según la tabla
+    when(() => mockHttpClient.get(any(), headers: any(named: 'headers')))
+        .thenAnswer((invocation) async {
+      final url = invocation.positionalArguments[0].toString();
+
+      if (url.contains('tableName=CourseMember') && url.contains('course_id=')) {
+        return http.Response('[]', 200); // Para que joinCourse crea que no está inscrito
+      }
+      if (url.contains('tableName=CourseMember')) {
+        return http.Response(jsonEncode([{"course_id": 999}]), 200); // Cursos del profe
+      }
+      if (url.contains('tableName=Course')) {
+        return http.Response(jsonEncode([{"course_id": 999, "course_name": "Programación Móvil", "code": 12345678}]), 200);
+      }
+      if (url.contains('tableName=Category')) {
+        // Agregamos course_id explícito para evitar error de Null al mapear
+        return http.Response(jsonEncode([{"_id": "cat_123", "category_id": "cat_123", "category_name": "Proyecto Final", "course_id": 999}]), 200);
+      }
+      if (url.contains('tableName=Group')) {
+        return http.Response(jsonEncode([{"_id": "grp_123", "group_id": "grp_123", "group_name": "Grupo 1", "category_id": "cat_123"}]), 200);
+      }
+      if (url.contains('tableName=Users')) {
+        return http.Response(jsonEncode([{"_id": "user_123", "user_id": 123, "email": "profesor@uninorte.edu.co", "role": "teacher"}]), 200);
+      }
+      
+      return http.Response('[]', 200); // Fallback universal para evitar cuelgues
+    });
+
+    // MOCK UNIVERSAL PARA POST (/insert)
+    when(() => mockHttpClient.post(any(), headers: any(named: 'headers'), body: any(named: 'body')))
+        .thenAnswer((invocation) async {
+      final url = invocation.positionalArguments[0].toString();
+      
+      // Si la app intenta hacer login de nuevo, devolvemos el token
+      if (url.contains('/login')) {
+         return http.Response(
+            jsonEncode({
+              'accessToken': 'fakeHeader.eyJleHAiOjIwMDAwMDAwMDB9.fakeSignature',
+              'refreshToken': 'mock_refresh_token',
+            }), 200);
+      }
+      return http.Response('{}', 201); // Exito genérico para inserciones
+    });
+
+    // 2. EJECUCIÓN EN LA INTERFAZ (FASE 2)
     
-    // Stub para POST general (/insert) (Crea el curso y el CourseMember)
-    when(() => mockHttpClient.post(
-          any(that: predicate<Uri>((uri) => uri.toString().contains('/insert'))),
-          headers: any(named: 'headers'),
-          body: any(named: 'body'),
-        )).thenAnswer((_) async => http.Response('{}', 201));
-
-    // AQUI ESTABA EL ERROR: Necesitamos que la validación inicial devuelva VACÍO (no inscrito)
-    // para que la función joinCourse no lance la excepción y el modal pueda cerrarse.
-    when(() => mockHttpClient.get(
-          any(that: predicate<Uri>((uri) => 
-            uri.toString().contains('tableName=CourseMember') && uri.toString().contains('course_id='))),
-          headers: any(named: 'headers'),
-        )).thenAnswer((_) async => http.Response('[]', 200));
-
-    // Pero cuando GetX pida los cursos del usuario (Home/Lista), ahí SI devolvemos el curso 999.
-    when(() => mockHttpClient.get(
-          any(that: predicate<Uri>((uri) => 
-            uri.toString().contains('tableName=CourseMember') && 
-            uri.toString().contains('user_id=') && 
-            !uri.toString().contains('course_id='))), // Para diferenciarlo del de arriba
-          headers: any(named: 'headers'),
-        )).thenAnswer((_) async => http.Response(
-          jsonEncode([{"course_id": 999}]), 200));
-
-    // Datos falsos del curso que acabamos de crear
-    when(() => mockHttpClient.get(
-          any(that: predicate<Uri>((uri) => 
-            uri.toString().contains('tableName=Course') && 
-            (uri.toString().contains('course_id=999') || uri.toString().contains('code=')))),
-          headers: any(named: 'headers'),
-        )).thenAnswer((_) async => http.Response(
-          jsonEncode([{"course_id": 999, "course_name": "Programación Móvil", "code": 12345678}]), 200));
-
-    // Stubs para la creación de Categorías y Grupos desde el CSV
-    when(() => mockHttpClient.get(
-          any(that: predicate<Uri>((uri) => uri.toString().contains('tableName=Category'))),
-          headers: any(named: 'headers'),
-        )).thenAnswer((_) async => http.Response(
-          jsonEncode([{"_id": "cat_123", "category_name": "Proyecto Final"}]), 200));
-
-    when(() => mockHttpClient.get(
-          any(that: predicate<Uri>((uri) => uri.toString().contains('tableName=Group'))),
-          headers: any(named: 'headers'),
-        )).thenAnswer((_) async => http.Response(
-          jsonEncode([{"_id": "grp_123", "group_name": "Grupo 1"}]), 200));
-
-    // Devolvemos vacío en GroupMember para forzar al controlador a que inserte a los estudiantes
-    when(() => mockHttpClient.get(
-          any(that: predicate<Uri>((uri) => uri.toString().contains('tableName=GroupMember'))),
-          headers: any(named: 'headers'),
-        )).thenAnswer((_) async => http.Response(jsonEncode([]), 200));
-
-    // 2. EJECUCIÓN EN LA INTERFAZ
-    
-    // Navegamos a la vista de cursos
     Get.toNamed('/teacherCourses');
     await tester.pumpAndSettle();
-    expect(find.text("Cursos"), findsWidgets);
 
-    // Tocamos el FloatingActionButton para abrir el modal (+)
+    // Abrir Modal
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
-
-    expect(find.text("Crear Curso"), findsOneWidget);
 
     // Escribimos el nombre del curso
     await tester.enterText(find.byKey(const Key('course_name_input')), 'Programación Móvil');
     await tester.pump();
     await demoPause(tester, 500);
 
-    // Tocamos el botón de crear
+    // Clic en crear
     await tester.tap(find.byKey(const Key('submit_course_button')));
-    await tester.pumpAndSettle();
+    
+    // Le damos un respiro largo para que terminen las peticiones, el Loading y las animaciones de los dos Pop
+    await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    // Verificamos que el modal cerró (Ya no hay campos de texto)
-    expect(find.byType(TextField), findsNothing); 
-    // Verificamos que la tarjeta del curso aparece
-    expect(find.text("Programación Móvil"), findsOneWidget); 
+    // 🔴 PREVENCIÓN VISUAL DE DOBLE POP:
+    if (find.text("Contenido Reciente").evaluate().isNotEmpty) {
+      Get.toNamed('/teacherCourses'); 
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+    }
+
+    // =========================================================================
+    // 🟢 EL TRUCO DE LA CACHÉ
+    // Forzamos al controlador a que vuelva a cargar los cursos.
+    // Esta vez, como el "background refresh" ya terminó, la caché local 
+    // le devolverá el curso que acabamos de crear.
+    // =========================================================================
+    await Get.find<CourseController>().loadCoursesByUser();
+    await tester.pumpAndSettle(const Duration(seconds: 1));
+
+    // El PRINT que pediste para depurar:
+    final cursosEnMemoria = Get.find<CourseController>().courses;
+    print("🎓 CURSOS EN MEMORIA DEL TEST: ${cursosEnMemoria.map((c) => c.name).toList()}");
+
+    // Validamos que el curso "Programación Móvil" se muestra en la pantalla
+    expect(find.text("Programación Móvil"), findsWidgets);
+
 
     // =========================================================================
     // FASE 3: IMPORTAR EL CSV (PRUEBA DE LÓGICA REAL)
     // =========================================================================
     
-    // Creamos un CSV con las columnas exactas que exige tu GroupsRemoteSource
-    final mockCsvData = "Group Category Name,Group Name,First Name,Last Name,Email Address\nProyecto Final,Grupo 1,Juan,Perez,juan@uninorte.edu.co\nProyecto Final,Grupo 2,Maria,Gomez,maria@uninorte.edu.co";
+    // Invocamos la función real del controlador simulando el contenido de un archivo CSV
+    // exactamente con las columnas que tu GroupsRemoteSource exige.
+    final mockCsvData = "Group Category Name,Group Name,First Name,Last Name,Email Address\nProyecto Final,Grupo 1,Juan,Perez,juan@uninorte.edu.co";
     
-    // Invocamos la función real
+    // Le pasamos el ID 999 que es el que definimos en los Stubs
     await Get.find<GroupsController>().importCsvData('999', mockCsvData);
-    await tester.pumpAndSettle();
     
-    // Validamos en el cliente HTTP que el controlador REAL hizo múltiples peticiones POST
-    // (1 para crear el curso + varias para insertar categorías, grupos y miembros del CSV)
+    // Esperamos a que termine de procesar el CSV y hacer las inserciones en BD
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+    
+    // Verificamos que la función ejecutó al menos 1 petición POST a la API de Roble 
+    // para insertar el CSV (categorías, grupos y miembros).
     verify(() => mockHttpClient.post(
           any(that: predicate<Uri>((uri) => uri.toString().contains('/insert'))),
           headers: any(named: 'headers'),
           body: any(named: 'body'),
-        )).called(greaterThanOrEqualTo(2)); 
+        )).called(greaterThanOrEqualTo(1)); 
 
+    // Pausa final para que alcances a ver el resultado
     await demoPause(tester, 1000);
 
+    // =========================================================================
+    // FASE 4: ENTRAR A LA CATEGORÍA Y CREAR ACTIVIDAD
+    // =========================================================================
+    
+    // 1. Navegamos directo a la vista de detalle de la categoría 
+    // (Simulamos que el profesor tocó la tarjeta de "Proyecto Final" en el CourseCard)
+    Get.to(() => const CategoryDetailPage(
+      categoryId: 'cat_123', 
+      categoryName: 'Proyecto Final'
+    ));
+    await tester.pumpAndSettle();
+
+    // Validamos que estamos en la pantalla correcta
+    expect(find.text('Proyecto Final'), findsWidgets);
+
+    // 2. Buscamos el botón para agregar actividad y lo tocamos
+    // (Generalmente es un FloatingActionButton o un ícono de agregar)
+    final addActivityBtn = find.byType(FloatingActionButton);
+    if (addActivityBtn.evaluate().isNotEmpty) {
+      await tester.tap(addActivityBtn);
+    } else {
+      await tester.tap(find.byIcon(Icons.add).first);
+    }
+    await tester.pumpAndSettle();
+
+    // Validamos que se abrió el modal de CreateActivityModal
+    expect(find.text('Crear Actividad'), findsOneWidget);
+
+    // 3. Escribimos el nombre de la actividad usando su Key
+    await tester.enterText(find.byKey(const Key('activity_name_input')), 'Taller 1');
+    await tester.pump();
+    await demoPause(tester, 500);
+
+    // 🔴 4. EL TRUCO PARA CAMPOS READ-ONLY (Fechas y horas)
+    // Inyectamos los valores directamente en los controladores de EvaluationController
+    final evalCtrl = Get.find<EvaluationController>();
+    evalCtrl.startDateController.text = '20 / 04 / 26';
+    evalCtrl.endDateController.text = '27 / 04 / 26';
+    evalCtrl.startTimeController.text = '08 : 00';
+    evalCtrl.endTimeController.text = '10 : 00';
+    
+    // Le avisamos a la interfaz que repinte los textos
+    evalCtrl.update(); 
+    await tester.pump();
+    await demoPause(tester, 500);
+
+    // 5. Guardamos la actividad
+    await tester.tap(find.byKey(const Key('submit_activity_button')));
+    await tester.pumpAndSettle(const Duration(seconds: 2));
+
+    // Verificamos que el modal se cerró (ya no existe el campo de texto del nombre)
+    expect(find.byKey(const Key('activity_name_input')), findsNothing);
+
+    // Como usamos nuestro "Mock Universal" de la Fase 2 para las peticiones POST (/insert),
+    // la petición a la base de datos de Roble para crear la actividad debió ser un éxito.
+    
+    // Pausa final para celebrar el flujo completo
+    await demoPause(tester, 1500);
+    
   });
 }

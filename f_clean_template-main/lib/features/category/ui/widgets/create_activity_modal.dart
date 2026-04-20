@@ -67,11 +67,11 @@ class CreateActivityModal extends StatelessWidget {
           const SizedBox(height: 14),
           _ModalLabel(text: 'Nombre (*)'),
           const SizedBox(height: 6),
-          _TextInputField(controller: nameController, hintText: 'Taller 1'),
+          _TextInputField(key: const Key('activity_name_input'), controller: nameController, hintText: 'Taller 1'),
           const SizedBox(height: 12),
           _ModalLabel(text: 'Fecha Inicio'),
           const SizedBox(height: 6),
-          _DateInputField(
+          _DateInputField(key: const Key('activity_start_date_input'),
             controller: startDateController,
             hintText: 'DD / MM / YY',
             onTap: onTapStartDate,
@@ -79,7 +79,7 @@ class CreateActivityModal extends StatelessWidget {
           const SizedBox(height: 12),
           _ModalLabel(text: 'Fecha Fin'),
           const SizedBox(height: 6),
-          _DateInputField(
+          _DateInputField(key: const Key('activity_end_date_input'),
             controller: endDateController,
             hintText: 'DD / MM / YY',
             onTap: onTapEndDate,
@@ -174,7 +174,7 @@ class CreateActivityModal extends StatelessWidget {
               Expanded(
                 child: SizedBox(
                   height: 40,
-                  child: ElevatedButton(
+                  child: ElevatedButton(key: const Key('submit_activity_button'),
                     onPressed: onCreate,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
@@ -226,7 +226,7 @@ class _TextInputField extends StatelessWidget {
   final TextEditingController? controller;
   final String hintText;
 
-  const _TextInputField({required this.controller, required this.hintText});
+  const _TextInputField({super.key, required this.controller, required this.hintText});
 
   @override
   Widget build(BuildContext context) {
@@ -239,6 +239,7 @@ class _TextInputField extends StatelessWidget {
         border: Border.all(color: AppTheme.secondaryColor, width: 1),
       ),
       child: TextField(
+        key: key,
         controller: controller,
         decoration: InputDecoration(
           border: InputBorder.none,
@@ -265,6 +266,7 @@ class _DateInputField extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _DateInputField({
+    super.key,
     required this.controller,
     required this.hintText,
     this.onTap,
@@ -314,6 +316,7 @@ class _TimeInputField extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _TimeInputField({
+    super.key,
     required this.controller,
     required this.hintText,
     this.onTap,
