@@ -241,6 +241,7 @@ class _StudentEvaluationPageState
                           child: SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
+                              key: const Key('btn_enviar_evaluacion'),
                               onPressed: isSubmitting
                                   ? null
                                   : () => controller
