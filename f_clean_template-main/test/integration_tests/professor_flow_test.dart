@@ -5,14 +5,15 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:integration_test/integration_test.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:peer_sync/features/auth/ui/views/login_page.dart';
 import 'package:peer_sync/features/category/data/datasources/remote/category_remote_source_service.dart';
 import 'package:peer_sync/features/category/data/repositories/category_repository_impl.dart';
 import 'package:peer_sync/features/category/ui/views/category_detail_page.dart';
 import 'package:peer_sync/features/evaluation/domain/models/activity.dart';
+import 'package:peer_sync/features/evaluation/domain/models/activity_report.dart';
 import 'package:peer_sync/features/evaluation/domain/models/chart_point.dart';
 import 'package:peer_sync/features/evaluation/ui/viewmodels/teacher_report_controller.dart';
+import 'package:peer_sync/features/evaluation/ui/views/teacher_report_page.dart';
 import 'package:peer_sync/features/groups/data/datasources/remote/groups_remote_source.dart';
 import 'package:peer_sync/features/groups/data/repositories/groups_repository_impl.dart';
 import 'package:peer_sync/features/groups/ui/viewmodels/groups_controller.dart';
@@ -75,18 +76,15 @@ Future<Widget> createPeerSyncApp() async {
   
   // Stubs para la vista de categoría
   when(() => mockEval.activities).thenReturn(<Activity>[].obs);
-  when(() => mockEval.sortedActivities).thenReturn([]); // Es un getter normal, devuelve lista vacía
+  when(() => mockEval.sortedActivities).thenReturn([]); 
   when(() => mockEval.isLoadingActivities).thenReturn(false.obs);
   when(() => mockEval.loadActivities(any())).thenAnswer((_) async {});
-  // 🔴 AGREGAR ESTOS DOS STUBS:
   when(() => mockEval.isLoadingTeacherActivities).thenReturn(false.obs);
   when(() => mockEval.loadTeacherActivities(any())).thenAnswer((_) async {});
-
-  // 🔴 1. El stub para la lista que faltaba (Error 1)
   when(() => mockEval.teacherActivities).thenReturn(<Activity>[].obs);
   when(() => mockEval.isVisible).thenReturn(true.obs);
 
-  // 🔴 2. Prestamos controladores de texto reales al Mock para el formulario (Error 2)
+  //Prestamos controladores de texto reales al Mock para el formulario 
   final mockNameCtrl = TextEditingController();
   final mockStartDCtrl = TextEditingController();
   final mockEndDCtrl = TextEditingController();
@@ -110,12 +108,22 @@ Future<Widget> createPeerSyncApp() async {
   when(() => mockAnal.teacherPendingGroupsMetric).thenReturn(Rxn());
   when(() => mockAnal.loadTeacherHomeAnalytics()).thenAnswer((_) async {});
 
-  // 🔴 NUEVOS STUBS PARA LA VISTA DE CATEGORÍA (Gráficas)
+  
   when(() => mockAnal.teacherCategoryCriteriaChart).thenReturn(<ChartPoint>[].obs);
   when(() => mockAnal.isLoadingTeacherCategoryAnalytics).thenReturn(false.obs);
   when(() => mockAnal.loadTeacherCategoryAnalytics(any())).thenAnswer((_) async {});
 
   Get.put<EvaluationAnalyticsController>(mockAnal);
+
+  final mockReport = MockTeacherReportController();
+  // Prevenimos el error clásico de carga
+  when(() => mockReport.isLoading).thenReturn(false.obs);
+
+  when(() => mockReport.loadReport(any(), any())).thenAnswer((_) async {}); 
+
+  when(() => mockReport.groupReports).thenReturn(<GroupReport>[].obs);
+  
+  Get.put<TeacherReportController>(mockReport);
 
   final mockNotif = MockNotifController();
   final dummyObs = 0.obs; 
@@ -166,7 +174,7 @@ setUpAll(() {
     await tester.pump(Duration(milliseconds: ms));
   }
 
-  testWidgets('Flujo completo del Profesor: Login -> Home -> Cursos', (
+  testWidgets('Flujo completo del Profesor: Login -> Home -> Cursos -> Creacion Curso + Importe de CSV -> Categoria -> Creacion de Actividad -> Actividad', (
     WidgetTester tester,
   ) async {
     // 1. Montamos la app real
@@ -218,7 +226,7 @@ setUpAll(() {
     when(() => mockHttpClient.get(
           any(that: predicate<Uri>((uri) => uri.toString().contains('tableName=CourseMember'))),
           headers: any(named: 'headers'),
-        )).thenAnswer((_) async => http.Response('[]', 200)); // Devuelve lista vacía al inicio
+        )).thenAnswer((_) async => http.Response('[]', 200)); 
 
     // Stub GET tabla Users
     when(
@@ -374,9 +382,7 @@ setUpAll(() {
     await Get.find<CourseController>().loadCoursesByUser();
     await tester.pumpAndSettle(const Duration(seconds: 1));
 
-    // El PRINT que pediste para depurar:
-    final cursosEnMemoria = Get.find<CourseController>().courses;
-    print("🎓 CURSOS EN MEMORIA DEL TEST: ${cursosEnMemoria.map((c) => c.name).toList()}");
+  
 
     // Validamos que el curso "Programación Móvil" se muestra en la pantalla
     expect(find.text("Programación Móvil"), findsWidgets);
@@ -465,6 +471,32 @@ setUpAll(() {
     
     // Pausa final para celebrar el flujo completo
     await demoPause(tester, 1500);
+
+    // =========================================================================
+    // FASE 5: VER REPORTE Y CALIFICACIONES
+    // =========================================================================
+    
+    // 1. Simulamos que el profesor tocó la tarjeta de la actividad "Taller 1"
+    // Navegamos directo pasándole los parámetros que exige la página
+    Get.to(() => const TeacherReportPage(
+      activityId: 'act_123',
+      activityName: 'Taller 1',
+      categoryId: 'cat_123', // El ID que mockeamos en la Fase 3
+    ));
+    await tester.pumpAndSettle();
+
+    // 2. Validamos que llegamos a la pantalla del reporte
+    // Buscamos el nombre de la actividad que debería estar en el AppBar o en el título
+    expect(find.byType(TeacherReportPage), findsOneWidget);
+    expect(find.text('Reporte: Taller 1'), findsWidgets);
+    
+    // Buscamos algún texto genérico que sepas que está en esa vista 
+    // (Ejemplo: "Estudiantes", "Calificaciones", "Reporte")
+    // Si no tienes la palabra "Reporte", cámbiala por una que sí esté en tu UI.
+    // expect(find.text('Reporte'), findsWidgets); 
+    
+    // 3. Pausa final triunfal para ver la pantalla
+    await demoPause(tester, 2000);
     
   });
 }
