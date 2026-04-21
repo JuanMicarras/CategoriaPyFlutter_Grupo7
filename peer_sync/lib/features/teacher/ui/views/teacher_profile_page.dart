@@ -5,6 +5,7 @@ import 'package:peer_sync/core/widgets/navbar.dart';
 import 'package:peer_sync/core/widgets/settings_card.dart';
 import 'package:peer_sync/core/themes/app_theme.dart';
 import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart';
+import 'package:peer_sync/features/notifications/ui/views/notifications_page.dart';
 
 class TeacherProfilePage extends StatelessWidget {
   const TeacherProfilePage({super.key});
@@ -99,7 +100,7 @@ class TeacherProfilePage extends StatelessWidget {
                   SettingsCardItem(
                     title: 'Notificaciones',
                     onTap: () {
-                      Get.snackbar('Notificaciones', 'Próximamente...');
+                      Get.to(() => const NotificationsPage());
                     },
                   ),
                   SettingsCardItem(
