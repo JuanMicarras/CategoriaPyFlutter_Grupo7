@@ -13,6 +13,8 @@ import 'package:peer_sync/features/course/ui/viewmodels/course_controller.dart';
 import 'package:peer_sync/features/category/ui/viewmodels/category_controller.dart';
 import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
 import 'package:peer_sync/features/notifications/ui/viewmodels/notification_controller.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_analytics_controller.dart';
+import 'package:peer_sync/features/evaluation/domain/models/chart_point.dart';
 
 // --- FAKES CON TIPADO CORRECTO Y REACTIVIDAD ---
 
@@ -71,15 +73,40 @@ class FakeNotifController extends GetxController
   dynamic noSuchMethod(Invocation inv) => super.noSuchMethod(inv);
 }
 
+class FakeAnalyticsController extends GetxController
+    implements EvaluationAnalyticsController {
+  @override
+  final isLoadingTeacherHomeAnalytics = false.obs;
+
+  @override
+  final teacherHomeCompletionTrend = <ChartPoint>[].obs;
+
+  // Usamos Rxn() para que devuelvan null por defecto.
+  // Esto evita que la app explote al buscar el ?.title o ?.value en tus MetricBox
+  @override
+  final teacherActiveActivitiesMetric = Rxn();
+
+  @override
+  final teacherPendingGroupsMetric = Rxn();
+
+  @override
+  Future<void> loadTeacherHomeAnalytics() async {}
+
+  @override
+  dynamic noSuchMethod(Invocation inv) => super.noSuchMethod(inv);
+}
+
 void main() {
   setUp(() {
     Get.testMode = true;
 
-    // Inyección de dependencias (Fakes)
     Get.put<CourseController>(FakeCourseController());
     Get.put<CategoryController>(FakeCategoryController());
     Get.put<EvaluationController>(FakeEvalController());
     Get.put<NotificationController>(FakeNotifController());
+
+    // NUEVA INYECCIÓN PARA QUE EL TEST NO FALLE
+    Get.put<EvaluationAnalyticsController>(FakeAnalyticsController());
   });
 
   tearDown(() => Get.reset());

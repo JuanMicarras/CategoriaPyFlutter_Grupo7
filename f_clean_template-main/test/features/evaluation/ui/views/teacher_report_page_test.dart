@@ -84,7 +84,7 @@ void main() {
     final mockGroup = GroupReport(
       groupId: 'g1',
       groupName: 'Grupo de Desarrollo',
-      students: [mockStudent],
+      students: [mockStudent], 
     );
 
     // 3. Configurar el mock para que devuelva estos datos

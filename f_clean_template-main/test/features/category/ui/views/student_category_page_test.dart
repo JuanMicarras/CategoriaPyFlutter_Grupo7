@@ -11,6 +11,8 @@ import 'package:peer_sync/features/category/domain/models/category.dart';
 import 'package:peer_sync/features/category/ui/widgets/category_card.dart';
 import 'package:peer_sync/features/evaluation/domain/models/activity.dart';
 import 'package:peer_sync/features/evaluation/ui/views/student_activities_page.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_analytics_controller.dart';
+import 'package:peer_sync/features/evaluation/domain/models/chart_point.dart';
 
 // --- FAKES ---
 class FakeBuildContext extends Fake implements BuildContext {}
@@ -26,9 +28,14 @@ class MockEvaluationController extends GetxController
     with Mock
     implements EvaluationController {}
 
+class MockEvaluationAnalyticsController extends GetxController
+    with Mock
+    implements EvaluationAnalyticsController {}
+
 void main() {
   late MockCategoryController mockCategoryController;
   late MockEvaluationController mockEvaluationController;
+  late MockEvaluationAnalyticsController mockAnalyticsController;
 
   setUpAll(() {
     registerFallbackValue(FakeBuildContext());
@@ -38,6 +45,7 @@ void main() {
   setUp(() {
     mockCategoryController = MockCategoryController();
     mockEvaluationController = MockEvaluationController();
+    mockAnalyticsController = MockEvaluationAnalyticsController();
 
     // 1. Configurar Mocks para CategoryController
     when(() => mockCategoryController.isLoading).thenReturn(false.obs);
@@ -67,10 +75,27 @@ void main() {
     when(
       () => mockEvaluationController.loadActivities(any()),
     ).thenAnswer((_) async {});
+    // NUEVO: Configuraciones preventivas básicas (por si la nueva página los pide al abrirse)
+    // Si la nueva página te tira un error de "RxBool", ya sabes que debes agregar el mock aquí.
+    // --- NUEVAS CONFIGURACIONES DEL ANALYTICS CONTROLLER ---
+    
+    // 1. Evita el error de 'RxList<ChartPoint>'
+    when(() => mockAnalyticsController.studentCategoryCriteriaChart)
+        .thenReturn(<ChartPoint>[].obs); 
+
+    // 2. Previene el siguiente error (el de 'RxBool') que seguro te iba a saltar
+    when(() => mockAnalyticsController.isLoadingStudentCategoryAnalytics)
+        .thenReturn(false.obs);
+        
+    try {
+       when(() => mockAnalyticsController.loadStudentCategoryAnalytics(any()))
+           .thenAnswer((_) async {});
+    } catch (_) {}
 
     // Inyectar controladores
     Get.put<CategoryController>(mockCategoryController);
     Get.put<EvaluationController>(mockEvaluationController);
+    Get.put<EvaluationAnalyticsController>(mockAnalyticsController);
   });
 
   tearDown(() {

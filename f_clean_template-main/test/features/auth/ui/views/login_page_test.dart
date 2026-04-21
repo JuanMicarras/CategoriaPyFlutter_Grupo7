@@ -9,7 +9,7 @@ import 'package:peer_sync/features/auth/ui/viewmodels/auth_controller.dart';
 // --- FAKE ---
 
 class FakeLoginAuthController extends GetxController implements AuthController {
-  @override
+  @override 
   final emailController = TextEditingController();
   @override
   final passwordController = TextEditingController();
@@ -20,9 +20,6 @@ class FakeLoginAuthController extends GetxController implements AuthController {
   final passwordError = RxnString();
   @override
   final isLoading = false.obs;
-
-  // --- AGREGAMOS ESTA LÍNEA ---
-  // Es la que falta y causa el NoSuchMethodError
   @override
   final obscurePassword = true.obs;
 
@@ -35,9 +32,7 @@ class FakeLoginAuthController extends GetxController implements AuthController {
     emailError.value = null;
     passwordError.value = null;
   }
-
-  // Si tu AuthTextField permite conmutar el ojo de la contraseña,
-  // añade también este método si el interface lo requiere:
+  
   void toggleObscurePassword() {
     obscurePassword.value = !obscurePassword.value;
   }

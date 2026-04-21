@@ -6,25 +6,31 @@ import 'package:mocktail/mocktail.dart';
 import 'package:peer_sync/features/evaluation/ui/views/student_activities_page.dart';
 import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
 import 'package:peer_sync/features/evaluation/domain/models/activity.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_analytics_controller.dart';
+import 'package:peer_sync/features/evaluation/domain/models/chart_point.dart';
 
 // ---------------- MOCK ----------------
 class MockEvaluationController extends GetxController
     with Mock
     implements EvaluationController {}
 
+class MockEvaluationAnalyticsController extends GetxController
+    with Mock
+    implements EvaluationAnalyticsController {}
+
 // ---------------- FAKE ----------------
 class FakeActivity extends Fake implements Activity {}
 
 void main() {
   late MockEvaluationController mockController;
-
+  late MockEvaluationAnalyticsController mockAnalyticsController;
   setUpAll(() {
     registerFallbackValue(FakeActivity());
   });
 
   setUp(() {
     mockController = MockEvaluationController();
-
+    mockAnalyticsController = MockEvaluationAnalyticsController();
     // Estado base
     when(() => mockController.isLoadingActivities)
         .thenReturn(false.obs);
@@ -51,7 +57,17 @@ void main() {
     when(() => mockController.loadActivities(any()))
         .thenAnswer((_) async {});
 
+    // --- 3. ENSEÑARLE AL ANALYTICS CONTROLLER QUÉ RESPONDER ---
+    when(() => mockAnalyticsController.studentCategoryCriteriaChart)
+        .thenReturn(<ChartPoint>[].obs);
+    when(() => mockAnalyticsController.isLoadingStudentCategoryAnalytics)
+        .thenReturn(false.obs);
+    when(() => mockAnalyticsController.loadStudentCategoryAnalytics(any()))
+        .thenAnswer((_) async {});
+
+    // --- 4. INYECTAR AMBOS ---
     Get.put<EvaluationController>(mockController);
+    Get.put<EvaluationAnalyticsController>(mockAnalyticsController);
   });
 
   tearDown(() {
