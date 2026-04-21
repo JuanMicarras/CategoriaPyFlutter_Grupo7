@@ -145,7 +145,7 @@ class StudentTrendChart extends StatelessWidget {
                                   style: AppTheme.bodyS.copyWith(
                                     fontSize: 12,
                                     color: isLight
-                                        ? AppTheme.grayColor500
+                                        ? AppTheme.darkTextMuted.withOpacity(0.8)
                                         : AppTheme.darkTextMuted,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -187,7 +187,7 @@ class StudentTrendChart extends StatelessWidget {
                                       style: AppTheme.bodyS.copyWith(
                                         fontSize: 12,
                                         color: isLight
-                                            ? AppTheme.grayColor500
+                                            ? AppTheme.darkTextMuted.withOpacity(0.8)
                                             : AppTheme.darkTextMuted,
                                         fontWeight: FontWeight.w500,
                                       ),

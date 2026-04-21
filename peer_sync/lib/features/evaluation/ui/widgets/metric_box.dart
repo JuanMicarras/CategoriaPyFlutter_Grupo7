@@ -20,7 +20,7 @@ class MetricBox extends StatelessWidget {
             title.toUpperCase(),
             style: AppTheme.bodyS.copyWith(
               fontSize: 11,
-              color: isLight ? AppTheme.grayColor500 : AppTheme.darkTextMuted,
+              color: isLight ? AppTheme.darkTextMuted.withOpacity(0.8) : AppTheme.darkTextMuted,
               fontWeight: FontWeight.w600,
             ),
           ),

@@ -58,7 +58,7 @@ class AnalyticsCard extends StatelessWidget {
                       style: AppTheme.bodyS.copyWith(
                         fontSize: 13,
                         color: isLight
-                            ? AppTheme.grayColor500
+                            ? AppTheme.darkTextMuted.withOpacity(0.8)
                             : AppTheme.darkTextMuted,
                       ),
                     ),
