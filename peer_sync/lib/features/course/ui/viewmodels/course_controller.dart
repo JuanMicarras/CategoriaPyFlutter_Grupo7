@@ -181,8 +181,12 @@ class CourseController extends GetxController {
       'Éxito',
       message,
       snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.green,
-      colorText: Colors.white,
+      backgroundColor: Theme.of(Get.context!).brightness == Brightness.light
+          ? Color(0xFFD1B3FF)
+          : Color(0xFF3A3260),
+      colorText: Theme.of(Get.context!).brightness == Brightness.light
+          ? Colors.black
+          : Colors.white,
     );
   }
 

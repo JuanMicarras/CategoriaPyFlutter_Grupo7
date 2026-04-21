@@ -253,7 +253,7 @@ class EvaluationController extends GetxController {
       );
 
       Get.back();
-      _showMessage('Actividad creada correctamente', Colors.green);
+      _showMessage('Actividad creada correctamente', Theme.of(Get.context!).brightness == Brightness.light ? Colors.black : Colors.white);
 
       nameController.clear();
       descriptionController.clear();

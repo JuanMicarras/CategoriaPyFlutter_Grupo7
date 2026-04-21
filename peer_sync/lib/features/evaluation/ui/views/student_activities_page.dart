@@ -29,7 +29,7 @@ class _StudentActivitiesPageState extends State<StudentActivitiesPage> {
   final EvaluationAnalyticsController analyticsController =
       Get.find<EvaluationAnalyticsController>();
 
-  // Promedio General
+  // Estado según Promedio General
 
   Map<String, dynamic> _getGeneralTagData(double? generalValue) {
     final isLight = Theme.of(context).brightness == Brightness.light;

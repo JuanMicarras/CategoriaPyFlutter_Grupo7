@@ -32,9 +32,19 @@ class GroupsController extends GetxController {
 
         if (Get.context != null) {
           ScaffoldMessenger.of(Get.context!).showSnackBar(
-            const SnackBar(
-              content: Text('¡Grupos importados exitosamente!'),
-              backgroundColor: Colors.green,
+            SnackBar(
+              content: Text(
+                '¡Grupos importados exitosamente!',
+                style: TextStyle(
+                  color: Theme.of(Get.context!).brightness == Brightness.light
+                      ? Colors.black
+                      : Colors.white,
+                ),
+              ),
+              backgroundColor:
+                  Theme.of(Get.context!).brightness == Brightness.light
+                  ? Color(0xFFD1B3FF)
+                  : Color(0xFF3A3260),
             ),
           );
         }
@@ -71,9 +81,19 @@ class GroupsController extends GetxController {
       print("Grupos importados exitosamente");
       if (Get.context != null) {
         ScaffoldMessenger.of(Get.context!).showSnackBar(
-          const SnackBar(
-            content: Text('¡Grupos importados exitosamente!'),
-            backgroundColor: Colors.green,
+          SnackBar(
+            content: Text(
+              '¡Grupos importados exitosamente!',
+              style: TextStyle(
+                color: Theme.of(Get.context!).brightness == Brightness.light
+                    ? Colors.black
+                    : Colors.white,
+              ),
+            ),
+            backgroundColor:
+                Theme.of(Get.context!).brightness == Brightness.light
+                ? Color(0xFFD1B3FF)
+                : Color(0xFF3A3260),
           ),
         );
       }

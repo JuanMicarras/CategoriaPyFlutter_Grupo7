@@ -43,18 +43,18 @@ class TeacherReportController extends GetxController {
     if (isComplete) {
       return (
         text: "Evaluaciones completas",
-        bgColor: isLight
-            ? Colors.green.withOpacity(0.1)
-            : const Color(0xFF14532D),
-        textColor: isLight ? Colors.green[700]! : const Color(0xFF86EFAC),
+        bgColor: Theme.of(Get.context!).brightness == Brightness.light
+            ? Color(0xFFD1B3FF)
+            : Color(0xFF3A3260),
+        textColor: Theme.of(Get.context!).brightness == Brightness.light
+            ? Colors.black
+            : Colors.white,
       );
     } else {
       return (
         text: "Falta por evaluar",
-        bgColor: isLight
-            ? Colors.orange.withOpacity(0.1)
-            : const Color(0xFF78350F),
-        textColor: isLight ? Colors.orange[800]! : const Color(0xFFFCD34D),
+        bgColor: isLight ? Color(0xFFD1B3FF) : Color(0xFF3A3260),
+        textColor: isLight ? Colors.black : Colors.white,
       );
     }
   }

@@ -34,41 +34,64 @@ class TeacherCoursesPage extends StatelessWidget {
             onCancel: () => Get.back(),
             onCreate: () async {
               final courseController = Get.find<CourseController>();
-                final groupsController = Get.find<GroupsController>();
+              final groupsController = Get.find<GroupsController>();
 
-                final name = nameController.text.trim();
+              final name = nameController.text.trim();
 
-                if (name.isEmpty) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("El nombre del curso es obligatorio")),
-                  );
-                  return;
-                }
-                LoadingOverlay.show("Configurando curso y procesando estudiantes...");
+              if (name.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("El nombre del curso es obligatorio"),
+                  ),
+                );
+                return;
+              }
+              LoadingOverlay.show(
+                "Configurando curso y procesando estudiantes...",
+              );
 
-                try {
-                  final newCourseId = await courseController.createCourse(name);
+              try {
+                final newCourseId = await courseController.createCourse(name);
 
-                  if (newCourseId != null) {
-                    if (selectedCsvFile != null && selectedCsvFile!.bytes != null) {
-                      final csvString = utf8.decode(selectedCsvFile!.bytes!);
-                      await groupsController.importCsvData(newCourseId, csvString);
-                    }
-                    LoadingOverlay.hide(); 
-                    Navigator.pop(context); 
-                  } else {
-                    LoadingOverlay.hide();
+                if (newCourseId != null) {
+                  if (selectedCsvFile != null &&
+                      selectedCsvFile!.bytes != null) {
+                    final csvString = utf8.decode(selectedCsvFile!.bytes!);
+                    await groupsController.importCsvData(
+                      newCourseId,
+                      csvString,
+                    );
                   }
-                } catch (e) {
                   LoadingOverlay.hide();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Ocurrió un error inesperado: $e"), backgroundColor: Colors.red),
-                  );
+                  Navigator.pop(context);
+                } else {
+                  LoadingOverlay.hide();
                 }
-              },
-              onCsvSelected: (file) {
-                selectedCsvFile = file;
-              },
+              } catch (e) {
+                LoadingOverlay.hide();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      "Ocurrió un error inesperado: $e",
+                      style: TextStyle(
+                        color:
+                            Theme.of(Get.context!).brightness ==
+                                Brightness.light
+                            ? Colors.black
+                            : Colors.white,
+                      ),
+                    ),
+                    backgroundColor:
+                        Theme.of(Get.context!).brightness == Brightness.light
+                        ? Color(0xFFD1B3FF)
+                        : Color(0xFF3A3260),
+                  ),
+                );
+              }
+            },
+            onCsvSelected: (file) {
+              selectedCsvFile = file;
+            },
           ),
         ),
       ),
