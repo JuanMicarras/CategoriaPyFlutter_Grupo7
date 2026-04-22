@@ -182,109 +182,122 @@ class _CategoryDetailPageState extends State<CategoryDetailPage> {
           controller.teacherActivities,
         );
 
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Obx(
-                () => AnalyticsCard(
-                  title: "Rendimiento por criterio",
-                  subtitle: "Promedio del grupo en esta categoría",
-                  trailing: Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: tagData['backgroundColor'] as Color,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        'General: ${tagData['label']}',
-                        style: TextStyle(
-                          color: tagData['textColor'] as Color,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Obx(
+                  () => AnalyticsCard(
+                    title: "Rendimiento por criterio",
+                    subtitle: "Promedio del grupo en esta categoría",
+                    trailing: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: tagData['backgroundColor'] as Color,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                        child: Text(
+                          'General: ${tagData['label']}',
+                          style: TextStyle(
+                            color: tagData['textColor'] as Color,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ),
+                    chart:
+                        analyticsController
+                            .isLoadingTeacherCategoryAnalytics
+                            .value
+                        ? const SizedBox(
+                            height: 220,
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        : CriteriaBarChart(
+                            data: chartData,
+                            hideGeneralBar: true,
+                          ),
                   ),
-                  chart:
-                      analyticsController
-                          .isLoadingTeacherCategoryAnalytics
-                          .value
-                      ? const SizedBox(
-                          height: 220,
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                      : CriteriaBarChart(data: chartData, hideGeneralBar: true),
                 ),
               ),
-            ),
 
-            if (sortedActivities.isEmpty)
-              Expanded(
-                child: Center(
-                  child: Text(
-                    "No hay actividades creadas aún.\nToca el botón '+' para comenzar.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: isLight ? Colors.black54 : AppTheme.darkTextMuted,
+              if (sortedActivities.isEmpty)
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.45,
+                  child: Center(
+                    child: Text(
+                      "No hay actividades creadas aún.\nToca el botón '+' para comenzar.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: isLight
+                            ? Colors.black54
+                            : AppTheme.darkTextMuted,
+                      ),
                     ),
                   ),
-                ),
-              )
-            else
-              Expanded(
-                child: ListView.builder(
+                )
+              else
+                Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: sortedActivities.length,
-                  itemBuilder: (context, index) {
-                    final activity = sortedActivities[index];
-                    final uiData = controller.getTeacherActivityUIData(
-                      activity,
-                    );
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: sortedActivities.length,
+                    itemBuilder: (context, index) {
+                      final activity = sortedActivities[index];
+                      final uiData = controller.getTeacherActivityUIData(
+                        activity,
+                      );
 
-                    final dateBgColor = uiData.isExpired
-                        ? (isLight ? Colors.grey[200]! : AppTheme.darkSurface)
-                        : (isLight
-                              ? const Color(0xFFE5DBF5)
-                              : const Color(0xFF3A2A6B));
+                      final dateBgColor = uiData.isExpired
+                          ? (isLight ? Colors.grey[200]! : AppTheme.darkSurface)
+                          : (isLight
+                                ? const Color(0xFFE5DBF5)
+                                : const Color(0xFF3A2A6B));
 
-                    final dateTextColor = uiData.isExpired
-                        ? (isLight ? Colors.grey[600]! : AppTheme.darkTextMuted)
-                        : (isLight
-                              ? const Color(0xFF8761BE)
-                              : const Color(0xFFD1C4FF));
+                      final dateTextColor = uiData.isExpired
+                          ? (isLight
+                                ? Colors.grey[600]!
+                                : AppTheme.darkTextMuted)
+                          : (isLight
+                                ? const Color(0xFF8761BE)
+                                : const Color(0xFFD1C4FF));
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: ActivityStatusCard(
-                        title: activity.name,
-                        month: uiData.month,
-                        day: uiData.day,
-                        statusTag: uiData.statusTag,
-                        statusDetail: uiData.statusDetail,
-                        dateBgColor: dateBgColor,
-                        dateTextColor: dateTextColor,
-                        onTap: () {
-                          Get.to(
-                            () => TeacherReportPage(
-                              activityId: activity.id,
-                              activityName: activity.name,
-                              categoryId: widget.categoryId,
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: ActivityStatusCard(
+                          title: activity.name,
+                          month: uiData.month,
+                          day: uiData.day,
+                          statusTag: uiData.statusTag,
+                          statusDetail: uiData.statusDetail,
+                          dateBgColor: dateBgColor,
+                          dateTextColor: dateTextColor,
+                          onTap: () {
+                            Get.to(
+                              () => TeacherReportPage(
+                                activityId: activity.id,
+                                activityName: activity.name,
+                                categoryId: widget.categoryId,
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-          ],
+              const SizedBox(height: 100),
+            ],
+          ),
         );
       }),
       bottomNavigationBar: NavBar(

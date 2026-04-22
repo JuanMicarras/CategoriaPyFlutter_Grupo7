@@ -43,6 +43,11 @@ class CreateActivityModal extends StatelessWidget {
 
     return Container(
       width: width,
+      constraints: BoxConstraints(
+        maxHeight:
+            MediaQuery.of(context).size.height *
+            0.85, // Evita que sea más alto que la pantalla
+      ),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: isLight ? Colors.white : AppTheme.darkCard,
@@ -56,174 +61,177 @@ class CreateActivityModal extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'Crear Actividad',
-            style: AppTheme.bodyL.copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w800,
-              color: isLight ? AppTheme.textColor : AppTheme.darkTextPrimary,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Crear Actividad',
+              style: AppTheme.bodyL.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: isLight ? AppTheme.textColor : AppTheme.darkTextPrimary,
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
+            const SizedBox(height: 14),
 
-          _ModalLabel(text: 'Nombre (*)'),
-          const SizedBox(height: 8),
-          _TextInputField(
-            key: const Key('activity_name_input'),
-            controller: nameController,
-            hintText: 'Taller 1',
-          ),
-          const SizedBox(height: 12),
-          _ModalLabel(text: 'Fecha Inicio'),
-          const SizedBox(height: 6),
-          _DateInputField(
-            key: const Key('activity_start_date_input'),
-            controller: startDateController,
-            hintText: 'DD / MM / YY',
-            onTap: onTapStartDate,
-          ),
+            _ModalLabel(text: 'Nombre (*)'),
+            const SizedBox(height: 8),
+            _TextInputField(
+              key: const Key('activity_name_input'),
+              controller: nameController,
+              hintText: 'Taller 1',
+            ),
+            const SizedBox(height: 12),
+            _ModalLabel(text: 'Fecha Inicio'),
+            const SizedBox(height: 6),
+            _DateInputField(
+              key: const Key('activity_start_date_input'),
+              controller: startDateController,
+              hintText: 'DD / MM / YY',
+              onTap: onTapStartDate,
+            ),
 
-          const SizedBox(height: 12),
-          _ModalLabel(text: 'Fecha Fin'),
-          const SizedBox(height: 6),
-          _DateInputField(
-            key: const Key('activity_end_date_input'),
-            controller: endDateController,
-            hintText: 'DD / MM / YY',
-            onTap: onTapEndDate,
-          ),
+            const SizedBox(height: 12),
+            _ModalLabel(text: 'Fecha Fin'),
+            const SizedBox(height: 6),
+            _DateInputField(
+              key: const Key('activity_end_date_input'),
+              controller: endDateController,
+              hintText: 'DD / MM / YY',
+              onTap: onTapEndDate,
+            ),
 
-          const SizedBox(height: 12),
-          _ModalLabel(text: 'Hora Inicio'),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Expanded(
-                child: _TimeInputField(
-                  controller: startTimeController,
-                  hintText: 'HH : MM',
-                  onTap: onTapStartTime,
+            const SizedBox(height: 12),
+            _ModalLabel(text: 'Hora Inicio'),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: _TimeInputField(
+                    controller: startTimeController,
+                    hintText: 'HH : MM',
+                    onTap: onTapStartTime,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  '-',
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    '-',
+                    style: AppTheme.bodyM.copyWith(
+                      fontSize: 18,
+                      color: isLight
+                          ? AppTheme.textColor
+                          : AppTheme.darkTextPrimary,
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: _TimeInputField(
+                    controller: endTimeController,
+                    hintText: 'HH : MM',
+                    onTap: onTapEndTime,
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 18),
+
+            // Switch Público
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Transform.scale(
+                  scale: 0.95,
+                  child: Switch(
+                    value: isPublic,
+                    onChanged: onPublicChanged,
+                    activeThumbColor: Colors.white,
+                    activeTrackColor: AppTheme.primaryColor,
+                    inactiveThumbColor: Colors.white,
+                    inactiveTrackColor: isLight
+                        ? const Color(0xFFD1D5DB)
+                        : AppTheme.darkBorder,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Público',
                   style: AppTheme.bodyM.copyWith(
-                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
                     color: isLight
-                        ? AppTheme.textColor
-                        : AppTheme.darkTextPrimary,
+                        ? const Color(0xFF637488)
+                        : AppTheme.darkTextMuted,
                   ),
                 ),
-              ),
-              Expanded(
-                child: _TimeInputField(
-                  controller: endTimeController,
-                  hintText: 'HH : MM',
-                  onTap: onTapEndTime,
-                ),
-              ),
-            ],
-          ),
+              ],
+            ),
 
-          const SizedBox(height: 18),
+            const SizedBox(height: 18),
 
-          // Switch Público
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Transform.scale(
-                scale: 0.95,
-                child: Switch(
-                  value: isPublic,
-                  onChanged: onPublicChanged,
-                  activeThumbColor: Colors.white,
-                  activeTrackColor: AppTheme.primaryColor,
-                  inactiveThumbColor: Colors.white,
-                  inactiveTrackColor: isLight
-                      ? const Color(0xFFD1D5DB)
-                      : AppTheme.darkBorder,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                'Público',
-                style: AppTheme.bodyM.copyWith(
-                  fontWeight: FontWeight.w400,
-                  color: isLight
-                      ? const Color(0xFF637488)
-                      : AppTheme.darkTextMuted,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 18),
-
-          // Botones
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 40,
-                  child: OutlinedButton(
-                    onPressed: onCancel,
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(
-                        color: AppTheme.primaryColor,
-                        width: 1.5,
+            // Botones
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 40,
+                    child: OutlinedButton(
+                      onPressed: onCancel,
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(
+                          color: AppTheme.primaryColor,
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        backgroundColor: isLight
+                            ? Colors.white
+                            : AppTheme.darkCard,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: isLight
-                          ? Colors.white
-                          : AppTheme.darkCard,
-                    ),
-                    child: Text(
-                      'Cancelar',
-                      style: AppTheme.buttonM.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: AppTheme.primaryColor,
+                      child: Text(
+                        'Cancelar',
+                        style: AppTheme.buttonM.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: AppTheme.primaryColor,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: SizedBox(
-                  height: 40,
-                  child: ElevatedButton(
-                    key: const Key('submit_activity_button'),
-                    onPressed: onCreate,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.primaryColor,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: SizedBox(
+                    height: 40,
+                    child: ElevatedButton(
+                      key: const Key('submit_activity_button'),
+                      onPressed: onCreate,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      'Crear',
-                      style: AppTheme.buttonM.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                      child: Text(
+                        'Crear',
+                        style: AppTheme.buttonM.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
     );
   }
