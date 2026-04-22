@@ -106,10 +106,10 @@ La solución está diseñada para contextos universitarios y soporta múltiples 
 A continuación se presentan demostraciones funcionales del sistema:
 
 ### 🔐 Gestión Académica
-https://youtube.com/
+https://youtu.be/96RNuL3jcZ0
 
 ### 📝 Evaluación y Reportes
-https://youtube.com/
+https://youtu.be/qZ-WbYn-6Vo
 
 ### 🧩 Pruebas de Widget
 https://youtu.be/SwfRmst4E-k
