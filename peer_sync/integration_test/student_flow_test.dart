@@ -62,15 +62,11 @@ Future<Widget> createPeerSyncStudentApp() async {
   final authRepo = AuthRepositoryImpl(AuthenticationSourceService(client: mockHttpClient)); 
   Get.put<AuthController>(AuthController(repository: authRepo));
 
-  // Course
-  final courseRepo = CourseRepositoryImpl(CourseRemoteSourceService(client: mockHttpClient), authRepo);
-  Get.put<CourseController>(CourseController(repository: courseRepo));
-
-  // Category
+  // Category (MOVIDO ANTES DEL COURSE CONTROLLER)
   final categoryRepo = CategoryRepositoryImpl(CategoryRemoteSourceService(token: fakeToken, client: mockHttpClient), authRepo);
   Get.put<CategoryController>(CategoryController(repository: categoryRepo));
 
-  // Evaluation
+  // Evaluation (MOVIDO ANTES DEL COURSE CONTROLLER)
   final evalRepo = EvaluationRepositoryImpl(EvaluationRemoteSource(client: mockHttpClient));
   Get.put<EvaluationController>(EvaluationController(evalRepo));
   Get.put<EvaluationFormController>(EvaluationFormController(evalRepo));
@@ -78,11 +74,14 @@ Future<Widget> createPeerSyncStudentApp() async {
 
   final evalAnalyticRepo = EvaluationAnalyticsRepositoryImpl(EvaluationAnalyticsRemoteSource(client: mockHttpClient));
   Get.put<EvaluationAnalyticsController>(EvaluationAnalyticsController(evalAnalyticRepo));
-  
 
   // Notifications (Para que el Home no explote)
   final notifRepo = NotificationRepositoryImpl(NotificationRemoteSource(client: mockHttpClient));
   Get.put<NotificationController>(NotificationController(notifRepo));
+
+  // Course (MOVIDO AL FINAL PARA QUE ENCUENTRE LAS DEMÁS DEPENDENCIAS)
+  final courseRepo = CourseRepositoryImpl(CourseRemoteSourceService(client: mockHttpClient), authRepo);
+  Get.put<CourseController>(CourseController(repository: courseRepo));
 
   // --- 2. RUTAS ---
   return GetMaterialApp(
@@ -204,9 +203,6 @@ void main() {
     await tester.enterText(find.byKey(const Key('login_password_field')), 'Estudiante123!');
     await tester.tap(find.byKey(const Key('login_submit_button')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    // Validamos que estamos en el Home (Busca un texto típico de tu StudentHomePage)
-    // expect(find.text("Hola, Estudiante"), findsWidgets); // <-- Cambia esto por un texto real de tu home
     
     // =========================================================================
     // FASE 2: NAVEGAR A CURSOS

@@ -59,12 +59,18 @@ Future<Widget> createPeerSyncApp() async {
   final authRepo = AuthRepositoryImpl(authSource); 
   Get.put<AuthController>(AuthController(repository: authRepo));
 
-  // --- 2. Inyección de Cursos ---
-  final courseSource = CourseRemoteSourceService(client: mockHttpClient);
-  final courseRepo = CourseRepositoryImpl(courseSource, authRepo);
-  Get.put<CourseController>(CourseController(repository: courseRepo));
+  // --- 2. INYECCIÓN DE CONTROLADORES REALES (CSV Y CATEGORÍAS) ---
+  final fakeToken = 'fakeHeader.eyJleHAiOjIwMDAwMDAwMDB9.fakeSignature';
+  
+  final categorySource = CategoryRemoteSourceService(token: fakeToken, client: mockHttpClient);
+  final categoryRepo = CategoryRepositoryImpl(categorySource, authRepo);
+  Get.put<CategoryController>(CategoryController(repository: categoryRepo));
 
-  // --- 3. Inyección de Mocks para UI secundaria ---
+  final groupsSource = GroupsRemoteSource(client: mockHttpClient);
+  final groupsRepo = GroupsRepositoryImpl(groupsSource);
+  Get.put<GroupsController>(GroupsController(groupsRepo));
+
+  // --- 3. Inyección de Mocks para UI secundaria (Ahora van ANTES que el CourseController) ---
   final mockEval = MockEvaluationController();
   when(() => mockEval.homeActivities).thenReturn(<Activity>[].obs);
   when(() => mockEval.isLoadingHomeActivities).thenReturn(false.obs);
@@ -130,16 +136,13 @@ Future<Widget> createPeerSyncApp() async {
   when(() => mockNotif.unreadCount).thenAnswer((_) => dummyObs.value);
   Get.put<NotificationController>(mockNotif);
 
-  // --- 4. INYECCIÓN DE CONTROLADORES REALES (CSV Y CATEGORÍAS) ---
-  final fakeToken = 'fakeHeader.eyJleHAiOjIwMDAwMDAwMDB9.fakeSignature';
-  
-  final categorySource = CategoryRemoteSourceService(token: fakeToken, client: mockHttpClient);
-  final categoryRepo = CategoryRepositoryImpl(categorySource, authRepo);
-  Get.put<CategoryController>(CategoryController(repository: categoryRepo));
 
-  final groupsSource = GroupsRemoteSource(client: mockHttpClient);
-  final groupsRepo = GroupsRepositoryImpl(groupsSource);
-  Get.put<GroupsController>(GroupsController(groupsRepo));
+  // 🔥 SOLUCIÓN APLICADA: Inyectamos Cursos AL FINAL, así encuentra todos los controladores que necesita
+  // --- 4. Inyección de Cursos ---
+  final courseSource = CourseRemoteSourceService(client: mockHttpClient);
+  final courseRepo = CourseRepositoryImpl(courseSource, authRepo);
+  Get.put<CourseController>(CourseController(repository: courseRepo));
+
 
   // RETORNO DE LA APP
   return GetMaterialApp(
@@ -500,3 +503,4 @@ setUpAll(() {
     
   });
 }
+
