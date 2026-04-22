@@ -32,7 +32,7 @@ void main() {
   testWidgets('ForgotPasswordPage debe mostrar textos de ayuda y campo de correo', (WidgetTester tester) async {
     Get.put<AuthController>(FakeForgotPassController());
 
-    await tester.pumpWidget(GetMaterialApp(home: ForgotPasswordPage()));
+    await tester.pumpWidget(const GetMaterialApp(home: ForgotPasswordPage()));
 
     // Verificar textos informativos
     expect(find.text('Recuperar contraseña'), findsOneWidget);
@@ -46,7 +46,7 @@ void main() {
     final authController = FakeForgotPassController();
     Get.put<AuthController>(authController);
 
-    await tester.pumpWidget(GetMaterialApp(home: ForgotPasswordPage()));
+    await tester.pumpWidget(const GetMaterialApp(home: ForgotPasswordPage()));
 
     // 1. Escribir un correo
     await tester.enterText(find.byType(TextField), 'test@uninorte.edu.co');
@@ -63,7 +63,7 @@ void main() {
     final authController = FakeForgotPassController();
     Get.put<AuthController>(authController);
 
-    await tester.pumpWidget(GetMaterialApp(home: ForgotPasswordPage()));
+    await tester.pumpWidget(const GetMaterialApp(home: ForgotPasswordPage()));
 
     // Activar estado de carga manualmente
     authController.isLoading.value = true;

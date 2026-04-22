@@ -11,6 +11,8 @@ import 'package:peer_sync/features/category/domain/models/category.dart';
 import 'package:peer_sync/features/category/ui/widgets/category_card.dart';
 import 'package:peer_sync/features/evaluation/domain/models/activity.dart';
 import 'package:peer_sync/features/evaluation/ui/views/student_activities_page.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_analytics_controller.dart';
+import 'package:peer_sync/features/evaluation/domain/models/chart_point.dart';
 
 // --- FAKES ---
 class FakeBuildContext extends Fake implements BuildContext {}
@@ -26,9 +28,14 @@ class MockEvaluationController extends GetxController
     with Mock
     implements EvaluationController {}
 
+class MockEvaluationAnalyticsController extends GetxController
+    with Mock
+    implements EvaluationAnalyticsController {}
+
 void main() {
   late MockCategoryController mockCategoryController;
   late MockEvaluationController mockEvaluationController;
+  late MockEvaluationAnalyticsController mockAnalyticsController;
 
   setUpAll(() {
     registerFallbackValue(FakeBuildContext());
@@ -38,6 +45,7 @@ void main() {
   setUp(() {
     mockCategoryController = MockCategoryController();
     mockEvaluationController = MockEvaluationController();
+    mockAnalyticsController = MockEvaluationAnalyticsController();
 
     // 1. Configurar Mocks para CategoryController
     when(() => mockCategoryController.isLoading).thenReturn(false.obs);
@@ -68,9 +76,22 @@ void main() {
       () => mockEvaluationController.loadActivities(any()),
     ).thenAnswer((_) async {});
 
+    when(
+      () => mockAnalyticsController.teacherCategoryCriteriaChart,
+    ).thenReturn(<ChartPoint>[].obs);
+
+    when(
+      () => mockAnalyticsController.isLoadingTeacherCategoryAnalytics,
+    ).thenReturn(false.obs);
+
+    when(
+      () => mockAnalyticsController.loadTeacherCategoryAnalytics(any()),
+    ).thenAnswer((_) async {});
+
     // Inyectar controladores
     Get.put<CategoryController>(mockCategoryController);
     Get.put<EvaluationController>(mockEvaluationController);
+    Get.put<EvaluationAnalyticsController>(mockAnalyticsController);
   });
 
   tearDown(() {
@@ -136,25 +157,26 @@ void main() {
     },
   );
 
-  testWidgets('4. Debe navegar a StudentActivitiesPage al tocar una categoría', (
-    WidgetTester tester,
-  ) async {
-    final cat = Category(id: 'cat1', name: 'Grupo A', courseId: 'c1');
-    when(
-      () => mockCategoryController.categories,
-    ).thenReturn(<Category>[cat].obs);
-    await tester.pumpWidget(
-      GetMaterialApp(
-        home: CourseDetailPage(courseId: 'c1', courseTitle: 'Test'),
-      ),
-    );
-    await tester.pump();
-    final cardFinder = find.byType(ProjectCategoryCard);
-    expect(cardFinder, findsOneWidget);
+  testWidgets(
+    '4. Debe navegar a StudentActivitiesPage al tocar una categoría',
+    (WidgetTester tester) async {
+      final cat = Category(id: 'cat1', name: 'Grupo A', courseId: 'c1');
+      when(
+        () => mockCategoryController.categories,
+      ).thenReturn(<Category>[cat].obs);
+      await tester.pumpWidget(
+        GetMaterialApp(
+          home: CourseDetailPage(courseId: 'c1', courseTitle: 'Test'),
+        ),
+      );
+      await tester.pump();
+      final cardFinder = find.byType(ProjectCategoryCard);
+      expect(cardFinder, findsOneWidget);
 
-    await tester.tap(cardFinder);
-    await tester.pumpAndSettle();
-    verify(() => mockEvaluationController.loadActivities('cat1')).called(1);
-    expect(find.byType(StudentActivitiesPage), findsOneWidget);
-  });
+      await tester.tap(cardFinder);
+      await tester.pumpAndSettle();
+      verify(() => mockEvaluationController.loadActivities('cat1')).called(1);
+      expect(find.byType(StudentActivitiesPage), findsOneWidget);
+    },
+  );
 }
