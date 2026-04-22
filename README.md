@@ -112,16 +112,16 @@ https://youtube.com/
 https://youtube.com/
 
 ### 🧩 Pruebas de Widget
-https://youtube.com/
+https://youtu.be/SwfRmst4E-k
 
 ### 📈 Pruebas de Integración
-https://youtube.com/
+https://youtu.be/636_fcI1a5Y
 
 ### 💾 Implementación de Caché
-https://youtube.com/
+https://youtu.be/VEvOdk8B6sA
 
 ### 🗃️ Revisión del código (Arquitectura Limpia)
-https://youtube.com/
+https://youtu.be/WKKwQjihuYE
 
 <br>
 

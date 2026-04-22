@@ -8,6 +8,7 @@ class CriteriaBarChart extends StatelessWidget {
   final double maxY;
   final bool hideGeneralBar;
   final double? yInterval;
+  final int? maxBars;
 
   const CriteriaBarChart({
     super.key,
@@ -15,6 +16,7 @@ class CriteriaBarChart extends StatelessWidget {
     this.maxY = 5,
     this.hideGeneralBar = false,
     this.yInterval,
+    this.maxBars,
   });
 
   static double? extractGeneralValue(List<ChartPoint> data) {
@@ -38,8 +40,11 @@ class CriteriaBarChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    final visibleData = visibleBars(data, hideGeneralBar: hideGeneralBar);
+    var visibleData = visibleBars(data, hideGeneralBar: hideGeneralBar);
+
+    if (maxBars != null && visibleData.length > maxBars!) {
+      visibleData = visibleData.sublist(visibleData.length - maxBars!);
+    }
 
     if (visibleData.isEmpty) {
       return const SizedBox(
@@ -62,9 +67,7 @@ class CriteriaBarChart extends StatelessWidget {
             drawVerticalLine: false,
             horizontalInterval: interval,
             getDrawingHorizontalLine: (_) => FlLine(
-              color: isLight
-                  ? AppTheme.grayColor300.withOpacity(0.5)
-                  : AppTheme.darkBorder.withOpacity(0.6),
+              color: AppTheme.grayColor300.withOpacity(0.5),
               strokeWidth: 1,
             ),
           ),
@@ -92,9 +95,7 @@ class CriteriaBarChart extends StatelessWidget {
                       value.toInt().toString(),
                       style: AppTheme.bodyS.copyWith(
                         fontSize: 12,
-                        color: isLight
-                            ? AppTheme.darkTextMuted.withOpacity(0.8)
-                            : AppTheme.darkTextMuted,
+                        color: const Color(0xFF6B7280),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -115,7 +116,7 @@ class CriteriaBarChart extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: SizedBox(
-                      width: 54,
+                      width: 60,
                       child: Text(
                         visibleData[index].label,
                         textAlign: TextAlign.center,
@@ -123,9 +124,7 @@ class CriteriaBarChart extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: AppTheme.bodyS.copyWith(
                           fontSize: 12,
-                          color: isLight
-                              ? AppTheme.darkTextMuted.withOpacity(0.8)
-                              : AppTheme.darkTextMuted,
+                          color: const Color(0xFF6B7280),
                           fontWeight: FontWeight.w500,
                         ),
                       ),

@@ -230,6 +230,7 @@ class TeacherHomePage extends StatelessWidget {
                                   .teacherHomeCompletionTrend,
                               maxY: 50,
                               yInterval: 10,
+                              maxBars: 4,
                             ),
                       footer: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
