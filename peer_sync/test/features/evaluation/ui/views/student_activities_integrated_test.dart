@@ -1,25 +1,31 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 import 'package:peer_sync/features/evaluation/ui/views/student_activities_page.dart';
 import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_analytics_controller.dart'; // Importado
 import 'package:peer_sync/features/evaluation/data/repositories/evaluation_repository_impl.dart';
 import 'package:peer_sync/features/evaluation/data/datasources/remote/evaluation_remote_source.dart';
+import 'package:peer_sync/features/evaluation/domain/models/chart_point.dart'; // Importado
 
-// 1. MOCKS DE LA CAPA DE RED (INTERNET)
+// 1. MOCKS DE LA CAPA DE RED (INTERNET) Y CONTROLADORES
 class MockHttpClient extends Mock implements http.Client {}
 class FakeUri extends Fake implements Uri {}
+
+// Mock para el controlador de analíticas
+class MockEvaluationAnalyticsController extends GetxController with Mock implements EvaluationAnalyticsController {}
 
 void main() {
   late MockHttpClient mockHttpClient;
   late EvaluationRemoteSource remoteSource;
   late EvaluationRepositoryImpl repository;
   late EvaluationController controller;
+  late MockEvaluationAnalyticsController mockAnalyticsController; // Declarado
 
   setUpAll(() {
     registerFallbackValue(FakeUri());
@@ -28,12 +34,26 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({'tokenA': 'fake-token-123'});
 
+    // Instanciar capa de red y repositorio
     mockHttpClient = MockHttpClient();
     remoteSource = EvaluationRemoteSource(client: mockHttpClient); 
     repository = EvaluationRepositoryImpl(remoteSource);
+    
+    // Instanciar controladores
     controller = EvaluationController(repository);
+    mockAnalyticsController = MockEvaluationAnalyticsController();
 
+    // Configurar comportamientos por defecto del AnalyticsController para evitar errores de null
+    when(() => mockAnalyticsController.isLoadingStudentCategoryAnalytics)
+        .thenReturn(false.obs);
+    when(() => mockAnalyticsController.studentCategoryCriteriaChart)
+        .thenReturn(<ChartPoint>[].obs);
+    when(() => mockAnalyticsController.loadStudentCategoryAnalytics(any()))
+        .thenAnswer((_) async {});
+
+    // Inyectar en GetX
     Get.put<EvaluationController>(controller);
+    Get.put<EvaluationAnalyticsController>(mockAnalyticsController);
   });
 
   tearDown(() {

@@ -5,18 +5,26 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:peer_sync/features/evaluation/ui/views/student_activities_page.dart';
 import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_controller.dart';
+import 'package:peer_sync/features/evaluation/ui/viewmodels/evaluation_analytics_controller.dart'; // NUEVO IMPORT
 import 'package:peer_sync/features/evaluation/domain/models/activity.dart';
+import 'package:peer_sync/features/evaluation/domain/models/chart_point.dart'; // NUEVO IMPORT
 
 // ---------------- MOCK ----------------
 class MockEvaluationController extends GetxController
     with Mock
     implements EvaluationController {}
 
+// NUEVO MOCK PARA ANALYTICS
+class MockEvaluationAnalyticsController extends GetxController
+    with Mock
+    implements EvaluationAnalyticsController {}
+
 // ---------------- FAKE ----------------
 class FakeActivity extends Fake implements Activity {}
 
 void main() {
   late MockEvaluationController mockController;
+  late MockEvaluationAnalyticsController mockAnalyticsController; // DECLARADO
 
   setUpAll(() {
     registerFallbackValue(FakeActivity());
@@ -24,19 +32,18 @@ void main() {
 
   setUp(() {
     mockController = MockEvaluationController();
+    mockAnalyticsController = MockEvaluationAnalyticsController(); // INSTANCIADO
 
-    // Estado base
+    // Estado base de EvaluationController
     when(() => mockController.isLoadingActivities)
         .thenReturn(false.obs);
 
     when(() => mockController.activities)
         .thenReturn(<Activity>[].obs);
 
-    // 🔥 IMPORTANTE: evitar null
     when(() => mockController.sortedActivities)
         .thenReturn([]);
 
-    // 🔥 IMPORTANTE: evitar null
     when(() => mockController.getActivityUIData(any()))
         .thenReturn((
           month: 'ENE',
@@ -51,7 +58,19 @@ void main() {
     when(() => mockController.loadActivities(any()))
         .thenAnswer((_) async {});
 
+    // Estado base de EvaluationAnalyticsController (EVITA EL CRASH)
+    when(() => mockAnalyticsController.isLoadingStudentCategoryAnalytics)
+        .thenReturn(false.obs);
+
+    when(() => mockAnalyticsController.studentCategoryCriteriaChart)
+        .thenReturn(<ChartPoint>[].obs);
+
+    when(() => mockAnalyticsController.loadStudentCategoryAnalytics(any()))
+        .thenAnswer((_) async {});
+
+    // INYECTAMOS AMBOS CONTROLADORES
     Get.put<EvaluationController>(mockController);
+    Get.put<EvaluationAnalyticsController>(mockAnalyticsController);
   });
 
   tearDown(() {
@@ -172,6 +191,7 @@ void main() {
 
     await tester.pump();
 
+    // Aclaración: Verificamos que se haya llamado más de 1 vez (1 en el initState, y la extra del refresh)
     verify(() => mockController.loadActivities('cat_1')).called(greaterThan(0));
   });
 }

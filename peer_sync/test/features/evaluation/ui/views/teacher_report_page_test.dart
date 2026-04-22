@@ -30,14 +30,11 @@ void main() {
 
     when(() => mockController.formatGrade(any())).thenReturn('4.5');
 
+    // SOLUCIÓN: Usar colores fijos para no depender de Get.context! durante el setUp
     when(() => mockController.getStudentStatusUI(any())).thenReturn((
       text: 'Completado',
-      bgColor: Theme.of(Get.context!).brightness == Brightness.light
-          ? Color(0xFFD1B3FF)
-          : Color(0xFF3A3260),
-      textColor: Theme.of(Get.context!).brightness == Brightness.light
-          ? Colors.black
-          : Colors.white,
+      bgColor: const Color(0xFFD1B3FF),
+      textColor: Colors.black,
     ));
 
     // Mock de métodos
