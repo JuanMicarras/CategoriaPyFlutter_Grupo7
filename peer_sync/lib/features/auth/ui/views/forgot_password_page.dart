@@ -4,27 +4,27 @@ import 'package:peer_sync/core/themes/app_theme.dart';
 import '../viewmodels/auth_controller.dart';
 import '../widgets/auth_text_field.dart';
 
-class ForgotPasswordPage extends GetView<AuthController> {
-  ForgotPasswordPage({super.key}) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authController = Get.find<AuthController>();
-      authController.clearErrors();
-    });
-  }
+class ForgotPasswordPage extends StatelessWidget {
+  const ForgotPasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<AuthController>();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).brightness == Brightness.light
-          ? AppTheme.backgroundColor
-          : AppTheme.darkBackground,
+      backgroundColor: isDark
+          ? AppTheme.darkBackground
+          : AppTheme.backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDark
+            ? AppTheme.darkBackground
+            : AppTheme.backgroundColor,
         elevation: 0,
         iconTheme: IconThemeData(
-          color: Theme.of(context).brightness == Brightness.light
-              ? AppTheme.primaryColor
-              : AppTheme.darkPrimarySoft,
+          color: isDark
+              ? AppTheme.darkPrimarySoft
+              : AppTheme.primaryColor,
         ),
       ),
       resizeToAvoidBottomInset: true,
@@ -35,107 +35,93 @@ class ForgotPasswordPage extends GetView<AuthController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 20),
+
               Text(
                 "Recuperar contraseña",
-                style: AppTheme.h2.copyWith(
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? AppTheme.primaryColor
-                      : AppTheme.darkTextPrimary,
+                style: AppTheme.h1.copyWith(
+                  color: isDark
+                      ? AppTheme.darkTextPrimary
+                      : AppTheme.primaryColor,
                 ),
               ),
+
               const SizedBox(height: 12),
+
               Text(
                 "Ingresa el correo electrónico asociado a tu cuenta y te enviaremos un enlace para restablecer tu contraseña.",
                 style: AppTheme.bodyM.copyWith(
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? Colors.grey[600]
-                      : AppTheme.darkTextSecondary,
+                  color: isDark
+                      ? AppTheme.darkTextSecondary
+                      : Colors.grey[600],
                 ),
               ),
+
               const SizedBox(height: 40),
 
               Text(
                 "Correo electrónico",
                 style: AppTheme.bodyM.copyWith(
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? AppTheme.primaryColor200
-                      : AppTheme.darkTextPrimary,
+                  color: isDark
+                      ? AppTheme.darkTextPrimary
+                      : AppTheme.primaryColor200,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 8),
 
-              AuthTextField(
-                hint: "ejemplo@uninorte.edu.co",
-                icon: Icons.email_outlined,
-                isEmail: true,
-                controllerText: controller.resetEmailController,
-                errorText: controller.emailError.value,
-              ),
-
-              Obx(() {
-                final error = controller.emailError.value;
-                if (error == null || error.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                return Padding(
-                  padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
-                  child: Text(
-                    error,
-                    style: TextStyle(
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? AppTheme.primaryColor
-                          : AppTheme.darkPrimarySoft,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                    ),
+              TextField(
+                controller: controller.resetEmailController,
+                keyboardType: TextInputType.emailAddress,
+                style: TextStyle(
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: isDark
+                      ? const Color(0xFF2A2A2A)
+                      : const Color(0xFFF5F6FA),
+                  hintText: 'ejemplo@uninorte.edu.co',
+                  hintStyle: TextStyle(
+                    color: isDark
+                        ? AppTheme.darkTextSecondary
+                        : Colors.grey,
                   ),
-                );
-              }),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
 
               const SizedBox(height: 40),
 
               SizedBox(
                 width: double.infinity,
-                height: 55,
-                child: Obx(() {
-                  final isEnabled =
-                      !controller.isLoading.value &&
-                      controller.resetEmailText.value.trim().isNotEmpty &&
-                      controller.emailError.value == null;
-
-                  return ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor:
-                          Theme.of(context).brightness == Brightness.light
-                          ? AppTheme.primaryColor
-                          : AppTheme.darkButton,
-                      disabledBackgroundColor:
-                          Theme.of(context).brightness == Brightness.light
-                          ? AppTheme.primaryColor.withOpacity(0.5)
-                          : AppTheme.darkButtonDisabled,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      elevation: isEnabled ? 2 : 0,
+                height: 50,
+                child: Obx(() => ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: isDark
+                        ? AppTheme.darkButton
+                        : AppTheme.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    onPressed: isEnabled
-                        ? () => controller.sendPasswordReset()
-                        : null,
-                    child: controller.isLoading.value
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : Text(
-                            'Enviar enlace',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isEnabled
-                                  ? Colors.white
-                                  : Colors.white.withOpacity(0.6),
-                            ),
+                  ),
+                  onPressed: controller.isLoading.value
+                      ? null
+                      : () => controller.sendPasswordReset(),
+                  child: controller.isLoading.value
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                          'Enviar enlace',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
-                  );
-                }),
+                        ),
+                )),
               ),
             ],
           ),

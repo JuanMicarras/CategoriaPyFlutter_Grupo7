@@ -15,12 +15,18 @@ class FakeLoginAuthController extends GetxController implements AuthController {
   final passwordController = TextEditingController();
 
   @override
+  final obscureLoginPassword = true.obs;
+
+  @override
   final emailError = RxnString();
   @override
   final passwordError = RxnString();
   @override
   final isLoading = false.obs;
 
+  // --- AGREGAMOS ESTA LÍNEA ---
+  // Es la que falta y causa el NoSuchMethodError
+  @override
   final obscurePassword = true.obs;
 
   @override
