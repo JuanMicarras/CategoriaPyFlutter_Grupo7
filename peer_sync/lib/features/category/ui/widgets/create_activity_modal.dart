@@ -70,12 +70,17 @@ class CreateActivityModal extends StatelessWidget {
           const SizedBox(height: 14),
 
           _ModalLabel(text: 'Nombre (*)'),
-          const SizedBox(height: 6),
-          _TextInputField(key: const Key('activity_name_input'), controller: nameController, hintText: 'Taller 1'),
+          const SizedBox(height: 8),
+          _TextInputField(
+            key: const Key('activity_name_input'),
+            controller: nameController,
+            hintText: 'Taller 1',
+          ),
           const SizedBox(height: 12),
           _ModalLabel(text: 'Fecha Inicio'),
           const SizedBox(height: 6),
-          _DateInputField(key: const Key('activity_start_date_input'),
+          _DateInputField(
+            key: const Key('activity_start_date_input'),
             controller: startDateController,
             hintText: 'DD / MM / YY',
             onTap: onTapStartDate,
@@ -84,7 +89,8 @@ class CreateActivityModal extends StatelessWidget {
           const SizedBox(height: 12),
           _ModalLabel(text: 'Fecha Fin'),
           const SizedBox(height: 6),
-          _DateInputField(key: const Key('activity_end_date_input'),
+          _DateInputField(
+            key: const Key('activity_end_date_input'),
             controller: endDateController,
             hintText: 'DD / MM / YY',
             onTap: onTapEndDate,
@@ -194,7 +200,8 @@ class CreateActivityModal extends StatelessWidget {
               Expanded(
                 child: SizedBox(
                   height: 40,
-                  child: ElevatedButton(key: const Key('submit_activity_button'),
+                  child: ElevatedButton(
+                    key: const Key('submit_activity_button'),
                     onPressed: onCreate,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.primaryColor,
@@ -250,7 +257,11 @@ class _TextInputField extends StatelessWidget {
   final TextEditingController? controller;
   final String hintText;
 
-  const _TextInputField({super.key, required this.controller, required this.hintText});
+  const _TextInputField({
+    super.key,
+    required this.controller,
+    required this.hintText,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -258,7 +269,7 @@ class _TextInputField extends StatelessWidget {
 
     return Container(
       height: 46,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 0),
       decoration: BoxDecoration(
         color: isLight ? const Color(0xFFF8F8FB) : AppTheme.darkInputBackground,
         borderRadius: BorderRadius.circular(8),
@@ -271,7 +282,10 @@ class _TextInputField extends StatelessWidget {
         key: key,
         controller: controller,
         decoration: InputDecoration(
-          border: InputBorder.none,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
           hintText: hintText,
           hintStyle: AppTheme.bodyM.copyWith(
             fontSize: 15,
@@ -309,7 +323,7 @@ class _DateInputField extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 46,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 0),
         decoration: BoxDecoration(
           color: isLight
               ? const Color(0xFFF8F8FB)
@@ -327,7 +341,10 @@ class _DateInputField extends StatelessWidget {
                 controller: controller,
                 readOnly: true,
                 decoration: InputDecoration(
-                  border: InputBorder.none,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
                   hintText: hintText,
                   hintStyle: AppTheme.bodyM.copyWith(
                     fontSize: 15,
@@ -378,7 +395,7 @@ class _TimeInputField extends StatelessWidget {
       onTap: onTap,
       child: Container(
         height: 40,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 0),
         decoration: BoxDecoration(
           color: isLight
               ? const Color(0xFFF8F8FB)
@@ -396,7 +413,10 @@ class _TimeInputField extends StatelessWidget {
                 controller: controller,
                 readOnly: true,
                 decoration: InputDecoration(
-                  border: InputBorder.none,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
+                  ),
                   hintText: hintText,
                   hintStyle: AppTheme.bodyS.copyWith(
                     fontSize: 14,
