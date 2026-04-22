@@ -12,10 +12,14 @@ class FakeSignUpAuthController extends GetxController implements AuthController 
   @override final signUpEmailController = TextEditingController();
   @override final signUpPasswordController = TextEditingController();
 
+  @override final nameError = RxnString();
   @override final emailError = RxnString();
   @override final passwordError = RxnString();
   @override final isLoading = false.obs;
-  final obscurePassword = true.obs;
+  @override final obscurePassword = true.obs; 
+  
+  // 🔥 SOLUCIÓN: Agregada la variable obscureSignUpPassword que pedía el AuthTextField
+  @override final obscureSignUpPassword = true.obs;
 
   @override
   bool get canSubmitSignUp =>
@@ -25,6 +29,7 @@ class FakeSignUpAuthController extends GetxController implements AuthController 
 
   @override
   void clearErrors() {
+    nameError.value = null;
     emailError.value = null;
     passwordError.value = null;
   }
@@ -64,7 +69,7 @@ void main() {
     expect(signUpButton.onPressed, isNull);
 
     // Llenamos solo uno
-    controller.signUpNameController.text = "Keiver Miranda";
+    controller.signUpNameController.text = "Juan Miguel";
     await tester.pump();
     
     final signUpButtonStillDisabled = tester.widget<ElevatedButton>(find.byType(ElevatedButton));

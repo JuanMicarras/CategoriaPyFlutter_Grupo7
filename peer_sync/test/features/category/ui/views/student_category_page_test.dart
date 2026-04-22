@@ -76,16 +76,17 @@ void main() {
       () => mockEvaluationController.loadActivities(any()),
     ).thenAnswer((_) async {});
 
+    // Mocks para las analíticas del ESTUDIANTE (que son las que usa la vista)
     when(
-      () => mockAnalyticsController.teacherCategoryCriteriaChart,
+      () => mockAnalyticsController.studentCategoryCriteriaChart,
     ).thenReturn(<ChartPoint>[].obs);
 
     when(
-      () => mockAnalyticsController.isLoadingTeacherCategoryAnalytics,
+      () => mockAnalyticsController.isLoadingStudentCategoryAnalytics,
     ).thenReturn(false.obs);
 
     when(
-      () => mockAnalyticsController.loadTeacherCategoryAnalytics(any()),
+      () => mockAnalyticsController.loadStudentCategoryAnalytics(any()),
     ).thenAnswer((_) async {});
 
     // Inyectar controladores
